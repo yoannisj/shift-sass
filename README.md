@@ -4,6 +4,16 @@ Shift is a powerful tool to work with breakpoints and media-queries in Sass and 
 
 ## Installation
 
+### Bower
+
+Open the Terminal, `cd` to your project folder and enter the following command:
+
+    bower install shift --save
+
+Import files in your project's stylesheets
+
+    @import "path/to/bower_components/shift/shift";
+
 ## Usage
 
 ### Adding media-query features
