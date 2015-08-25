@@ -1,0 +1,164 @@
+// =============================================================================
+// =SHIFT - PARSE
+// =============================================================================
+
+@import "SassyStrings";
+@import "sassy-maps";
+@import "aleksi/general/throw";
+
+@import "shift/config";
+@import "shift/constants";
+@import "shift/get";
+
+// =_shift-parse( $params[, $tweakpoint ])
+// -----------------------------------------------------------------------------
+/// Takes a shift expression or a map of media-query parameters and returns a
+/// new map of media-query parameters, including defaults and with labeled
+/// features replaced by their registered values.
+///
+/// @param {string|map} $params - A shift expression or a map of media-query parameters
+/// @param {string} $tweakpoint - An optional tweakpoint to get values from
+///
+/// @return {map} - A map of media-query parameters with corresponding values
+/// @throw Description
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-parse( $params, $tweakpoint: null ) {
+  // parse expression if params is given as a string
+  @if type-of($params) == 'string' {
+    $params: _shift-parse-expression($params);
+  }
+
+  // merge with defaults
+  $params: map-merge((
+    'strict-query': $shift-strict-queries,
+    'media-type': $shift-media-type
+  ), $params);
+
+  // get labeled feature values, and adapt to tweakpoint
+  @each $feature, $value in map-remove($params, 'strict-mode', 'media-type')
+  {
+    @if type-of($value) == 'string' {
+      $params: map-set($params, $feature, shift-get($feature, $value, $tweakpoint));
+    }
+  }
+
+  @return $params;
+}
+
+// =_shift-parse-expression( $expr )
+// -----------------------------------------------------------------------------
+/// Parses a shift expression and returns a map of media-query settings and
+/// features, with their corresponding values. Delegates to `shift-length`
+/// in order to retrieve length values from the given expression.
+///
+/// @param {string} $expr - The expression to parse
+/// @return {map} - Media-query settings and features with corresponding values
+///
+/// @example scss
+///   Example Code
+///
+/// @access private
+/// @since 0.1.0
+
+@function _shift-parse-expression( $expr ) {
+  // accept an empty string
+  @if str-length($expr) == 0 {
+    @return ();
+  }
+
+  // initialize map of parameters
+  $params: ();
+
+  // normalize expression in order to support multiple syntaxes
+  $expr: _shift-normalize-expression($expr);
+
+  // identify media-query settings described in `$expr`
+  @each $bit in str-explode($expr, ' ')
+  {
+    // recognize 'only' keyword
+    @if $bit == 'only' {
+      $params: map-set($params, 'strict-query', true);
+    }
+
+    // recognize 'media-type'
+    @else if index(const('SHIFT_MEDIA_TYPES'), $bit) {
+      $params: map-set($params, 'media-type', $bit);
+    }
+
+    // recognize 'min-height' feature
+    @else if str-index($bit, 'h>') {
+      $params: map-set($params, 'min-height', str-slice($bit, 3));
+    }
+
+    // recognize 'max-height' feature
+    @else if str-index($bit, 'h<') {
+      $params: map-set($params, 'max-height', str-slice($bit, 3));
+    }
+
+    // default to one of the 'width' features
+    @else {
+      // assume we are dealing with a 'width' feature
+      $bit: str-replace($bit, 'w', '');
+
+      // recognize 'max-width'
+      @if str-index($bit, '<') {
+        $params: map-set($params, 'max-width', str-slice($bit, 2));
+      }
+
+      // default to 'min-width'
+      @else {
+        $min-width: if(str-index($bit, '>'), str-slice($bit, 2), $bit);
+        $params: map-set($params, 'min-width', $min-width);
+      }
+    }
+  }
+
+  @return $params;
+}
+
+// =_shift-normalize-expression( $expr )
+// -----------------------------------------------------------------------------
+/// Normalizes different syntaxes supported in shift expressions, in order to
+/// parse the expression successfully.
+///
+/// @param {string} $expr - The expression to normalize
+///
+/// @return {string} - The normalized expression, ready to be parsed
+/// @throw Error when passed multiple, comma-separated queries
+/// @throw Error when passed the 'not' keyword
+///
+/// @access private
+/// @since 0.1.0
+
+@function _shift-normalize-expression( $expr ) {
+  // don't allow multiple, comma-separated queries
+  @if str-index($expr, ',') {
+    @return throw-error('Multiple, comma-separated media-queries are not supported.');
+  }
+
+  // don't allow media-query negation with the 'not' keyword
+  @if str-index($expr, 'not') {
+    @return throw-error('Media-query negation is not supported.');
+  }
+
+  // allow single spaced or ' and ' to combine features
+  $expr: str-replace($expr, ' and ', ' ');
+
+  // allow 'w' or 'width' for width features
+  $expr: str-replace($expr, 'width', 'w');
+
+  // allow 'h' or 'height' for height features
+  $expr: str-replace($expr, 'height', 'h');
+
+  // allow 'from' and 'to' to declare min-width and max-width values
+  // $expr: str-replace($expr, 'from ', '>');
+  // $expr: str-replace($expr, 'to ', '<');
+
+  @return str-replace($expr, '  ', ' ');
+}

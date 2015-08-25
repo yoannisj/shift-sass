@@ -1,0 +1,117 @@
+// =============================================================================
+// =SHIFT - GET
+// =============================================================================
+
+@import "SassyStrings";
+@import "sassy-maps";
+@import "aleksi/general/throw";
+@import "aleksi/general/default-to";
+@import "aleksi/maps/map-merge-deep";
+
+$__shift__: () !default;
+
+// =shift-get( $feature, $label[, $tweakpoint ])
+// -----------------------------------------------------------------------------
+/// Returns the media-query feature value set for the given label and
+/// tweakpoint.
+/// **Note:** Unitless values are considered as pixel values. This is so they
+/// can be more easily shared with js scripts.
+///
+/// @param {string} $feature - The media-query feature to retrieve
+/// @param {string} $label - The label of the value to retrieve
+/// @param {string} $tweakpoint [null] - Optional tweakpoint from which to get the value
+///
+/// @return {any} - The corresponding value
+/// @throw Error if `$feature` is not a string
+/// @throw Error if `$label` is not a string
+/// @throw Error if `$tweakpoint` is not a string
+/// @throw Warning if no value was found
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-get( $feature, $label, $tweakpoint: null ) {
+  // sanitize `$feature`
+  @if not type-of($feature) == 'string' {
+    $e: throw-error("`$feature` must be a string. Was #{$feature}.");
+  }
+
+  // sanitize `$label`
+  @if not type-of($label) == 'string' {
+    $e: throw-error("`$label` must be a string. Was #{$label}.");
+  }
+
+  // sanitize `$tweakpoint`
+  @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
+    $e: throw-error("`$tweakpoint` must be a string. Was #{$tweakpoint}.");
+  }
+
+  // retrieve all breakpoints that were registered
+  $breakpoints: map-get($__shift__, 'breakpoints');
+
+  // give priority to tweakpoint values
+  @if $tweakpoint {
+    $tweakpoints: map-get-deep($__shift__, 'tweakpoints', $tweakpoint);
+    $breakpoints: map-merge-deep($breakpoints, default-to($tweakpoints, ()));
+  }
+
+  // remove 'min-' and 'max-' from feature name
+  $feature-core: str-replace(str-replace($feature, 'min-', ''), 'max-', '');
+  // in order to find registered value
+  $value: map-get-deep($breakpoints, $feature-core, $label);
+
+  // throw a warning if no value was found
+  @if $value == null {
+    @return throw-warning("No  #{$feature} value was found for #{$label}.");
+  }
+
+  // consider unitless numbers as px values
+  @if type-of($value) == 'number' and unitless($value) {
+    $value: 1px * $value;
+  }
+
+  @return $value;
+}
+
+// =shift-get-width( $label[, $tweakpoint ])
+// -----------------------------------------------------------------------------
+/// Returns the registered width for the given label and tweakpoint.
+///
+/// @param {string} $label - The label of the value to retrieve
+/// @param {string} $tweakpoint [null] - Optional tweakpoint to look in
+///
+/// @return {number} - The corresponding width value
+/// @throw Warning if no value was found
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-get-width( $label, $tweakpoint: null ) {
+  @return shift-get('width', $label, $tweakpoint);
+}
+
+// =shift-get-height( $label[, $tweakpoint ])
+// -----------------------------------------------------------------------------
+/// Returns the registered height for the given label and tweakpoint.
+///
+/// @param {string} $label - The label of the value to retrieve
+/// @param {string} $tweakpoint [null] - Optional tweakpoint to look in
+///
+/// @return {number} - The corresponding height value
+/// @throw Warning if no value was found
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-get-height( $label, $tweakpoint: null ) {
+  @return shift-get('height', $label, $tweakpoint);
+}

@@ -1,0 +1,58 @@
+// =============================================================================
+// =ALEKSI - TESTS
+// =============================================================================
+
+@import "bootcamp";
+@import "../stylesheets/shift";
+
+// Import variables to use during tests
+@import "shift/setup";
+@import "shift/variables";
+
+@include runner-start;
+
+@import "shift/convert-length";
+@import "shift/get";
+@import "shift/parse";
+@import "shift/query";
+
+@include runner-end;
+
+// =mixins
+// =============================================================================
+
+// =shift-breakpoint
+// -----------------------------------------------------------------------------
+
+/* min-width query by default */
+@include shift($from-s-expr) {
+  .larger-then-s-width { display: block; }
+}
+
+/* min- and max- query */
+@include shift($from-s-to-l-expr) {
+  .between-s-and-l-width { display: block; }
+}
+
+/* tweakpoint values */
+@include shift($foo-from-s-to-l-expr, 'foo') {
+  .foo-tweakpoint-between-s-and-l-width { display: block; }
+}
+
+/* max-width-query */
+@include shift($width-to-l-expr) {
+  .smaller-than-l-width { display: block; }
+}
+
+/* min-height query */
+@include shift($height-from-m-expr) {
+  .larger-then-m-height { display: block; }
+}
+
+// =shift-expose
+// -----------------------------------------------------------------------------
+// $json: false;
+@include shift-expose();
+// @include shift-expose();
+
+@include json-encode($json);

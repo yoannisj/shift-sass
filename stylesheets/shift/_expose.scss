@@ -1,0 +1,49 @@
+// =============================================================================
+// =SHIFT - EXPOSE
+// =============================================================================
+
+@import "sassy-json";
+@import "aleksi/general/throw";
+@import "aleksi/maps/is-map";
+
+// make sure the `$json` global exists
+$json: () !default;
+
+// =shift-expose()
+// -----------------------------------------------------------------------------
+/// Exposes the shift settings as a json string it in the CSS output so it can
+/// be accessed via javascript. Does so via the a `$json` global, by adding a
+/// 'shift' key to it with all settings set.
+/// **Note**: this function should only be called once, at the very end of your
+/// scss stylesheet in order to expose ALL breakpoints.
+/// **Note**: make sure you call `json-encode($json)` at the very end of your
+/// stylesheet, as this mixin only adds a 'shift' key to the json global.
+///
+/// @throw Error if called more then once
+/// @throw Error if the `$json` global is not a map
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-expose() {
+  // warn if shift settings have already been exposed previously
+  @if global-variable-exists('__shift-exposed__') and $__shift-exposed__ {
+    @include throw-warning('Shift settings have already been exposed.');
+  }
+
+  // throw warning if the json global is not a map
+  // (in which case shift settings cant be exposed)
+  @if global-variable-exists('json') and is-map($json) == false {
+    @include throw-error('The `$json` global must be a map.');
+  }
+
+  @else {
+    // default to an empty map if no shift settings were set
+    $__shift__: if(global-exists('__shift__'), $__shift__, ());
+    // add the shift settings to the json map so it can be exposed to javascript
+    $json: map-merge($json, ('shift': $__shift__)) !global;
+
+    // remember that shift settings has been exposed
+    $__shift-exposed__: true !global;
+  }
+}

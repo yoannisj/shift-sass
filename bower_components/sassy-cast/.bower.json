@@ -1,0 +1,38 @@
+{
+  "name": "SassyCast",
+  "version": "1.1.1",
+  "homepage": "https://github.com/HugoGiraudel/SassyCast",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HugoGiraudel/SassyCast.git"
+  },
+  "authors": [
+    "Hugo Giraudel"
+  ],
+  "description": "All you ever wanted to deal with strings in Sass.",
+  "main": "dist/_SassyCast.scss",
+  "keywords": [
+    "sass",
+    "conversion",
+    "scss",
+    "plugin",
+    "manipulate"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "1.1.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.1.1",
+    "commit": "aac0d85814572496574af630461baea56a8881f9"
+  },
+  "_source": "git://github.com/HugoGiraudel/SassyCast.git",
+  "_target": "~1.1.1",
+  "_originalSource": "sassy-cast"
+}

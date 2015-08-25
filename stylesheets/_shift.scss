@@ -1,0 +1,99 @@
+// =============================================================================
+// =SHIFT
+// =============================================================================
+
+@import "shift/config";
+@import "shift/constants";
+@import "shift/convert-length";
+
+@import "shift/set";
+@import "shift/tweak";
+@import "shift/get";
+@import "shift/parse";
+@import "shift/query";
+
+@import "shift/breakpoint";
+@import "shift/expose";
+
+// CREATING MEDIA-QUERIES
+// ----------------------
+// @mixin shift( $features[, $tweakpoint ]);
+// @mixin shift-width( $widths[, $tweakpoint ]);
+// @mixin shift-height( $heights[, $tweakpoint ]);
+// @mixin shift-resolution( $resolution[, $tweakpoint ]);
+
+// ADDING MQ FEATURE VALUES
+// ------------------------
+// @mixin shift-set( $feature, $alias, $value[, $tweakpoint ]);
+// @mixin shift-set-width( $alias, $value[, $tweakpoint ]);
+// @mixin shift-set-height( $alias, $value[, $tweakpoint ]);
+// @mixin shift-set-resolution( $alias, $value[, $tweakpoint ]); (COMING SOON!)
+
+// STORING MQ FEATURE VALUES
+// -------------------------
+// $breakpoints: (
+//   'width': (
+//     's': 400,
+//     'm': 750,
+//     'l': 1200
+//   ),
+//   'height': (
+//     's': 500,
+//     'm': 700,
+//     'l': 900
+//   ),
+//   'resolution': (
+//     'hdpi': 1.5,
+//     'retina': 2
+//   )
+// );
+//
+// $tweakpoints: (
+//   'my-module': (
+//     'width': (
+//       's': 360,
+//       'm': 900
+//     ),
+//     'height': (
+//       'm': 600,
+//     )
+//   ),
+//   'your-module': (
+//     'width': (
+//       'm': 700,
+//       'l': 1050
+//     )
+//   )
+// );
+
+// EXPRESSING MQ FEATURE VALUES
+// ----------------------------
+// => as a features-map
+// $features: (
+//   'media': $shift-media,
+//   'orientation': null,
+//   'min-width': null,
+//   'max-width': null,
+//   'min-height': null,
+//   'max-height': null,
+//   'resolution': null
+// );
+// => as a mq expression
+// 'screen and (min-width: 500px) and (min-height: 700px) and (min-resolution: )'
+//
+// => as a shift expression
+//
+// USAGE
+// -----
+// min-width queries
+// @include shift('from md') { ... }
+// @include shift('md') { ... }
+
+// // max-width queries
+// @include shift('screen <sm') { ... }
+// @include shift('to lg') { ... }
+
+// // min-/max-width queries
+// @include shift('from sm to lg') { ... }
+// @include shift('>sm and <lg') { ... }
+// @include shift('>sm <lg') { ... }

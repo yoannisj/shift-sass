@@ -1,0 +1,26 @@
+{
+  "name": "shift",
+  "title": "Shift",
+  "version": "0.1.0",
+  "description": "A powerful tool to work with breakpoints and media-queries in Sass and Javascript.",
+  "homepage": "https://github.com/yoannisj/shift",
+  "license": "MIT",
+  "author": {
+    "name": "Yoannis Jamar",
+    "email": "yoannis.j@gmail.com",
+    "url": "http://yoannis.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yoannisj/shift.git"
+  },
+  "devDependencies": {
+    "bootcamp": "^1.1.7",
+    "grunt": "^0.4.5",
+    "grunt-contrib-sass": "^0.8.1",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "scripts": {
+    "test": "grunt test"
+  }
+}

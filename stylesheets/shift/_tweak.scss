@@ -1,0 +1,73 @@
+// =============================================================================
+// =SHIFT - TWEAK
+// =============================================================================
+
+@import "sassy-maps";
+@import "aleksi/general/throw";
+
+// make sure the `$__shift__` global exists
+$__shift__: () !default;
+
+// =shift-tweak( $tweakpoint, $feature, $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a tweakpoint value.
+///
+/// @param {string} $tweakpoint - The name of the tweakpoint for `$value`
+/// @param {string} $feature - The media-query feature
+/// @param {string} $label - The label under which to store `$value`
+/// @param {any} $value - The value to store
+///
+/// @throw Error if `$tweakpoint` is not a string
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-tweak( $tweakpoint, $feature, $label, $value )
+{
+  @if not type-of($tweakpoint) == 'string' {
+    $e: throw-error("`$tweakpoint` must be a string. Was #{$tweakpoint}");
+  }
+
+  @else {
+    $__shift__: map-set-deep($__shift__, 'tweakpoints' $tweakpoint $feature $label, $value) !global;
+  }
+}
+
+// =shift-tweak-width( $tweakpoint, $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a width tweakpoint value.
+///
+/// @param {string} $tweakpoint - The name of the tweakpoint for `$value`
+/// @param {string} $label - The label under which to store width `$value`
+/// @param {any} $value - The width value to store
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-tweak-width( $tweakpoint, $label, $value ) {
+  @include shift-tweak($tweakpoint, 'width', $label, $value);
+}
+
+// =shift-tweak-height( $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a height tweakpoint value.
+///
+/// @param {string} $tweakpoint - The name of the tweakpoint for `$value`
+/// @param {string} $label - The label under which to store height `$value`
+/// @param {any} $value - The height value to store
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-tweak-height( $tweakpoint, $label, $value ) {
+  @include shift-tweak($tweakpoint, 'height', $label, $value);
+}

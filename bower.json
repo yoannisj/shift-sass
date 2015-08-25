@@ -1,0 +1,31 @@
+{
+  "name": "shift",
+  "version": "0.1.0",
+  "authors": [
+    "Yoannis Jamar <yoannis.j@gmail.com>"
+  ],
+  "description": "A lightweight and powerful tool to work with breakpoints and media-queries in Sass.",
+  "keywords": [
+    "sass",
+    "helpers",
+    "utils"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yoannisj/shift.git"
+  },
+  "license": "MIT",
+  "main": "stylesheets/_shift.scss",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "tmp",
+    "sassdoc"
+  ],
+  "dependencies": {
+    "sass-aleksi": "~0.1"
+  }
+}

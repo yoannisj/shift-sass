@@ -1,0 +1,76 @@
+// =============================================================================
+// =SHIFT - SET
+// =============================================================================
+
+@import "sassy-maps";
+@import "aleksi/general/throw";
+
+// make sure the `$__shift__` global exists
+$__shift__: () !default;
+
+// =shift-set( $feature, $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a breakpoint value.
+///
+/// @param {string} $feature - The media-query feature
+/// @param {string} $label - The label under which to store `$value`
+/// @param {any} $value - The value to store
+///
+/// @throw Error if `$feature` is not a string
+/// @throw Error if `$label` is not a string
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-set( $feature, $label, $value ) {
+  // sanitize `$feature`
+  @if not type-of($feature) == 'string' {
+    $e: throw-error("`$feature` must be a string. Was #{$feature}.");
+  }
+
+  // sanitize `$label`
+  @if not type-of($label) == 'string' {
+    $e: throw-error("`$label` must be a string. Was #{$label}.");
+  }
+
+  @else {
+    $__shift__: map-set-deep($__shift__, 'breakpoints' $feature $label, $value) !global;
+  }
+}
+
+// =shift-set-width( $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a width breakpoint value.
+///
+/// @param {string} $label - The label under which to store width value
+/// @param {any} $value - The width value to store
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-set-width( $label, $value ) {
+  @include shift-set('width', $label, $value);
+}
+
+// =shift-set-height( $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a height breakpoint value.
+///
+/// @param {string} $label - The label under which to store height value
+/// @param {any} $value - The height value to store
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-set-height( $label, $value ) {
+  @include shift-set('height', $label, $value);
+}

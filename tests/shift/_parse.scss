@@ -1,0 +1,125 @@
+// =============================================================================
+// =SHIFT TESTS - PARSE
+// =============================================================================
+
+@include describe('the _shift-parse function')
+{
+  @include it('should default to shift-strict-queries and shift-media-type')
+  {
+    @include should(expect( shift-parse('') ), to(equal( $default-params )));
+  }
+
+  @include it('should accept a media-query parameters map')
+  {
+    $params: ('min-width': 's', 'max-height': 'm');
+    $result: $width-from-s-height-to-m-params;
+    @include should(expect( shift-parse($params) ), to(equal($result)));
+  }
+
+  @include it('should allow to give values on the fly using a media-query parameters map')
+  {
+    $params: ('min-width': 320px, 'max-height': 25em);
+    $result: ('media-type': $shift-media-type, 'strict-query': $shift-strict-queries, 'min-width': 320px, 'max-height': 25em);
+    @include should(expect( shift-parse($params) ), to(equal($result)));
+
+    $params: ('min-width': 580px, 'max-height': 's', 'media-type': 'handheld');
+    $result: ('strict-query': $shift-strict-queries, 'media-type': 'handheld', 'min-width': 580px, 'max-height': 500px);
+    @include should(expect( shift-parse($params) ), to(equal($result)));
+  }
+
+  @include it('should accept a shift expression')
+  {
+    @include should(expect( shift-parse($from-s-to-l-expr) ), to(equal( $from-s-to-l-params )));
+    @include should(expect( shift-parse($width-to-l-expr) ), to(equal( $width-to-l-params )));
+    @include should(expect( shift-parse($both-from-s-to-m-expr) ), to(equal( $both-from-s-to-m-params )));
+  }
+
+  @include it('should recognize the greater-than character to describe a min- features')
+  {
+    @include should(expect( shift-parse($from-s-expr) ), to(equal($from-s-params)));
+    @include should(expect( shift-parse($from-l-expr) ), to(equal($from-l-params)));
+  }
+
+  @include it('should recognize the littler-than character to describe a max- features')
+  {
+    @include should(expect( shift-parse($to-m-expr) ), to(equal($to-m-params)));
+  }
+
+  @include it('should recognize the w character to describe a width feature')
+  {
+    @include should(expect( shift-parse($w-from-s-expr) ), to(equal($width-from-s-params)));
+    @include should(expect( shift-parse($w-to-l-expr) ), to(equal($width-to-l-params)));
+  }
+
+  @include it('should recognize the h character to describe a height feature')
+  {
+    @include should(expect( shift-parse($h-from-m-expr) ), to(equal($height-from-m-params)));
+    @include should(expect( shift-parse($h-to-s-expr) ), to(equal($height-to-s-params)));
+  }
+
+  @include it('should recognize the width keyword')
+  {
+    @include should(expect( shift-parse($width-from-s-expr) ), to(equal($width-from-s-params)));
+    @include should(expect( shift-parse($width-to-l-expr) ), to(equal($width-to-l-params)));
+  }
+
+  @include it('should recognize the height keyword')
+  {
+    @include should(expect( shift-parse($height-from-m-expr) ), to(equal($height-from-m-params)));
+    @include should(expect( shift-parse($height-to-s-expr) ), to(equal($height-to-s-params)));
+  }
+
+  @include it('should support the only keyword for strict queries')
+  {
+    @include should(expect( shift-parse($strict-from-s-expr) ), to(equal($strict-from-s-params)));
+    @include should(expect( shift-parse($strict-from-s-width-to-l-expr) ), to(equal($strict-from-s-width-to-l-params)));
+  }
+
+  @include it('should support custom media-types')
+  {
+    @include should(expect( shift-parse($print-from-s-expr) ), to(equal($print-from-s-params)));
+  }
+
+  @include it('should allow to combine features with spaces')
+  {
+    @include should(expect( shift-parse($from-s-to-l-expr) ), to(equal($from-s-to-l-params)));
+    @include should(expect( shift-parse($width-from-s-height-to-m-expr) ), to(equal($width-from-s-height-to-m-params)));
+  }
+
+  @include it('should allow to combine features with the and keyword')
+  {
+    @include should(expect( shift-parse($from-s-to-l-expr-and) ), to(equal($from-s-to-l-params)));
+    @include should(expect( shift-parse($print-from-s-expr-and) ), to(equal($print-from-s-params)));
+    @include should(expect( shift-parse($width-from-s-height-to-m-expr-and) ), to(equal($width-from-s-height-to-m-params)));
+  }
+
+  @include it('should support combining min- and max- features')
+  {
+    @include should(expect( shift-parse($from-s-to-l-expr) ), to(equal($from-s-to-l-params)));
+    @include should(expect( shift-parse($from-s-to-l-expr) ), to(equal($from-s-to-l-params)));
+  }
+
+  @include it('should support combining width and height features')
+  {
+    @include should(expect( shift-parse($width-from-s-height-to-m-expr) ), to(equal($width-from-s-height-to-m-params)));
+    @include should(expect( shift-parse($both-from-s-to-m-expr) ), to(equal($both-from-s-to-m-params)));
+  }
+
+  @include it('should use tweakpoint values when a tweakpoint argument is passed')
+  {
+    @include should(expect( shift-parse($foo-from-s-expr, 'foo') ), to(equal($foo-from-s-params)));
+    @include should(expect( shift-parse($foo-from-s-to-l-expr, 'foo') ), to(equal($foo-from-s-to-l-params)));
+  }
+
+  @include xit('should throw an error when passed an expression with the not keyword')
+  {
+    @include should(expect( shift-parse('not >s') ), to(equal(null)));
+    @include should(expect( shift-parse('not screen') ), to(equal(null)));
+  }
+
+  @include xit('should throw an error when passed multiple, comma-separated query expressions')
+  {
+    @include should(expect( shift-parse('screen <l, print >s') ), to(equal(null)));
+    @include should(expect( shift-parse('>s, h>s h<m') ), to(equal(null)));
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "SassyLists",
+  "version": "2.2.4",
+  "homepage": "https://github.com/Team-Sass/SassyLists",
+  "authors": [
+    "Hugo Giraudel"
+  ],
+  "description": "Here is a Compass Extension providing you all functions you need to manipulate your Sass lists.",
+  "main": "_SassyLists.scss",
+  "keywords": [
+    "sass",
+    "compass",
+    "list",
+    "manipulate"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "2.2.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "2.2.4",
+    "commit": "2394efdf12a61996d48f86e155b9dd247a555de1"
+  },
+  "_source": "git://github.com/Team-Sass/SassyLists.git",
+  "_target": "~2.2.4",
+  "_originalSource": "SassyLists"
+}

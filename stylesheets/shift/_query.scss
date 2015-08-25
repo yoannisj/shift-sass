@@ -1,0 +1,59 @@
+// =============================================================================
+// =SHIFT-QUERY
+// =============================================================================
+
+@import "shift/config";
+@import "shift/convert-length";
+@import "shift/parse";
+
+// =shift-query( $params[, $tweakpoint, $units ])
+// -----------------------------------------------------------------------------
+/// Generates a media-query string based on the given parameters or expression.
+///
+/// @param {string|map} $params - A shift expression or a map of media-query parameters
+/// @param {string} $tweakpoint - An optional tweakpoint to get values from
+/// @param {map} $units - The units to use for media-query feature
+///
+/// @return {string} - The corresponding media-query string
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-query( $params, $tweakpoint: null, $units: () ) {
+  // get default units
+  $units: map-merge((
+    'width': $shift-width-unit,
+    'height': $shift-height-unit
+  ), $units);
+
+  // parse expression/parameter maps
+  $params: shift-parse($params, $tweakpoint);
+
+  // start with optional 'only' keyword
+  $query: if(map-get($params, 'strict-query') == true, "only ", "");
+
+  // add optional 'media-type'
+  @if map-get($params, 'media-type') {
+    $query: "#{$query}#{map-get($params, 'media-type')}";
+  }
+
+  // add media-query features
+  @each $feature, $value in map-remove($params, 'strict-query', 'media-type') {
+    // use correct width unit
+    @if index('width' 'min-width' 'max-width', $feature) {
+      $value: shift-convert-length($value, map-get($units, 'width'));
+    }
+
+    // use correct height unit
+    @else if index('height' 'min-height' 'max-height', $feature) {
+      $value: shift-convert-length($value, map-get($units, 'height'));
+    }
+
+    $query: "#{$query} and (#{$feature}: #{$value})";
+  }
+
+  @return $query;
+}

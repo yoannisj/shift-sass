@@ -1,0 +1,10 @@
+// =============================================================================
+// =SHIFT - CONSTANTS
+// =============================================================================
+
+@import "aleksi/config/constants";
+
+// =const('SHIFT_MEDIA_TYPES')
+// -----------------------------------------------------------------------------
+// The complete list of supported media-type values
+@include const('SHIFT_MEDIA_TYPES', 'all' 'aural' 'braille' 'handheld' 'print' 'projection' 'screen' 'print' 'handheld' 'tty' 'tv' 'embossed');

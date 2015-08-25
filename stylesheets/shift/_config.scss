@@ -1,0 +1,100 @@
+// =============================================================================
+// =SHIFT - CONFIG
+// =============================================================================
+
+// =$shift-include-mq
+// -----------------------------------------------------------------------------
+/// Whether to include media-queries in the current stylesheet's CSS output.
+/// Set this to false in order to create a fallback stylesheet for browsers
+/// that don't support media-queries.
+/// @link http://jakearchibald.github.io/sass-ie/
+///
+/// @type {bool}
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-include-mq: true !default;
+
+// =$shift-include-fallback
+// -----------------------------------------------------------------------------
+/// Whether to output media-queried styles at root level if not including
+/// media-queries, as a fallback for browsers that dont support media-queries
+/// @link http://jakearchibald.github.io/sass-ie/
+///
+/// @type {bool}
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-include-fallback: true !default;
+
+// =$shift-fallback-min-width
+// -----------------------------------------------------------------------------
+/// Minimum device width for which media-queried styles should be output at root
+/// level as a fallback for browers that dont support media-queries.
+/// @link http://jakearchibald.github.io/sass-ie/
+///
+/// @type {number}
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-fallback-min-width: 840px !default;
+
+// =$shift-strict-queries
+// -----------------------------------------------------------------------------
+/// Whether to include the 'only' keyword in generated media-queries. This will
+/// prevent older browsers that do not support media queries with media features
+/// from applying the given styles.
+/// **Note**: Leave this to `true` if you provide a fallback solution for
+/// browsers not supporting media-query features (which you should).
+
+$shift-strict-queries: true !default;
+
+// =$shift-media
+// -----------------------------------------------------------------------------
+/// The default value for the 'media-type' in generated media-queries. Set to
+/// `null` or `false` if you don't want Shift to include a `media-type`
+/// browsers will default to the 'all' value).
+///
+/// @type {string}
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-media-type: 'screen' !default;
+
+// =$shift-width-unit
+// -----------------------------------------------------------------------------
+/// The unit to use when creating width media-queries.
+///
+/// @type {string}
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-width-unit: 'em' !default;
+
+// =$shift-height-unit
+// -----------------------------------------------------------------------------
+/// The unit to use when creating height media-queries.
+///
+/// @type {string}
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-height-unit: 'em' !default;

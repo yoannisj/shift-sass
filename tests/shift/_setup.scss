@@ -1,0 +1,32 @@
+// =============================================================================
+// =SHIFT TESTS - SETUP
+// =============================================================================
+
+@import "../../stylesheets/shift/config";
+@import "../../stylesheets/shift/constants";
+
+@import "aleksi/maps/debug-map";
+
+// =configuration
+// -----------------------------------------------------------------------------
+
+$base-font-size: 10px; // aleksi variable, used by aleksi's `convert-length` function
+$shift-strict-queries: false;
+$shift-media-type: 'screen';
+$shift-width-unit: 'em';
+$shift-height-unit: 'px';
+
+// =register breakpoints
+// -----------------------------------------------------------------------------
+@include shift-set('width', 's', 420px);
+@include shift-set('width', 'm', 750px);
+@include shift-set('width', 'l', 1100px);
+
+@include shift-set('height', 's', 500);
+@include shift-set('height', 'm', 700);
+
+// =register-tweakpoints
+// -----------------------------------------------------------------------------
+@include shift-tweak('foo', 'width', 's', 540px);
+@include shift-tweak('foo', 'height', 's', 600px);
+@include shift-tweak('foo', 'height', 'm', 1000px);

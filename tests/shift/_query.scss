@@ -1,0 +1,13 @@
+// =============================================================================
+// =SHIFT TESTS - PARSE
+// =============================================================================
+
+@include describe('The shift-query function')
+{
+  @include it('should allow setting with and height units with the units argument')
+  {
+    @include should(expect( shift-query($height-from-m-params, null, $custom-units) ), to(equal($height-from-m-query-units)));
+    @include should(expect( shift-query($height-from-m-expr,  $units: $custom-units) ), to(equal($height-from-m-query-units)));
+    @include should(expect( shift-query($width-from-s-height-to-m-expr,  $units: $custom-units) ), to(equal($width-from-s-height-to-m-query-units)));
+  }
+}
