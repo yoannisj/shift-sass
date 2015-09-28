@@ -46,11 +46,16 @@
 
   // include content *at-root* in media-query-free stylesheets
   // (aimed at browsers not supporting media-queries)
-  @else if $shift-fallback and
-    ($min-width <= $shift-fallback-min-width) and
-    ($max-width == null or $max-width >= $shift-fallback-min-width)
+  @else if $shift-include-fallback
   {
-    @content;
+    $min-width: map-get($params, 'min-width');
+    $max-width: map-get($params, 'max-width');
+
+    @if ($min-width == null or $min-width <= $shift-fallback-min-width) and
+      ($max-width == null or $max-width >= $shift-fallback-min-width)
+    {
+      @content;
+    }
   }
 }
 
