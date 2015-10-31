@@ -1,7 +1,7 @@
 {
   "name": "shift",
   "title": "Shift",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A powerful tool to work with breakpoints and media-queries in Sass and Javascript.",
   "homepage": "https://github.com/yoannisj/shift",
   "license": "MIT",
