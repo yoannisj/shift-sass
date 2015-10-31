@@ -1,6 +1,6 @@
 # Shift
 
-Shift is a powerful tool to work with breakpoints and media-queries in Sass and Javascript.
+Shift is a tool to work with breakpoints and media-queries in Sass and Javascript. It tries to be simple and concise, but powerful enough to do make working with breakpoints accross your projects easy.
 
 ## Installation
 
@@ -8,7 +8,7 @@ Shift is a powerful tool to work with breakpoints and media-queries in Sass and 
 
 Open the Terminal, `cd` to your project folder and enter the following command:
 
-    bower install shift --save
+    bower install shift --save-dev
 
 Import files in your project's stylesheets
 
