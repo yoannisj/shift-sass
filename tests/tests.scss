@@ -48,11 +48,3 @@
 @include shift($height-from-m-expr) {
   .larger-then-m-height { display: block; }
 }
-
-// =shift-expose
-// -----------------------------------------------------------------------------
-// $json: false;
-@include shift-expose();
-// @include shift-expose();
-
-@include json-encode($json);
