@@ -26,6 +26,6 @@
     "sassdoc"
   ],
   "dependencies": {
-    "sass-aleksi": "~0.1.3"
+    "sass-aleksi": "~0.2.1"
   }
 }

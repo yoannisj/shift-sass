@@ -2,9 +2,10 @@
 // =SHIFT - PARSE
 // =============================================================================
 
-@import "SassyStrings";
 @import "sassy-maps";
 @import "aleksi/general/throw";
+@import "aleksi/strings/str-replace";
+@import "aleksi/strings/str-explode";
 
 @import "shift/config";
 @import "shift/constants";

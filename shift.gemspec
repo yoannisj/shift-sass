@@ -59,5 +59,6 @@ Gem::Specification.new do |s|
   # These are Gem dependencies, not Compass dependencies. Including gems
   #  here will make sure the relevant gem and version are installed on the
   #  user's system when installing your gem.
-  s.add_dependency("sass",      ["~> 3.3"])
+  s.add_dependency("sass",        ["~> 3.3"])
+  s.add_dependency("sass-aleski", ["~> 1.1"])
 end

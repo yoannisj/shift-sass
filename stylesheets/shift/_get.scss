@@ -2,10 +2,10 @@
 // =SHIFT - GET
 // =============================================================================
 
-@import "SassyStrings";
 @import "sassy-maps";
 @import "aleksi/general/throw";
 @import "aleksi/general/default-to";
+@import "aleksi/strings/str-replace";
 @import "aleksi/maps/map-merge-deep";
 
 $__shift__: () !default;
