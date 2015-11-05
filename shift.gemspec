@@ -1,4 +1,5 @@
 # Replace extension with the name of your extension's .rb file
+# Replace extension with the name of your extension's .rb file
 require './lib/shift.rb'
 
 Gem::Specification.new do |s|
@@ -60,5 +61,6 @@ Gem::Specification.new do |s|
   #  here will make sure the relevant gem and version are installed on the
   #  user's system when installing your gem.
   s.add_dependency("sass",        ["~> 3.3"])
-  s.add_dependency("sass-aleski", ["~> 1.1"])
+  s.add_dependency("sass-aleksi", ["~> 0.2"])
+  s.add_dependency("sassy-maps", ["~> 0.4"])
 end
