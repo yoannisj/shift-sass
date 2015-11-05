@@ -23,5 +23,5 @@ end
 # Date is in the form of YYYY-MM-DD
 module Shift
     VERSION = "0.1.2"
-    DATE = "2015-08-20"
+    DATE = "2015-11-05"
 end
