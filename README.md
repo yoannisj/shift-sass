@@ -30,7 +30,7 @@ Import files in your project's stylesheets
     @include shift-height($heights[, $tweakpoint ]);
     @include shift-resolution($resolution[, $tweakpoint ]);
 
-#### Examples
+##### Examples
 
     // min-width queries
     @include shift('>md') { ... }
