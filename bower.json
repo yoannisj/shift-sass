@@ -8,7 +8,12 @@
   "keywords": [
     "sass",
     "helpers",
-    "utils"
+    "utils",
+    "breakpoints",
+    "breakpoint",
+    "media-queries",
+    "media-query",
+    "responsive"
   ],
   "repository": {
     "type": "git",
