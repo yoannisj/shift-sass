@@ -1,0 +1,34 @@
+// =============================================================================
+// =ALEKSI - TESTS
+// =============================================================================
+
+// import true's testing utilities
+@import "true";
+
+// WRITING TESTS
+// -------------
+// @include test-module($module-desc) { /* assertion tests */ }
+// @include test($component-desc) { /* assertion tests */ }
+// ---
+// @include assert-true($assert, $behaviour-desc);
+// @include assert-false($assert, $behaviour-desc);
+// @include assert-equal($assert, $expected, $behaviour-desc);
+// @include assert-unequal($assert, $expected, $behaviour-desc);
+// ---
+// @include assert($behaviour-desc) {
+//    @include input { /* tested sass */ }
+//    @inlcude expect { /* expected output */ }
+// }
+
+// Basic shift setup, used for testing
+@import "tests/setup";
+
+// Import variables to use for testing
+@import "tests/variables";
+
+// Import Shift tests
+@import "tests/shift";
+
+// optionally report test's results in css and terminal
+// (not needed when using Mocha)
+@include report(true);

@@ -2,14 +2,13 @@
 // =SHIFT TESTS - SETUP
 // =============================================================================
 
-@import "../../stylesheets/shift/config";
-@import "../../stylesheets/shift/constants";
-
-@import "aleksi/maps/debug-map";
+@import "shift/config";
+@import "shift/constants";
+@import "shift/set";
+@import "shift/tweak";
 
 // =configuration
 // -----------------------------------------------------------------------------
-
 $base-font-size: 10px; // aleksi variable, used by aleksi's `convert-length` function
 $shift-strict-queries: false;
 $shift-media-type: 'screen';

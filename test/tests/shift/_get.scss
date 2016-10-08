@@ -1,0 +1,65 @@
+// =============================================================================
+// =SHIFT TESTS - GET
+// =============================================================================
+
+@import "shift/get";
+
+@include test-module('The shift-get function')
+{
+  @include test('should return a the value of a previously registered breakpoint')
+  {
+    @include assert-equal( shift-get('width', 's'), 420px );
+    @include assert-equal( shift-get('width', 'm'), 750px );
+    @include assert-equal( shift-get('width', 'l'), 1100px );
+  }
+
+  @include test('should return the value of a previously registered tweakpoint')
+  {
+    @include assert-equal( shift-get('width', 's'), 420px );
+    @include assert-equal( shift-get('width', 'm'), 750px );
+    @include assert-equal( shift-get('height', 's', 'foo'), 600px );
+    @include assert-unequal( shift-get('height', 'm', 'foo'), 900px );
+  }
+
+  @include test('should consider unitless numbers as px values')
+  {
+    @include assert-equal( shift-get('height', 's'), 500px );
+    @include assert-equal( shift-get('height', 'm'), 700px );
+  }
+
+  // @include xtest('should throw a warnig when no value was found')
+  // {
+  //   @include assert-equal( shift-get('width', 'xs'), null );
+  //   @include assert-equal( shift-get('width', 'xl'), null );
+  //   @include assert-equal( shift-get('height', 'l',' foo'), null );
+  // }
+
+  // @include xtest('should throw an error when not given a string as feature parameter')
+  // {
+  //   @include assert-equal( shift-get(true, 'm'), null );
+  //   @include assert-equal( shift-get(10, 'm'), null );
+  //   @include assert-equal( shift-get('hello' 'world', 'm'), null );
+  // }
+
+  // @include xtest('should throw an error when not given a string as feature parameter')
+  // {
+  //   @include assert-equal( shift-get(false, 'm'), null );
+  //   @include assert-equal( shift-get(10, 'm'), null );
+  //   @include assert-equal( shift-get('hello' 'wordl', 'm'), null );
+  // }
+
+  // @include xtest('should throw an error when not given a string as label parameter')
+  // {
+  //   @include assert-equal( shift-get('width', false), null );
+  //   @include assert-equal( shift-get('width', 10), null );
+  //   @include assert-equal( shift-get('width', 'hello' 'world'), null );
+  // }
+
+  // @include xtest('should throw an error when not given a string as tweakpoint parameter')
+  // {
+  //   @include assert-equal( shift-get('width', 's'), true, null );
+  //   @include assert-equal( shift-get('width', 's'), false, null );
+  //   @include assert-equal( shift-get('width', 'm'), 10, null );
+  //   @include assert-equal( shift-get('width', 'l', 'hello' 'world'), null );
+  // }
+}

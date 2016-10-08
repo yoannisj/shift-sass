@@ -1,0 +1,27 @@
+// =============================================================================
+// =SHIFT TESTS - CONVERT-LENGTH
+// =============================================================================
+
+@import "shift/convert-length";
+
+@include test-module('The shift-convert-length function')
+{
+  @include test('should convert length units using a base font-size of sixteen px')
+  {
+    @include assert-equal( shift-convert-length(200px, 'em'), 12.5em );
+    @include assert-unequal( shift-convert-length(200px, 'em'), 20em );
+  }
+
+  @include test('should consider unitless numbers as px values')
+  {
+    @include assert-equal( shift-convert-length(30, 'px'), 30px );
+    @include assert-equal( shift-convert-length(64, 'em'), 4em );
+  }
+
+  // @include xtest('should throw an error when not given a number as value parameter')
+  // {
+  //   @include assert-equal( shift-convert-length('hello', 'em'), null );
+  //   @include assert-equal( shift-convert-length(true, 'px'), null );
+  //   @include assert-equal( shift-convert-length(50 10px, 'px'), null );
+  // }
+}
