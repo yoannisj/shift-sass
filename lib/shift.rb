@@ -22,6 +22,6 @@ end
 # Version is a number. If a version contains alphas, it will be created as a prerelease version
 # Date is in the form of YYYY-MM-DD
 module Shift
-    VERSION = "0.1.2"
-    DATE = "2015-11-05"
+    VERSION = "0.2.0"
+    DATE = "2016-10-08"
 end
