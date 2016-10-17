@@ -1,0 +1,108 @@
+// =============================================================================
+// =SHIFT - CONTEXT
+// =============================================================================
+
+@import "sassy-maps";
+@import "aleksi/general/default-to";
+
+$__shift__: () !default;
+
+// =Functions
+// =============================================================================
+
+// =shift-context( $name[, $val ])
+// -----------------------------------------------------------------------------
+/// Store or fetch a 'in-context' value. If a map is given, each key will be
+/// used to store the corresponding value.
+///
+/// @param $name {string|map} - The name of the context to fetch/store
+/// @param $val {ant} [undefined] - The 'in-context' value to store
+
+@function shift-context($name, $val: '__undefined__')
+{
+  // accept a map of 'name' => 'value' to set as context
+  @if type-of($name) == 'map'
+  {
+    @each $n, $v in $name {
+      $ctx: shift-context($n, $v);
+    }
+
+    @return $name;
+  }
+
+  // sanitize `$name`
+  @if not type-of($name) == 'string' {
+    $e: throw-error("`$feature` must be a string. Was #{inspect($feature)}.");
+  }
+
+  // set value only if given
+  @if $val == '__undefined__' {
+    $ctx: default-to(map-get($__shift__, 'context'), ());
+    @return map-get($ctx, $name);
+  }
+
+  $__shift__: map-set-deep($__shift__, 'context' $name, $val) !global;
+
+  // return value, now stored in context
+  @return $val;
+}
+
+// =shift-context-save()
+// -----------------------------------------------------------------------------
+/// Save current context so it can be restored with 'shift-context-restore'
+/// later on.
+
+@function shift-context-save()
+{
+  // save current context so it can be restored later
+  $context: map-get($__shift__, 'context');
+  $__shift__: map-set($__shift__, 'saved-context', $context) !global;
+
+  // return context, as saved
+  @return $context;
+}
+
+// =shift-context-restore()
+// -----------------------------------------------------------------------------
+/// Restore context values saved previously with 'shift-context-save'.
+
+@function shift-context-restore()
+{
+  $context: default-to(map-get($__shift__, 'saved-context'), ());
+  $__shift__: map-set($__shift__, 'context', $context) !global;
+
+  // return context, as restored
+  @return $context;
+}
+
+// =Mixins
+// =============================================================================
+
+// =shift-context( $name[, $val ])
+// -----------------------------------------------------------------------------
+/// Store or fetch a 'in-context' value. If a map is given, each key will be
+/// used to store the corresponding value.
+
+@mixin shift-context($name, $val: '__undefined__')
+{
+  $ctx: shift-context($name, $val);
+}
+
+// =shift-context-save()
+// -----------------------------------------------------------------------------
+/// Save current context so it can be restored with 'shift-context-restore'
+/// later on.
+
+@mixin shift-context-save()
+{
+  $ctx: shift-context-save();
+}
+
+// =shift-context-restore()
+// -----------------------------------------------------------------------------
+/// Restore context values saved previously with 'shift-context-save'.
+
+@mixin shift-context-restore()
+{
+  $ctx: shift-context-restore();
+}

@@ -44,15 +44,24 @@
     'media-type': $shift-media-type
   ), $params);
 
+  $labels: ();
+
   // get labeled feature values, and adapt to tweakpoint
   @each $feature, $value in map-remove($params, 'strict-mode', 'media-type')
   {
-    @if type-of($value) == 'string' {
+    // recognize labeled values
+    @if type-of($value) == 'string'
+      and not str-index($feature, '-label')
+    {
+      // conserve labels in parameters
+      $labels: map-set($labels, '#{$feature}-label', $value);
+
+      // replace labeled values with breakpoint values
       $params: map-set($params, $feature, shift-get($feature, $value, $tweakpoint));
     }
   }
 
-  @return $params;
+  @return map-merge($labels, $params);
 }
 
 // =_shift-parse-expression( $expr )
