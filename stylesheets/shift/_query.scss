@@ -22,7 +22,8 @@
 /// @access public
 /// @since 0.1.0
 
-@function shift-query( $params, $tweakpoint: null, $units: () ) {
+@function shift-query( $params, $tweakpoint: null, $units: () )
+{
   // get default units
   $units: map-merge((
     'width': $shift-width-unit,

@@ -5,6 +5,7 @@
 @import "shift/config";
 @import "shift/parse";
 @import "shift/query";
+@import "shift/context";
 
 // =shift-breakpoint( $params[, $tweakpoint, $units ])
 // -----------------------------------------------------------------------------
@@ -31,16 +32,24 @@
 ///
 /// @todo Description
 
-@mixin shift-breakpoint( $params, $tweakpoint: null, $units: () ) {
+@mixin shift-breakpoint( $params, $tweakpoint: null, $units: () )
+{
   // get all params and replace labels with values
   $params: shift-parse($params, $tweakpoint);
+
+  // save current context, so it can be restored later on
+  @include shift-context-save();
+  // store @media params into context
+  @include shift-context($params);
+  @include shift-context('tweakpoint', $tweakpoint);
 
   // include content if stylesheet should contain media-queries
   // (aimed at browsers)
   @if $shift-include-mq
   {
     // output media-query based on given parameters
-    @media #{shift-query($params, $tweakpoint, $units)} {
+    @media #{shift-query($params, $tweakpoint, $units)}
+    {
       @content;
     }
   }
@@ -58,6 +67,9 @@
       @content;
     }
   }
+
+  // restore context as it was, outside of breakpoint @media block
+  @include shift-context-restore();
 }
 
 // =shift( $params[, $tweakpoint, $units ])
