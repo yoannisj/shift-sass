@@ -10,38 +10,75 @@ $__shift__: () !default;
 // =Functions
 // =============================================================================
 
-// =shift-context( $name[, $val ])
+// =shift-context([ $args... ])
 // -----------------------------------------------------------------------------
-/// Store or fetch a 'in-context' value. If a map is given, each key will be
-/// used to store the corresponding value.
-///
-/// @param $name {string|map} - The name of the context to fetch/store
-/// @param $val {ant} [undefined] - The 'in-context' value to store
+/// Store or fetch a property in current context. If a map is given, each key
+/// will be used as property and given the corresponding value.
 
-@function shift-context($name, $val: '__undefined__')
+@function shift-context($args...)
+{
+  $num-args: length($args);
+
+  // if name and value is given for one or more properties
+  @if ($num-args == 1 and type-of(nth($args, 1)) == 'map')
+    or $num-args == 2
+  {
+    // store these into the current context
+    @return shift-context-set($args...);
+  }
+
+  // else, retrieve current context properties
+  @return shift-context-get($args...);
+}
+
+// =shift-context-get([ $prop ])
+// -----------------------------------------------------------------------------
+/// Fetch value currently stored for given context property. If a list is given,
+/// a map will be returned with values for each property in the list.
+
+@function shift-context-get( $prop: null )
+{
+  // get shift's current context
+  $context: default-to(map-get($__shift__, 'context'), ());
+
+  // if list of properties was given
+  @if type-of($prop) == 'list'
+  {
+    // return a property -> value map
+    $res: ();
+    @each $name in $prop {
+      $res: map-set($res, $name, shift-context-get($name));
+    }
+    @return $res;
+  }
+
+  // optionally return given property
+  @if type-of($prop) == 'string' {
+    @return map-get($context, $prop);
+  }
+
+  @return $context;
+}
+
+// =shift-context-set( $prop[, $val ])
+// -----------------------------------------------------------------------------
+/// Store given property in current context. If a map is given, each key
+/// will be used as property and given the corresponding value.
+
+@function shift-context-set( $prop, $val: null )
 {
   // accept a map of 'name' => 'value' to set as context
-  @if type-of($name) == 'map'
+  @if type-of($prop) == 'map'
   {
-    @each $n, $v in $name {
-      $ctx: shift-context($n, $v);
+    @each $name, $value in $prop {
+      $res: shift-context($name, $value);
     }
 
-    @return $name;
+    @return $prop;
   }
 
-  // sanitize `$name`
-  @if not type-of($name) == 'string' {
-    $e: throw-error("`$feature` must be a string. Was #{inspect($feature)}.");
-  }
-
-  // set value only if given
-  @if $val == '__undefined__' {
-    $ctx: default-to(map-get($__shift__, 'context'), ());
-    @return map-get($ctx, $name);
-  }
-
-  $__shift__: map-set-deep($__shift__, 'context' $name, $val) !global;
+  // store given property value in current context
+  $__shift__: map-set-deep($__shift__, 'context' $prop, $val) !global;
 
   // return value, now stored in context
   @return $val;
@@ -78,14 +115,34 @@ $__shift__: () !default;
 // =Mixins
 // =============================================================================
 
-// =shift-context( $name[, $val ])
+// =shift-context( $prop[, $val ])
 // -----------------------------------------------------------------------------
 /// Store or fetch a 'in-context' value. If a map is given, each key will be
 /// used to store the corresponding value.
 
-@mixin shift-context($name, $val: '__undefined__')
+@mixin shift-context($args...)
 {
-  $ctx: shift-context($name, $val);
+  $context: shift-context($args...);
+}
+
+// =shift-context-set( $prop[, $val ])
+// -----------------------------------------------------------------------------
+/// Store or fetch a 'in-context' value. If a map is given, each key will be
+/// used to store the corresponding value.
+
+@mixin shift-context-set($prop, $val: null)
+{
+  $context: shift-context-set($prop, $val);
+}
+
+// =shift-context-get( $prop )
+// -----------------------------------------------------------------------------
+/// Store or fetch a 'in-context' value. If a map is given, each key will be
+/// used to store the corresponding value.
+
+@mixin shift-context-get($prop: null)
+{
+  $context: shift-context-get($prop);
 }
 
 // =shift-context-save()
@@ -95,7 +152,7 @@ $__shift__: () !default;
 
 @mixin shift-context-save()
 {
-  $ctx: shift-context-save();
+  $coontext: shift-context-save();
 }
 
 // =shift-context-restore()
@@ -104,5 +161,5 @@ $__shift__: () !default;
 
 @mixin shift-context-restore()
 {
-  $ctx: shift-context-restore();
+  $context: shift-context-restore();
 }

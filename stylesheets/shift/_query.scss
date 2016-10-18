@@ -42,7 +42,8 @@
   }
 
   // add media-query features
-  @each $feature, $value in map-remove($params, 'strict-query', 'media-type') {
+  @each $feature, $value in map-remove($params, 'strict-query', 'media-type')
+  {
     // use correct width unit
     @if index('width' 'min-width' 'max-width', $feature) {
       $value: shift-convert-length($value, map-get($units, 'width'));
@@ -53,7 +54,10 @@
       $value: shift-convert-length($value, map-get($units, 'height'));
     }
 
-    $query: "#{$query} and (#{$feature}: #{$value})";
+    // ignore label parameters
+    @if not str-index($feature, '-label') {
+      $query: "#{$query} and (#{$feature}: #{$value})";
+    }
   }
 
   @return $query;
