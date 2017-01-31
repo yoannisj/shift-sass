@@ -1,6 +1,8 @@
-# Shift
+# Shift-sass
 
-Shift is a tool to work with breakpoints and media-queries in Sass and Javascript. It tries to be simple and concise, but powerful enough to do make working with breakpoints accross your projects easy.
+Shift-sass is a tool to work with breakpoints and media-queries in Sass. It tries to be simple and concise, but powerful enough to make working with breakpoints accross your projects easy.
+
+Shift-sass works perfectly with its companion tool Shift-js, which shares a similar API to work with breakpoints in the javascript part of your project. Together, these two tools make it easy to build and configure responsive front-end components.
 
 ## Installation
 
@@ -8,27 +10,38 @@ Shift is a tool to work with breakpoints and media-queries in Sass and Javascrip
 
 Open the Terminal, `cd` to your project folder and enter the following command:
 
-    bower install shift --save-dev
+    bower install shift-sass --save-dev
 
-Import files in your project's stylesheets
+Add the path to shift-sass's bower component to sass's `loadPaths` option
 
-    @import "path/to/bower_components/shift/shift";
+    sass.render({
+        loadPaths: [
+            'path/to/bower_components/shift-sass/stylesheets'
+            ...
+        ],
+        ...
+    });
+
+Import shift-sass files in your project's stylesheets
+
+    @import "shift";
 
 ## Usage
 
 ### Adding media-query features
 
-    @include shift-set( $feature, $alias, $value[, $tweakpoint ]);
-    @include shift-set-width( $alias, $value[, $tweakpoint ]);
-    @include shift-set-height( $alias, $value[, $tweakpoint ]);
-    @include shift-set-resolution( $alias, $value[, $tweakpoint ]); // SOON!
+    @include shift-set( $feature, $label, $value[, $tweakpoint ]);
+    @include shift-set-width( $label, $value[, $tweakpoint ]);
+    @include shift-set-height( $label, $value[, $tweakpoint ]);
+    @include shift-set-resolution( $label, $value[, $tweakpoint ]); // SOON!
 
 ### Output media-query
 
-    @include shift($expression[, $tweakpoint ]);
-    @include shift-width($widths[, $tweakpoint ]);
-    @include shift-height($heights[, $tweakpoint ]);
-    @include shift-resolution($resolution[, $tweakpoint ]);
+    @include shift-breakpoint($expression[, $tweakpoint ]);
+    @include shift($expression[, $tweakpoint ]); /* convenient alias */
+    /* SOON! */ @include shift-width($widths[, $tweakpoint ]);
+    /* SOON! */ @include shift-height($heights[, $tweakpoint ]);
+    /* SOON! */ @include shift-resolution($resolution[, $tweakpoint ]);
 
 ##### Examples
 
