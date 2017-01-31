@@ -1,5 +1,5 @@
 {
-  "name": "shift",
+  "name": "shift-sass",
   "version": "0.2.0",
   "authors": [
     "Yoannis Jamar <yoannis.j@gmail.com>"
@@ -7,19 +7,20 @@
   "description": "A powerful tool to work with breakpoints and media-queries in Sass.",
   "keywords": [
     "sass",
+    "css",
+    "responsive",
+    "breakpoints",
+    "tweakpoints",
+    "media-queries",
     "helpers",
     "utils",
-    "breakpoints",
-    "breakpoint",
-    "media-queries",
-    "media-query",
-    "responsive"
+    "javascript"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/yoannisj/shift.git"
+    "url": "https://github.com/yoannisj/shift-sass.git"
   },
-  "license": "MIT",
+  "license": "ISC",
   "main": "stylesheets/_shift.scss",
   "ignore": [
     "**/.*",

@@ -1,22 +1,22 @@
 # Replace extension with the name of your extension's .rb file
 # Replace extension with the name of your extension's .rb file
-require './lib/shift.rb'
+require './lib/shift-sass.rb'
 
 Gem::Specification.new do |s|
   # Release Specific Information
   #  Replace Extension with the name you used in your extension.rb
   #   in the module with version and date.
-  s.version = Shift::VERSION
-  s.date = Shift::DATE
+  s.version = ShiftSass::VERSION
+  s.date = ShiftSass::DATE
 
   # Gem Details
   # Replace "extension" with the name of your extension
-  s.name = "shift"
-  s.rubyforge_project = "shift"
+  s.name = "shift-sass"
+  s.rubyforge_project = "shift-sass"
   # Description of your extension
-  s.description = %q{Breakpoint utilities for Sass and Javascript.}
+  s.description = %q{A powerful tool to work with breakpoints and media-queries in Sass.}
   # A summary of your Compass extension. Should be different than Description
-  s.summary = %q{A powerful tool to work with breakpoints and media-queries in Sass and Javascript.}
+  s.summary = %q{A powerful tool to work with breakpoints and media-queries in Sass.}
   # The names of the author(s) of the extension.
   # If more than one author, comma separate inside of the brackets
   s.authors = ["Yoannis Jamar"]
@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   # If more than one author, comma separate inside of the brackets
   s.email = ["yoannis.j@gmail.com"]
   # URL of the extension
-  s.homepage = "https://github.com/yoannisj/shift"
+  s.homepage = "https://github.com/yoannisj/shift-sass"
   # License Name
   s.licenses = ['MIT']
 
@@ -61,6 +61,6 @@ Gem::Specification.new do |s|
   #  here will make sure the relevant gem and version are installed on the
   #  user's system when installing your gem.
   s.add_dependency("sass",        ["~> 3.3"])
-  s.add_dependency("sass-aleksi", ["~> 0.2"])
+  s.add_dependency("sass-aleksi", ["~> 0.3.4"])
   s.add_dependency("sassy-maps", ["~> 0.4"])
 end

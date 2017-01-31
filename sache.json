@@ -1,14 +1,15 @@
 {
-  "name": "shift",
-  "description": "A lightweight and powerful tool to work with breakpoints and media-queries in Sass.",
+  "name": "shift-sass",
+  "description": "A powerful tool to work with breakpoints and media-queries in Sass.",
   "tags": [
     "sass",
+    "css",
+    "responsive",
+    "breakpoints",
+    "tweakpoints",
+    "media-queries",
     "helpers",
     "utils",
-    "breakpoints",
-    "breakpoint",
-    "media-queries",
-    "media-query",
-    "responsive"
+    "javascript"
   ]
 }
