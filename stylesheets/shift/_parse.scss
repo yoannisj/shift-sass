@@ -36,8 +36,6 @@
     $params: _shift-parse-expression($params);
   }
 
-  // @debug "Params:: #{inspect($params)}";
-
   // merge with defaults
   $params: map-merge((
     'strict-query': $shift-strict-queries,

@@ -4,7 +4,7 @@
   "authors": [
     "Yoannis Jamar <yoannis.j@gmail.com>"
   ],
-  "description": "A lightweight and powerful tool to work with breakpoints and media-queries in Sass.",
+  "description": "A powerful tool to work with breakpoints and media-queries in Sass.",
   "keywords": [
     "sass",
     "helpers",
@@ -32,6 +32,6 @@
   ],
   "dependencies": {
     "sassy-maps": "^0.4.0",
-    "sass-aleksi": "^0.3.2"
+    "sass-aleksi": "^0.3.4"
   }
 }

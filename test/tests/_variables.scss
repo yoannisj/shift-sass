@@ -18,7 +18,8 @@ $from-s-query: 'screen and (min-width: 26.25em)';
 $from-s-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'min-width': 420px
+  'min-width': 420px,
+  'min-width-label': 's'
 );
 
 $from-l-expr: '>l';
@@ -26,7 +27,8 @@ $from-l-query: 'screen and (min-width: 68.75em)';
 $from-l-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'min-width': 1100px
+  'min-width': 1100px,
+  'min-width-label': 'l'
 );
 
 $to-m-expr: '<m';
@@ -34,7 +36,8 @@ $to-m-query: 'screen and (max-width: 46.875em)';
 $to-m-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'max-width': 750px
+  'max-width': 750px,
+  'max-width-label': 'm'
 );
 
 $from-s-to-l-expr: '>s <l';
@@ -44,16 +47,20 @@ $from-s-to-l-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
   'min-width': 420px,
-  'max-width': 1100px
+  'max-width': 1100px,
+  'min-width-label': 's',
+  'max-width-label': 'l'
 );
 
 $w-from-s-expr: 'w>s';
 $width-from-s-expr: 'width>s';
 $width-from-s-query: 'screen and (min-width: 26.25em)';
+
 $width-from-s-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'min-width': 420px
+  'min-width': 420px,
+  'min-width-label': 's'
 );
 
 $w-to-l-expr: 'w<l';
@@ -62,7 +69,8 @@ $width-to-l-query: 'screen and (max-width: 68.75em)';
 $width-to-l-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'max-width': 1100px
+  'max-width': 1100px,
+  'max-width-label': 'l'
 );
 
 $h-from-m-expr: 'h>m';
@@ -72,7 +80,8 @@ $height-from-m-query-units: 'screen and (min-height: 43.75em)';
 $height-from-m-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'min-height': 700px
+  'min-height': 700px,
+  'min-height-label': 'm'
 );
 
 $h-to-s-expr: 'h<s';
@@ -81,7 +90,8 @@ $height-to-s-query: 'screen and (max-height: 500px)';
 $height-to-s-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'max-height': 500px
+  'max-height': 500px,
+  'max-height-label': 's'
 );
 
 $width-from-s-height-to-m-expr: 'w>s h<m';
@@ -92,7 +102,9 @@ $width-from-s-height-to-m-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
   'min-width': 420px,
-  'max-height': 700px
+  'max-height': 700px,
+  'min-width-label': 's',
+  'max-height-label': 'm'
 );
 
 $both-from-s-to-m-expr: 'w>s w<m h>s h<m';
@@ -104,7 +116,11 @@ $both-from-s-to-m-params: (
   'min-width': 420px,
   'max-width': 750px,
   'min-height': 500px,
-  'max-height': 700px
+  'max-height': 700px,
+  'min-width-label': 's',
+  'max-width-label': 'm',
+  'min-height-label': 's',
+  'max-height-label': 'm'
 );
 
 $foo-from-s-expr: '>s';
@@ -112,7 +128,8 @@ $foo-from-s-query: 'screen and (min-width: 540px)';
 $foo-from-s-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
-  'min-width': 540px
+  'min-width': 540px,
+  'min-width-label': 's'
 );
 
 $foo-from-s-to-l-expr: '>s <l';
@@ -122,7 +139,9 @@ $foo-from-s-to-l-params: (
   'strict-query': $shift-strict-queries,
   'media-type': $shift-media-type,
   'min-width': 540px,
-  'max-width': 1100px
+  'max-width': 1100px,
+  'min-width-label': 's',
+  'max-width-label': 'l'
 );
 
 $print-from-s-expr: 'print >s';
@@ -132,7 +151,8 @@ $print-from-s-query-units: 'print and (min-width: 420px)';
 $print-from-s-params: (
   'strict-query': $shift-strict-queries,
   'media-type': 'print',
-  'min-width': 420px
+  'min-width': 420px,
+  'min-width-label': 's'
 );
 
 $strict-from-s-expr: 'only >s';
@@ -141,7 +161,8 @@ $strict-from-s-query-em: 'screen and (min-width: 26.25em)';
 $strict-from-s-params: (
   'strict-query': true,
   'media-type': $shift-media-type,
-  'min-width': 420px
+  'min-width': 420px,
+  'min-width-label': 's'
 );
 
 $strict-from-s-width-to-l-expr: 'only >s w<l';
@@ -151,5 +172,7 @@ $strict-from-s-width-to-l-params: (
   'strict-query': true,
   'media-type': $shift-media-type,
   'min-width': 420px,
-  'max-width': 1100px
+  'max-width': 1100px,
+  'min-width-label': 's',
+  'max-width-label': 'l'
 );
