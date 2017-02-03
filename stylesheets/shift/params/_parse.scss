@@ -10,8 +10,8 @@
 
 @import "shift/config";
 @import "shift/constants";
-@import "shift/expression";
-@import "shift/get";
+@import "shift/params/expression";
+@import "shift/breakpoint/get";
 
 // =shift-parse( $params[, $tweakpoint ])
 // -----------------------------------------------------------------------------

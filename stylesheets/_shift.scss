@@ -6,10 +6,10 @@
 @import "shift/constants";
 @import "shift/convert-length";
 
-@import "shift/set";
-@import "shift/tweak";
-@import "shift/get";
-@import "shift/parse";
+@import "shift/breakpoint/set";
+@import "shift/breakpoint/tweak";
+@import "shift/breakpoint/get";
+@import "shift/params/parse";
 @import "shift/query";
 
 @import "shift/breakpoint";

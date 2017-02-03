@@ -4,7 +4,7 @@
 
 @import "shift/config";
 @import "shift/convert-length";
-@import "shift/parse";
+@import "shift/params/parse";
 
 // =shift-query( $params[, $tweakpoint, $units ])
 // -----------------------------------------------------------------------------
