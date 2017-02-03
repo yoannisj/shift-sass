@@ -33,6 +33,7 @@
   ],
   "dependencies": {
     "sassy-maps": "^0.4.0",
-    "sass-aleksi": "^0.3.4"
+    "SassyLists": "^3.0.1",
+    "sass-aleksi": "^0.3.8",
   }
 }

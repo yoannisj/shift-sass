@@ -1,0 +1,99 @@
+// =============================================================================
+// =SHIFT TESTS - HANDLE
+// =============================================================================
+
+@import "shift/handle";
+@import "aleksi/general/const";
+
+@include test-module('The shift-validate-handle function')
+{
+  @include test('should recognize strings with forbidden characters as invalid')
+  {
+    // forbid all characters that are forbidden in CSS classnames
+    @include assert-equal(shift-validate-handle('s m'), false);
+    @include assert-equal(shift-validate-handle('[s]'), false);
+    @include assert-equal(shift-validate-handle('(l)'), false);
+    @include assert-equal(shift-validate-handle('{l}'), false);
+    @include assert-equal(shift-validate-handle('/l'), false);
+    @include assert-equal(shift-validate-handle('\\m'), false);
+    @include assert-equal(shift-validate-handle('&m'), false);
+    @include assert-equal(shift-validate-handle('@m'), false);
+    @include assert-equal(shift-validate-handle('^l'), false);
+    @include assert-equal(shift-validate-handle('`l'), false);
+    @include assert-equal(shift-validate-handle('s?'), false);
+    @include assert-equal(shift-validate-handle('l!'), false);
+    @include assert-equal(shift-validate-handle('|l'), false);
+    @include assert-equal(shift-validate-handle('s+'), false);
+    @include assert-equal(shift-validate-handle('l:'), false);
+    @include assert-equal(shift-validate-handle('m;'), false);
+    @include assert-equal(shift-validate-handle('>m'), false);
+    @include assert-equal(shift-validate-handle('<l'), false);
+    @include assert-equal(shift-validate-handle('s;'), false);
+    @include assert-equal(shift-validate-handle('#m'), false);
+    @include assert-equal(shift-validate-handle('s%'), false);
+  }
+
+  @include test('should recognize min-width handles')
+  {
+    @include assert-equal(shift-validate-handle('s'), true);
+    @include assert-equal(shift-validate-handle('m_'), true);
+  }
+
+  @include test('should recognize max-width handles')
+  {
+    @include assert-equal(shift-validate-handle('_m'), true);
+    @include assert-equal(shift-validate-handle('_l'), true);
+  }
+
+  @include test('should recognize min-height handles')
+  {
+    @include assert-equal(shift-validate-handle('-s'), true);
+    @include assert-equal(shift-validate-handle('-m_'), true);
+  }
+
+  @include test('should recognize max-height handles')
+  {
+    @include assert-equal(shift-validate-handle('-_m'), true);
+    @include assert-equal(shift-validate-handle('-_l'), true);
+  }
+
+  @include test('should validate handles with arbitrary length values')
+  {
+    @include assert-equal(shift-validate-handle('630'), true);
+    @include assert-equal(shift-validate-handle('340_'), true);
+    @include assert-equal(shift-validate-handle('_920'), true);
+
+    @include assert-equal(shift-validate-handle('-_533'), true);
+    @include assert-equal(shift-validate-handle('-348_'), true);
+  }
+
+  @include test('should recognize range handles')
+  {
+    @include assert-equal(shift-validate-handle('s_m'), true);
+    @include assert-equal(shift-validate-handle('-m_l'), true);
+  }
+
+  @include test('should not validate handles with unregistered labels')
+  {
+    @include assert-equal(shift-validate-handle('foo'), false);
+    @include assert-equal(shift-validate-handle('bar_'), false);
+
+    @include assert-equal(shift-validate-handle('_xl'), false);
+    @include assert-equal(shift-validate-handle('_baz'), false);
+
+    @include assert-equal(shift-validate-handle('-q'), false);
+    @include assert-equal(shift-validate-handle('-z_'), false);
+    @include assert-equal(shift-validate-handle('-_xl'), false);
+  }
+
+  @include test('should recognize combined handles')
+  {
+    @include assert-equal(shift-validate-handle('s-_m'), true);
+    @include assert-equal(shift-validate-handle('s_m-_l'), true);
+    @include assert-equal(shift-validate-handle('s_l-s_m'), true);
+
+    // and also invalid parts in the combined expression
+    @include assert-equal(shift-validate-handle('foo_-_l'), false);
+    @include assert-equal(shift-validate-handle('_l-foobar'), false);
+  }
+}

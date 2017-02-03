@@ -2,10 +2,9 @@
 // =SHIFT TESTS - VARIABLES
 // =============================================================================
 
-
 $default-params: (
-  'strict-query': false,
-  'media-type': 'screen'
+  'strict-query': $shift-strict-queries,
+  'media-type': $shift-media-type
 );
 
 $custom-units: (
@@ -13,7 +12,7 @@ $custom-units: (
   'height': 'em'
 );
 
-$from-s-expr: '>s';
+$from-s-expr: 'w>s';
 $from-s-query: 'screen and (min-width: 26.25em)';
 $from-s-params: (
   'strict-query': $shift-strict-queries,
@@ -22,7 +21,7 @@ $from-s-params: (
   'min-width-label': 's'
 );
 
-$from-l-expr: '>l';
+$from-l-expr: 'w>l';
 $from-l-query: 'screen and (min-width: 68.75em)';
 $from-l-params: (
   'strict-query': $shift-strict-queries,
@@ -31,7 +30,7 @@ $from-l-params: (
   'min-width-label': 'l'
 );
 
-$to-m-expr: '<m';
+$to-m-expr: 'w<m';
 $to-m-query: 'screen and (max-width: 46.875em)';
 $to-m-params: (
   'strict-query': $shift-strict-queries,
@@ -40,8 +39,8 @@ $to-m-params: (
   'max-width-label': 'm'
 );
 
-$from-s-to-l-expr: '>s <l';
-$from-s-to-l-expr-and: '>s and <l';
+$from-s-to-l-expr: 'w>s w<l';
+$from-s-to-l-expr-and: 'w>s and w<l';
 $from-s-to-l-query: 'screen and (min-width: 26.15em) and (max-width: 68.75em)';
 $from-s-to-l-params: (
   'strict-query': $shift-strict-queries,
@@ -123,7 +122,7 @@ $both-from-s-to-m-params: (
   'max-height-label': 'm'
 );
 
-$foo-from-s-expr: '>s';
+$foo-from-s-expr: 'w>s';
 $foo-from-s-query: 'screen and (min-width: 540px)';
 $foo-from-s-params: (
   'strict-query': $shift-strict-queries,
@@ -132,7 +131,7 @@ $foo-from-s-params: (
   'min-width-label': 's'
 );
 
-$foo-from-s-to-l-expr: '>s <l';
+$foo-from-s-to-l-expr: 'w>s w<l';
 $foo-from-s-to-l-query: 'screen and (min-width: 540px) and (max-width: 1100px)';
 $foo-from-s-to-l-query-units: 'screen and (min-width: 540px) and (max-width: 1100px)';
 $foo-from-s-to-l-params: (
@@ -144,8 +143,8 @@ $foo-from-s-to-l-params: (
   'max-width-label': 'l'
 );
 
-$print-from-s-expr: 'print >s';
-$print-from-s-expr-and: 'print and >s';
+$print-from-s-expr: 'print w>s';
+$print-from-s-expr-and: 'print and w>s';
 $print-from-s-query: 'print and (min-width: 26.25em)';
 $print-from-s-query-units: 'print and (min-width: 420px)';
 $print-from-s-params: (
@@ -155,7 +154,7 @@ $print-from-s-params: (
   'min-width-label': 's'
 );
 
-$strict-from-s-expr: 'only >s';
+$strict-from-s-expr: 'only w>s';
 $strict-from-s-query: 'screen and (min-width: 420px)';
 $strict-from-s-query-em: 'screen and (min-width: 26.25em)';
 $strict-from-s-params: (
@@ -165,7 +164,7 @@ $strict-from-s-params: (
   'min-width-label': 's'
 );
 
-$strict-from-s-width-to-l-expr: 'only >s w<l';
+$strict-from-s-width-to-l-expr: 'only w>s w<l';
 $strict-from-s-width-to-l-query: 'only screen and (min-width: 26.25em) and (max-width: 1100px)';
 $strict-from-s-width-to-l-query-units: 'only screen and (min-width: 420px) and (max-width: 68.75em)';
 $strict-from-s-width-to-l-params: (

@@ -1,0 +1,252 @@
+// =============================================================================
+// =SHIFT - EXPRESSION
+// =============================================================================
+
+@import "aleksi/general/throw";
+@import "aleksi/cast/to-number";
+@import "aleksi/strings/str-explode";
+@import "aleksi/strings/str-trim";
+@import "aleksi/strings/str-find";
+@import "aleksi/strings/str-replace";
+
+@import "shift/config";
+@import "shift/constants";
+@import "shift/get";
+
+// SUPPORTED SYNTAXES
+// ==================
+//
+// KEYWORDS
+// --------
+// 'only'
+// {CSS_MEDIA_TYPES}
+
+// MIN-WIDTH
+// ---------
+// 's'
+// 's_'
+// 'w>s'
+// 'w > s'
+// 'width>s'
+// 'width > s'
+// 'min-width:s'
+// 'min-width: s'
+
+// MAX-WIDTH
+// ---------
+// '_l'
+// 'w<l'
+// 'w < l'
+// 'width<l'
+// 'width < l'
+// 'max-width:l'
+// 'max-width: l'
+
+// MIN-HEIGHT
+// ----------
+// '-l_'
+// 'h>l'
+// 'h > l'
+// 'height>l'
+// 'height > l'
+// 'min-height:l'
+// 'min-height: l'
+
+// MAX-HEIGHT
+// ----------
+// '-_xl'
+// 'h<xl'
+// 'h < xl'
+// 'height<xl'
+// 'height < xl'
+// 'max-height:xl'
+// 'max-height: xl'
+
+// RESOLUTION
+// ----------
+// '2x'
+// '1.5x'
+// '31x'
+
+// =shift-validate-expression( $str )
+// -----------------------------------------------------------------------------
+/// Checks whether the given string is a valid shift expression.
+///
+/// @param {string} $str - The string to analyze
+///
+/// @return {bool} - Whether $str corresponds to a resolution handle or not
+/// @throw Error when the $str argument is not a string
+///
+/// @access public
+/// @since 0.2.0
+///
+/// @TODO: implement memoization for better performance
+
+@function shift-validate-expression( $str )
+{
+  // accept an empty string
+  @if str-length($str) == 0 {
+    @return true;
+  }
+
+  // do not allow comma-separated expressions
+  @if str-index($str, ',') or str-index($str, 'not') == 1 {
+    $w: throw-warning('shift-validate-expression(): multiple, comma-separated media-queries are not supported.');
+    @return false;
+  }
+
+  // do not allow negated expressions
+  @if str-index($str, 'not ') == 1 {
+    $w: throw-warning('shift-validate-expression(): the "not" keyword for media-query negation is not supported.');
+    @return false;
+  }
+
+  // normalize as an expression to reduce possibilities and simplify testing
+  $str: shift-normalize-expression($str);
+
+  // do not allow multiple 'min-width' values
+  @if length(str-find-all($str, 'w>')) > 2 {
+    $w: throw-warning($str, 'shift-validate-expression(): only one "min-width" feature is allowed.');
+    @return false;
+  }
+
+  // do not allow multiple 'max-width' values
+  @if length(str-find-all($str, 'w<')) > 2 {
+    $w: throw-warning($str, 'shift-validate-expression(): only one "max-width" feature is allowed.');
+    @return false;
+  }
+
+  // do not allow multiple 'min-height' values
+  @if length(str-find-all($str, 'h>')) > 2 {
+    $w: throw-warning($str, 'shift-validate-expression(): only one "min-height" feature is allowed.');
+    @return false;
+  }
+
+  // do not allow multiple 'max-height' values
+  @if length(str-find-all($str, 'h<')) > 2 {
+    $w: throw-warning($str, 'shift-validate-expression(): only one "max-height" feature is allowed.');
+    @return false;
+  }
+
+  // test parts of combined expressions separately
+  @if str-index($str, ' ')
+  {
+    // recognize leading "only" keyword for strict queries
+    @if str-index($str, 'only') == 1 and str-length($str) > 4
+      and shift-validate-expression(str-slice($str, 5))
+    {
+      @return true;
+    }
+
+    $parts: str-explode($str, ' ');
+
+    @each $part in $parts
+    {
+      // if any of the combined expression's parts is not a valid expression
+      @if not shift-validate-expression($part) {
+        @return false;
+      }
+    }
+
+    // all parts in combination are valid expressions
+    @return true;
+  }
+
+  // recognize valid 'min-' and 'max-' length values
+  @if str-index($str, 'w>') == 1 or str-index($str, 'w<') == 1
+    or str-index($str, 'h>') == 1 or str-index($str, 'h<') == 1
+  {
+    @return true;
+  }
+
+  // recognize resolution handles
+  @if shift-validate-resolution-expression($str) {
+    @return true;
+  }
+
+  // recognize CSS media-types
+  @else if index(const('SHIFT_MEDIA_TYPES'), $str) {
+    @return true;
+  }
+
+  // no valid pattern was found
+  @return false;
+}
+
+// =shift-validate-resolution-expression( $str )
+// -----------------------------------------------------------------------------
+/// Checks whether the given string is a valid resolution handle. Resolution
+/// shift-is-expression are composed by a number and a trailing 'x'.
+///
+/// @param {string} $str - The string to analyze
+///
+/// @return {bool} - Whether $str corresponds to a resolution handle or not
+/// @throw Error when the $str argument is not a string
+///
+/// @access private
+/// @since 0.2.0
+
+@function shift-validate-resolution-expression($str)
+{
+  @if type-of($str) != 'string' {
+    @return throw-error('shift-validate-resolution-expression(): `$str` must be a string, was #{inspect($str)}.');
+  }
+
+  // if the string ends with an 'x' descriptor
+  @if str-slice($str, -1) == 'x'
+  {
+    // get everything before the trailing 'x'
+    $lead: if(str-length($str) > 2, str-slice($str, 1, -2), str-slice($str, 1, 1));
+    // and check if it is a number
+    @if to-number($lead) != null {
+      @return true;
+    }
+  }
+
+  @return false;
+}
+
+// =shift-normalize-expression( $expr )
+// -----------------------------------------------------------------------------
+/// Normalizes different syntaxes supported in shift expressions, in order to
+/// parse the expression successfully.
+///
+/// @param {string} $expr - The expression to normalize
+///
+/// @return {string} - The normalized expression, ready to be parsed
+/// @throw Error when passed multiple, comma-separated queries
+/// @throw Error when passed the 'not' keyword
+///
+/// @access public
+/// @since 0.1.0
+///
+/// @TODO: implement memoization for performance
+
+@function shift-normalize-expression( $expr)
+{
+  // recognize 'width', 'min-width:' and 'max-width:'
+  $expr: str-replace($expr, 'min-width:', 'w>');
+  $expr: str-replace($expr, 'max-width:', 'w<');
+  $expr: str-replace-all($expr, 'width', 'w');
+
+  // recognize 'height', 'min-height:' and 'max-height:'
+  $expr: str-replace($expr, 'min-height:', 'h>');
+  $expr: str-replace($expr, 'max-height:', 'h<');
+  $expr: str-replace-all($expr, 'height', 'h');
+
+  // allow spaces around '>' and '<'
+  $expr: str-replace-all($expr, ' >', '>');
+  $expr: str-replace-all($expr, '> ', '>');
+  $expr: str-replace-all($expr, ' <', '<');
+  $expr: str-replace-all($expr, '< ', '<');
+
+  // allow single space or ' and ' to combine features
+  $expr: str-replace-all($expr, ' and ', ' ');
+
+  // remove consecutive spaces
+  @while str-index($expr, '  ') != null {
+    $expr: str-replace($expr, '  ', ' ');
+  }
+
+  @return str-trim($expr);
+}

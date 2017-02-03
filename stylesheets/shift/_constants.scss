@@ -3,6 +3,13 @@
 // =============================================================================
 
 @import "aleksi/general/define";
+@import "aleksi/general/const";
+
+@import "aleksi/const/css/media-types";
+@import "aleksi/const/css/forbidden-classname-characters";
 
 // The complete list of supported media-type values
-@include define('SHIFT_MEDIA_TYPES', 'all' 'aural' 'braille' 'handheld' 'print' 'projection' 'screen' 'print' 'handheld' 'tty' 'tv' 'embossed');
+@include define('SHIFT_MEDIA_TYPES', const('CSS_MEDIA_TYPES'));
+
+// The list of characters that are forbidden in shift handles
+@include define('SHIFT_FORBIDDEN_HANDLE_CHARACTERS', const('CSS_FORBIDDEN_CLASSNAME_CHARACTERS'));

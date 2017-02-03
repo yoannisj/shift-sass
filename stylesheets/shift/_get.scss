@@ -5,7 +5,7 @@
 @import "sassy-maps";
 @import "aleksi/general/throw";
 @import "aleksi/general/default-to";
-@import "aleksi/strings/str-replace";
+@import "aleksi/strings/str-remove";
 @import "aleksi/maps/map-merge-deep";
 
 $__shift__: () !default;
@@ -33,7 +33,8 @@ $__shift__: () !default;
 /// @access public
 /// @since 0.1.0
 
-@function shift-get( $feature, $label, $tweakpoint: null ) {
+@function shift-get( $feature, $label, $tweakpoint: null )
+{
   // sanitize `$feature`
   @if not type-of($feature) == 'string' {
     $e: throw-error("`$feature` must be a string. Was #{$feature}.");
@@ -59,7 +60,8 @@ $__shift__: () !default;
   }
 
   // remove 'min-' and 'max-' from feature name
-  $feature-core: str-replace(str-replace($feature, 'min-', ''), 'max-', '');
+  $feature-core: str-remove(str-remove($feature, 'min-'), 'max-');
+
   // in order to find registered value
   $value: map-get-deep($breakpoints, $feature-core, $label);
 

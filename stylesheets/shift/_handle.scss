@@ -1,0 +1,106 @@
+// =============================================================================
+// =SHIFT - EXPRESSION
+// =============================================================================
+
+@import "aleksi/general/throw";
+@import "aleksi/general/const";
+@import "aleksi/cast/to-number";
+@import "aleksi/strings/str-explode";
+
+@import "shift/constants";
+@import "shift/list";
+
+// =shift-validate-handle( $str )
+// -----------------------------------------------------------------------------
+/// Checks whether the given string is a valid shift handle.
+///
+/// @param {string} $str - The string to analyze
+///
+/// @return {bool} - Whether $str corresponds to a resolution handle or not
+/// @throw Error when the $str argument is not a string
+///
+/// @access public
+/// @since 0.2.0
+
+@function shift-validate-handle($str)
+{
+  @if type-of($str) != 'string' {
+    @return throw-error('shift-validate-handle(): `$str` must be a string, was #{inspect($str)}.');
+  }
+
+  // only allow characters allowed in CSS classnames
+  @each $char in const('SHIFT_FORBIDDEN_HANDLE_CHARACTERS')
+  {
+    @if str-index($str, $char) {
+      @return false;
+    }
+  }
+
+  // recognize combined handles
+  @if str-index($str, '-')
+  {
+    $parts: str-explode($str, '-');
+    $count: length($parts);
+
+    // maximum 2 parts
+    @if $count > 2 {
+      @return false;
+    }
+
+    // verify each part of the handle
+    @each $part in $parts
+    {
+      // if any of the parts is not a handle
+      // (test for empty string because string may start or end with '-')
+      @if $part != '' and not shift-validate-handle($part) {
+        @return false;
+      }
+    }
+
+    // all parts of the combination are handles themselves
+    @return true;
+  }
+
+  // recognize 'min-' and 'max-' handles
+  @if str-index($str, '_')
+  {
+    $parts: str-explode($str, '_');
+    $count: length($parts);
+
+    // maximum 2 parts
+    @if $count > 2 {
+      @return false;
+    }
+
+    @each $part in $parts
+    {
+      // if any of the parts is not a label
+      // (test for empty string because string may start or end with '_')
+      @if $part != '' and not shift-validate-handle($part) {
+        @return false;
+      }
+    }
+
+    // all parts of the handle are labels
+    @return true;
+  }
+
+  $width-labels: shift-list-labels('width');
+  $height-labels: shift-list-labels('height');
+  $length-labels: join($width-labels, $height-labels);
+
+  // recognize 'width' and 'height' labels
+  @if index($length-labels, $str) {
+    @return true;
+  }
+
+  @debug $length-labels + ' // ' + $str;
+
+  // recognize length values on the fly
+  @if to-number($str) != null {
+    @return true;
+  }
+
+  // no valid pattern was found
+  @return false;
+}

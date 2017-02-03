@@ -4,7 +4,7 @@
 
 @import "shift/parse";
 
-@include test-module('the _shift-parse function')
+@include test-module('the shift-parse function')
 {
   @include test('should default to shift-strict-queries and shift-media-type')
   {
