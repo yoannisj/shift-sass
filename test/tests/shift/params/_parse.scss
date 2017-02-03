@@ -118,6 +118,21 @@
     @include assert-equal( shift-parse($foo-from-s-to-l-expr, 'foo'), $foo-from-s-to-l-params );
   }
 
+  @include test('should successfully parse shift handles')
+  {
+    @include assert-equal( shift-parse($from-s-handle), $from-s-params );
+    @include assert-equal( shift-parse($from-l-handle), $from-l-params );
+    @include assert-equal( shift-parse($to-m-handle), $to-m-params );
+    @include assert-equal( shift-parse($from-s-to-l-handle), $from-s-to-l-params );
+    @include assert-equal( shift-parse($w-from-s-handle), $width-from-s-params );
+    @include assert-equal( shift-parse($width-to-l-handle), $width-to-l-params );
+    @include assert-equal( shift-parse($h-from-m-handle), $height-from-m-params );
+    @include assert-equal( shift-parse($height-to-s-handle), $height-to-s-params );
+    @include assert-equal( shift-parse($width-from-s-height-to-m-handle), $width-from-s-height-to-m-params );
+    @include assert-equal( shift-parse($both-from-s-to-m-handle), $both-from-s-to-m-params );
+    @include assert-equal( shift-parse($both-from-s-to-m-handle), $both-from-s-to-m-params );
+  }
+
   // @include xtest('should throw an error when passed an expression with the not keyword')
   // {
   //   @include assert-equal( shift-parse('not >s'), null );

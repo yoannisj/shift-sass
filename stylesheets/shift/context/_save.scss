@@ -1,0 +1,39 @@
+// =============================================================================
+// =SHIFT - CONTEXT SAVE
+// =============================================================================
+
+@import "sassy-maps";
+@import "aleksi/general/default-to";
+
+$__shift__: () !default;
+
+// =Functions
+// =============================================================================
+
+// =shift-context-save()
+// -----------------------------------------------------------------------------
+/// Save current context so it can be restored with 'shift-context-restore'
+/// later on.
+
+@function shift-context-save()
+{
+  // save current context so it can be restored later
+  $context: default-to(map-get($__shift__, 'context'), ());
+  $__shift__: map-set($__shift__, 'saved-context', $context) !global;
+
+  // return context, as saved
+  @return $context;
+}
+
+// =Mixins
+// =============================================================================
+
+// =shift-context-save()
+// -----------------------------------------------------------------------------
+/// Save current context so it can be restored with 'shift-context-restore'
+/// later on.
+
+@mixin shift-context-save()
+{
+  $coontext: shift-context-save();
+}

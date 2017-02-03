@@ -1,0 +1,53 @@
+// =============================================================================
+// =SHIFT - CONTEXT GET
+// =============================================================================
+
+@import "sassy-maps";
+@import "aleksi/general/default-to";
+
+$__shift__: () !default;
+
+// =Functions
+// =============================================================================
+
+// =shift-context-get([ $prop ])
+// -----------------------------------------------------------------------------
+/// Fetch value currently stored for given context property. If a list is given,
+/// a map will be returned with values for each property in the list.
+
+@function shift-context-get( $prop: null )
+{
+  // get shift's current context
+  $context: default-to(map-get($__shift__, 'context'), ());
+
+  // if list of properties was given
+  @if type-of($prop) == 'list'
+  {
+    // return a property -> value map
+    $res: ();
+    @each $name in $prop {
+      $res: map-set($res, $name, shift-context-get($name));
+    }
+    @return $res;
+  }
+
+  // optionally return given property
+  @if type-of($prop) == 'string' {
+    @return map-get($context, $prop);
+  }
+
+  @return $context;
+}
+
+// =Mixins
+// =============================================================================
+
+// =shift-context-get( $prop )
+// -----------------------------------------------------------------------------
+/// Store or fetch a 'in-context' value. If a map is given, each key will be
+/// used to store the corresponding value.
+
+@mixin shift-context-get($prop: null)
+{
+  $context: shift-context-get($prop);
+}

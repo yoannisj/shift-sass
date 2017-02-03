@@ -3,9 +3,9 @@
 // @Todo: test mixins with sass-true
 
 @import "tests/shift/convert-length";
-@import "tests/shift/get";
-@import "tests/shift/expression";
-@import "tests/shift/handle";
-@import "tests/shift/parse";
+@import "tests/shift/breakpoint/get";
+@import "tests/shift/params/expression";
+@import "tests/shift/params/handle";
+@import "tests/shift/params/parse";
 @import "tests/shift/query";
 @import "tests/shift/breakpoint";

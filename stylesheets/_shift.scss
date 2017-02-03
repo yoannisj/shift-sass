@@ -9,9 +9,11 @@
 @import "shift/breakpoint/set";
 @import "shift/breakpoint/tweak";
 @import "shift/breakpoint/get";
+@import "shift/params/expression";
+@import "shift/params/handle";
 @import "shift/params/parse";
-@import "shift/query";
 
+@import "shift/query";
 @import "shift/breakpoint";
 
 // CREATING MEDIA-QUERIES

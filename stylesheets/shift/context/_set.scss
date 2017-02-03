@@ -1,0 +1,47 @@
+// =============================================================================
+// =SHIFT - CONTEXT GET
+// =============================================================================
+
+@import "sassy-maps";
+
+$__shift__: () !default;
+
+// =Functions
+// =============================================================================
+
+// =shift-context-set( $prop[, $val ])
+// -----------------------------------------------------------------------------
+/// Store given property in current context. If a map is given, each key
+/// will be used as property and given the corresponding value.
+
+@function shift-context-set( $prop, $val: null )
+{
+  // accept a map of 'name' => 'value' to set as context
+  @if type-of($prop) == 'map'
+  {
+    @each $name, $value in $prop {
+      $res: shift-context-set($name, $value);
+    }
+
+    @return $prop;
+  }
+
+  // store given property value in current context
+  $__shift__: map-set-deep($__shift__, 'context' $prop, $val) !global;
+
+  // return value, now stored in context
+  @return $val;
+}
+
+// =Mixins
+// =============================================================================
+
+// =shift-context-set( $prop[, $val ])
+// -----------------------------------------------------------------------------
+/// Store or fetch a 'in-context' value. If a map is given, each key will be
+/// used to store the corresponding value.
+
+@mixin shift-context-set($prop, $val: null)
+{
+  $context: shift-context-set($prop, $val);
+}

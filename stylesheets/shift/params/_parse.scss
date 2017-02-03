@@ -6,11 +6,13 @@
 @import "aleksi/general/throw";
 @import "aleksi/general/const";
 @import "aleksi/general/default-to";
+@import "aleksi/cast/to-number";
 @import "aleksi/strings/str-explode";
 
 @import "shift/config";
 @import "shift/constants";
 @import "shift/params/expression";
+@import "shift/params/handle";
 @import "shift/breakpoint/get";
 
 // =shift-parse( $params[, $tweakpoint ])
@@ -35,9 +37,16 @@
 
 @function shift-parse( $params, $tweakpoint: null )
 {
-  // parse expression if params is given as a string
-  @if type-of($params) == 'string' {
-    $params: _shift-parse-expression($params);
+  // parse expression/handle if params is given as a string
+  @if type-of($params) == 'string'
+  {
+    @if shift-validate-expression($params) {
+      $params: _shift-parse-expression($params);
+    }
+
+    @else if shift-validate-handle($params) {
+      $params: _shift-parse-handle($params);
+    }
   }
 
   // merge with defaults
@@ -68,8 +77,7 @@
 // =_shift-parse-expression( $expr )
 // -----------------------------------------------------------------------------
 /// Parses a shift expression and returns a map of media-query settings and
-/// features, with their corresponding values. Delegates to `shift-length`
-/// in order to retrieve length values from the given expression.
+/// features, with their corresponding values.
 ///
 /// @param {string} $expr - The expression to parse
 /// @return {map} - Media-query settings and features with corresponding values
@@ -95,39 +103,112 @@
   // normalize expression in order to support multiple syntaxes
   $expr: shift-normalize-expression($expr);
 
+  // recognize leading 'only' keyword for strict queries
+  @if str-index($expr, 'only') == 1
+  {
+    $params: map-set($params, 'strict-query', true);
+    $expr: str-slice($expr, 5);
+  }
+
   // identify media-query settings described in the expression
   @each $part in str-explode($expr, ' ')
   {
-    // recognize 'only' keyword
-    @if $part == 'only' {
-      $params: map-set($params, 'strict-query', true);
-    }
-
     // recognize 'media-type'
-    @else if index(const('SHIFT_MEDIA_TYPES'), $part) {
+    @if index(const('SHIFT_MEDIA_TYPES'), $part) {
       $params: map-set($params, 'media-type', $part);
     }
 
     // recognize 'min-width' feature
     @else if str-index($part, 'w>') {
-      $params: map-set($params, 'min-width', str-slice($part, 3));
+      $length: _shift-parse-length(str-slice($part, 3));
+      $params: map-set($params, 'min-width', $length);
     }
 
     // recognize 'max-width' feature
     @else if str-index($part, 'w<') {
-      $params: map-set($params, 'max-width', str-slice($part, 3));
+      $length: _shift-parse-length(str-slice($part, 3));
+      $params: map-set($params, 'max-width', $length);
     }
 
     // recognize 'min-height' feature
     @else if str-index($part, 'h>') {
-      $params: map-set($params, 'min-height', str-slice($part, 3));
+      $length: _shift-parse-length(str-slice($part, 3));
+      $params: map-set($params, 'min-height', $length);
     }
 
     // recognize 'max-height' feature
     @else if str-index($part, 'h<') {
-      $params: map-set($params, 'max-height', str-slice($part, 3));
+      $length: _shift-parse-length(str-slice($part, 3));
+      $params: map-set($params, 'max-height', $length);
     }
   }
 
   @return $params;
+}
+
+// =_shift-parse-handle( $handle )
+// -----------------------------------------------------------------------------
+/// Parses a shift handle and returns a map of media-query settings and
+/// features, with their corresponding values. Delegates to `shift-length`
+/// in order to retrieve length values from the given expression.
+///
+/// @param {string} $handle - The handle to parse
+/// @return {map} - Media-query settings and features with corresponding values
+///
+/// @example scss
+///   Example Code
+///
+/// @access private
+/// @since 0.3.0
+///
+/// @TODO: implement memoization for performance
+
+@function _shift-parse-handle( $handle )
+{
+  // initialize map of parameters
+  $params: ();
+
+  // loop over parts of combined handles
+  $fcount: 1;
+  @each $feature in str-explode($handle, '-')
+  {
+    // recognize the breakpoint feature's dimension ('width' or 'height')
+    $dimen: if($fcount == 1, 'width', 'height');
+
+    $pcount: 1;
+    @each $part in str-explode($feature, '_')
+    {
+      // recognize the breakpoint feature's limit ('min' or 'max')
+      $limit: if($pcount == 1, 'min', 'max');
+      // get the breakpoint feature's length value
+      $length: if($part == '', null, _shift-parse-length($part));
+
+      @if $feature != '' and $part != '' {
+        // register the breakpoint parameter
+        $params: map-set($params, '#{$limit}-#{$dimen}', $length);
+      }
+
+      $pcount: $pcount + 1;
+    }
+
+    $fcount: $fcount + 1;
+  }
+
+  @return $params;
+}
+
+// =_shift-parse-length( $length )
+// -----------------------------------------------------------------------------
+/// Parses a length value from a shift handle or expression. If the length
+/// value is given on-the-fly, it will return a number. Otherwise, it will
+/// assume it is a feature label.
+///
+/// @api private
+/// @since 0.3.0
+
+@function _shift-parse-length($length)
+{
+  $number: to-number($length);
+  // return either casted length, or labeled length
+  @return if($number == null, $length, $number);
 }
