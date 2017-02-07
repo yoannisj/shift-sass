@@ -1,0 +1,110 @@
+// =============================================================================
+// =SHIFT - VARIABLE
+// =============================================================================
+
+@import "sassy-maps";
+@import "SassyLists";
+@import "aleksi/general/default-to";
+@import "aleksi/maps/map-sort";
+
+@import "shift/params/expression";
+@import "shift/params/handle";
+@import "shift/params/parse";
+@import "shift/context";
+
+// =is-shift-variable( $var )
+// -----------------------------------------------------------------------------
+/// Checks whether the given variable defines values for different media
+/// contexts. A shift variable is a map with keys that each describe a media
+/// context (either a shift expression or a shift handle).
+///
+/// @param {any} $var - The variable to test
+/// @return {bool} - Wheter $var is a shift variable or not
+///
+/// @access public
+/// @since 0.3.0
+///
+/// @TODO: implement memoization for performance
+
+@function is-shift-variable($var)
+{
+  // only maps can be shift variables
+  @if type-of($var) != 'map' {
+    @return false;
+  }
+
+  @each $key, $val in $var
+  {
+    // if any of the keys is neither a shift expression nor a shift handle
+    @if $key != 'df' and not shift-validate-expression($key)
+      and not shift-validate-handle($key)
+    {
+      // this is not a shift variable
+      @return false;
+    }
+  }
+
+  // all keys are either a shift expression or a shift handle
+  @return true;
+}
+
+// =shift-parse-keys( $var[, $order ])
+// -----------------------------------------------------------------------------
+
+@function shift-parse-keys( $var, $order: 'width' )
+{
+  // sanitize the $order parameter
+  @if not index('width' 'height', $order) {
+    @return throw-error('shift-parse-keys(): can only order parsed keys by "width" or "height" feature.');
+  }
+
+  // only shift-variables can be parsed successfully
+  @if not is-shift-variable($var) {
+    @return throw-error('shift-parse-keys(): $var should be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  // initialize resulting contexts
+  $contexts: ();
+
+  // parse context defined by each key
+  @each $key, $val in $var {
+    $contexts: map-set($contexts, $key, shift-parse($key));
+  }
+
+  // get order for given length feature
+  $sort-vals: ();
+  @each $key, $context in $contexts
+  {
+    $min-val: default-to(map-get($context, 'min-#{$order}'), 0);
+    $sort-vals: map-set($sort-vals, $key, $min-val);
+  }
+
+  $ordered: map-sort-values($sort-vals);
+  $ordered-vals: map-values($ordered);
+  $ordered-keys: map-keys($ordered);
+
+  // order contexts based on ordering length feature
+  // and fill-in missing context properties
+  
+  $res: ();
+  $total: length($ordered);
+
+  @for $i from 1 through $total
+  {
+    $key: nth($ordered-keys, $i);
+    $context: map-get($contexts, $key);
+    $max-val: map-get($context, 'max-#{$order}');
+
+    // default to next value in order
+    @if $max-val == null and $i < $total
+    {
+      // @TODO add offset between 'min-' and 'max-' values
+      $max-val: nth($ordered-vals, $i + 1);
+      $context: map-set($context, 'max-#{$order}', $max-val);
+    }
+
+    $res: map-set($res, $key, $context);
+  }
+
+  @return $res;
+}

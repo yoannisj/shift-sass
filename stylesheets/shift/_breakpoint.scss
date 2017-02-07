@@ -28,9 +28,7 @@
 ///   Example Code
 ///
 /// @access public
-/// @since 0.10
-///
-/// @todo Description
+/// @since 0.1.0
 
 @mixin shift-breakpoint( $params, $tweakpoint: null, $units: () )
 {
@@ -76,7 +74,8 @@
 // -----------------------------------------------------------------------------
 /// @alias shift-breakpoint
 
-@mixin shift( $params, $tweakpoint: null, $units: ()) {
+@mixin shift( $params, $tweakpoint: null, $units: ())
+{
   @include shift-breakpoint($params, $tweakpoint, $units) {
     @content;
   }

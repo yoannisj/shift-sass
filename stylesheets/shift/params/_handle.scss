@@ -94,8 +94,6 @@
     @return true;
   }
 
-  @debug $length-labels + ' // ' + $str;
-
   // recognize length values on the fly
   @if to-number($str) != null {
     @return true;

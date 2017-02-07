@@ -5,6 +5,42 @@
 @import "sassy-maps";
 @import "aleksi/general/throw";
 
+// shift-list-breakpoints( $feature )
+// -----------------------------------------------------------------------------
+/// Returns all breakpoints registered for given @media feature.
+///
+/// @param {string} $feature - The media-query feature to retrieve
+///
+/// @return {list} - The list of labels registered for $feature
+/// @throw Error if `$feature` is not a string
+/// @throw Error if `$tweakpoint` is not a string
+/// 
+/// @TODO: return feautre used to set `$tweakpoints` only
+
+@function shift-list-breakpoints($feature, $tweakpoint: null)
+{
+  // sanitize `$feature`
+  @if not type-of($feature) == 'string' {
+    $e: throw-error("`$feature` must be a string. Was #{inspect($feature)}.");
+  }
+
+  // sanitize `$tweakpoint`
+  @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
+    $e: throw-error("`$tweakpoint` must be a string. Was #{inspect($tweakpoint)}.");
+  }
+
+  @return map-get-deep($__shift__, 'breakpoints', $feature);
+}
+
+// shift-breakpoints( $feature[, $tweakpoint ])
+// -----------------------------------------------------------------------------
+/// @alias shift-list-breakpoints
+
+@function shift-breakpoints( $feature, $tweakpoint: null )
+{
+  @return shift-list-breakpoints($feature, $tweakpoint);
+}
+
 // shift-list-labels( $feature[, $tweakpoint ])
 // -----------------------------------------------------------------------------
 /// Returns the labels of all breakpoints registered for given @media feature.
