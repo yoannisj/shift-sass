@@ -48,59 +48,76 @@
   @return true;
 }
 
-// =shift-parse-keys( $var[, $order ])
+// =shift-parse-keys( $var[, $sort-by ])
 // -----------------------------------------------------------------------------
+/// @TODO: validate shift-values that define overlapping contexts.
+///   -> e.g. `('_m': ..., 's_': ...)`
 
-@function shift-parse-keys( $var, $order: 'width' )
+@function shift-parse-keys( $var, $sort-by: 'width')
 {
-  // sanitize the $order parameter
-  @if not index('width' 'height', $order) {
-    @return throw-error('shift-parse-keys(): can only order parsed keys by "width" or "height" feature.');
-  }
-
-  // only shift-variables can be parsed successfully
   @if not is-shift-variable($var) {
-    @return throw-error('shift-parse-keys(): $var should be a valid shift variable – was #{inspect($var)}.');
+    @return throw-error('shift-parse-keys(): $var must be a valid shift variable — was #{inspect($var)}.');
   }
 
-  // initialize resulting contexts
-  $contexts: ();
+  // only shift variables can be parsed successfully
+  @if not index('width' 'height', $sort-by) {
+    @return throw-error('shift-parse-keys(): shift variable can only be sorted by comparing "width" or "height" feature.');
+  }
 
-  // parse context defined by each key
+  // extract default value
+  $df: null;
+  @if map-has-key($var, 'df') {
+    $df: map-get($var, 'df');
+    $var: map-remove($var, 'df');
+  }
+
+  // get context defined by each key
+  $contexts: ();
   @each $key, $val in $var {
     $contexts: map-set($contexts, $key, shift-parse($key));
   }
 
-  // get order for given length feature
-  $sort-vals: ();
-  @each $key, $context in $contexts
-  {
-    $min-val: default-to(map-get($context, 'min-#{$order}'), 0);
-    $sort-vals: map-set($sort-vals, $key, $min-val);
-  }
+  // sort contexts based on 'ordering-by' feature
+  $ordered: shift-sort-contexts($contexts, $sort-by);
 
-  $ordered: map-sort-values($sort-vals);
-  $ordered-vals: map-values($ordered);
+  // fill-in missing context properties + correct overlaps
+  // - checks if the context defines width features to avoid poluting 'height' only contexts
+  // @TODO: add offset between 'min-' and 'max-' values
   $ordered-keys: map-keys($ordered);
-
-  // order contexts based on ordering length feature
-  // and fill-in missing context properties
-  
-  $res: ();
   $total: length($ordered);
+  $res: ();
 
   @for $i from 1 through $total
   {
     $key: nth($ordered-keys, $i);
     $context: map-get($contexts, $key);
-    $max-val: map-get($context, 'max-#{$order}');
 
-    // default to next value in order
-    @if $max-val == null and $i < $total
-    {
-      // @TODO add offset between 'min-' and 'max-' values
-      $max-val: nth($ordered-vals, $i + 1);
-      $context: map-set($context, 'max-#{$order}', $max-val);
+    $min: map-get($context, 'min-width');
+    $max: map-get($context, 'max-width');
+
+    // only adjust 'min-width' and 'max-width' if at least one of them
+    // is defined to avoid pollutiong keys that define a 'height' only context
+    @if $min or $max
+    {    
+      @if $i > 1
+      {
+        $prev-key: nth($ordered-keys, $i - 1);
+        $prev-max: map-get-deep($contexts, $prev-key, 'max-width');
+
+        @if $prev-max and ($min == null or $min < $prev-max) {
+          $context: map-set($context, 'min-width', $prev-max);
+        }
+      }
+
+      @if $i < $total
+      {
+        $next-key: nth($ordered-keys, $i + 1);
+        $next-min: map-get-deep($contexts, $next-key, 'min-width');
+
+        @if $next-min and ($max == null or $max > $next-min) {
+          $context: map-set($context, 'max-width', $next-min);
+        }
+      }
     }
 
     $res: map-set($res, $key, $context);
@@ -108,3 +125,125 @@
 
   @return $res;
 }
+
+// =shift-sort-var( $var[, $sort-by ])
+// -----------------------------------------------------------------------------
+/// Sorts a shift variable by comparing the keys based on given context feature.
+///
+/// @param {map} $contexts - The shift variable to sort
+/// @param {string} $sort-by ['width'] - The feature to use to compare keys when sorting
+///
+/// @return {map} - The shift variable sorted based on $sort-by values
+///
+/// @access public
+/// @since 0.3.0
+
+@function shift-sort-var($var, $sort-by: 'width')
+{
+  @if not is-shift-variable($var) {
+    @return throw-error('shift-sort-var(): $var must be a valid shift variable — was #{inspect($var)}.');
+  }
+
+  @if not index('width' 'height', $sort-by) {
+    @return throw-error('shift-sort-var(): shift variable can only be sorted by comparing "width" or "height" feature.');
+  }
+
+  // extract default value
+  $df: null;
+  @if map-has-key($var, 'df') {
+    $df: map-get($var, 'df');
+    $var: map-remove($var, 'df');
+  }
+
+  // parse contexts defined by each key
+  $contexts: ();
+  @each $key, $val in $var {
+    $contexts: map-set($contexts, $key, shift-parse($key));
+  }
+
+  // order keys based on the context they define
+  $ordered: shift-sort-contexts($contexts);
+
+  // apply order to the variable
+  $res: ();
+  @each $key, $context in $ordered {
+    $res: map-set($res, $key, map-get($var, $key));
+  }
+
+  // re-inject default value at the beginning
+  @return map-merge((
+    'df': $df
+  ), $res);
+}
+
+// =shift-sort-contexts( $contexts[, $sort-by ])
+// -----------------------------------------------------------------------------
+/// Sorts a map with shift context values, comparing each context based on a
+/// given context feature. Only the 'width' and 'height' features are supported.
+///
+/// @param {map} $contexts - The map of contexts to sort
+/// @param {string} $sort-by ['width'] - The feature to use to compare contexts when sorting
+///
+/// @return {map} - The $contexts map sorted based on context values
+///
+/// @access public
+/// @since 0.3.0
+
+@function shift-sort-contexts( $contexts, $sort-by: 'width' )
+{
+  @if not index('width' 'height', $sort-by) {
+    @return throw-error('shift-sort-contexts(): contexts can only be sorted by comparing "width" or "height" feature.');
+  }
+
+  @if length($contexts) <= 1 {
+    @return $contexts;
+  }
+
+  $min-prop: 'min-#{$sort-by}';
+  $max-prop: 'max-#{$sort-by}';
+
+  $less: ();
+  $equal: ();
+  $more: ();
+
+  $keys: map-keys($contexts);
+  $seed-key: nth($keys, ceil(length($keys) / 2));
+  $seed: map-get($contexts, $seed-key);
+
+  $seed-min: default-to(map-get($seed, $min-prop), 0);
+  $seed-max: default-to(map-get($seed, $max-prop), 99999);
+
+  @each $key, $context in $contexts
+  {
+    $min: default-to(map-get($context, $min-prop), 0);
+    $max: default-to(map-get($context, $max-prop), 99999);
+
+    @if $min == $seed-min and $max == $seed-max {
+      $equal: map-set($equal, $key, $context);
+    }
+
+    @else if $min < $seed-min {
+      $less: map-set($less, $key, $context)
+    }
+
+    @else if $min > $seed-min {
+      $more: map-set($more, $key, $context);
+    }
+
+    @else if $max < $seed-max {
+      $less: map-set($less, $key, $context);
+    }
+
+    @else if $max > $seed-max {
+      $more: map-set($more, $key, $context);
+    }
+  }
+
+  // order the previous and next contexts
+  $less: shift-sort-contexts($less);
+  $more: shift-sort-contexts($more);
+
+  // join the ordered maps
+  @return map-merge(map-merge($less, $equal), $more);
+}
+
