@@ -1,0 +1,125 @@
+// =============================================================================
+// =SHIFT - LENGTH
+// =============================================================================
+
+@import "aleksi/general/throw";
+@import "aleksi/lengths/convert";
+@import "aleksi/const/css/length-units";
+
+@import "shift/breakpoint/get";
+
+// =shift-compare-lengths( $a, $b[, $feature ])
+// -----------------------------------------------------------------------------
+/// Takes two length values/labels to compare, and returns true if the first
+/// one is smaller then the second one.
+///
+/// @param {string|number} $a - The first length to compare
+/// @param {string|number} $b - The length to compare it with
+/// @param {string} $feature ['width'] - The feature to use when matching labels
+/// @param {string} $tweakpoint [null] - The tweakpoint to use when matching labels
+///
+/// @api public
+/// @since 0.3.0
+
+@function shift-compare-lengths($a, $b, $feature: 'width', $tweakpoint: null)
+{
+  $a: shift-parse-length($a, $feature, $tweakpoint);
+  $b: shift-parse-length($b, $feature, $tweakpoint);
+
+  @return $a < $b;
+}
+
+// =shift-parse-length( $length[, $feature, $tweakpoint, $unit ])
+// -----------------------------------------------------------------------------
+/// Takes a length value/label and returns the corresponding value in given unit.
+/// It will return null if a string was given but could
+/// not be cast to a number or doesn't correspond to a label.
+/// **Note**: The $tweakpoint parameter can be omitted
+///
+/// @param {string|number} $length - The length to parse
+/// @param {string} $feature ['width'] - The feature to use when matching labels
+/// @param {string} $tweakpoint [null] - The tweakpoint to use when matching labels
+/// @param {string} $unit ['unitless'] - The unit in which to return the parsed length
+///
+/// @return {number} - The unitless 'px' value corresponding to $length
+/// @throw Error - if $length is not a number nor a string
+///
+/// @api public
+/// @since 0.3.0
+///
+/// @TODO implement memoization for performance
+
+@function shift-parse-length($length, $feature: 'width', $tweakpoint: null, $unit: 'unitless')
+{
+  $type: type-of($length);
+
+  @if $type != 'string' and $type != 'number' {
+    @return throw-error('shift-parse-length(): $length must be a number or a string – was #{inspect($length)}.');
+  }
+
+  // allow omitting tweakpoint
+  @if $tweakpoint == 'unitless' or index(const('CSS_LENGTH_UNITS'), $tweakpoint) {
+    $unit: $tweakpoint;
+    $tweakpoint: null;
+  }
+
+  @if $type == 'string'
+  {
+    // try to cast length as a number in case it was given 'on the fly'
+    // in a shift handle/expression
+    $to-num: to-number($length);
+    $length: if($to-num == null, shift-get($feature, $length, $tweakpoint), $to-num);
+
+    // if no corresponding label was found
+    @if $length == null {
+      @return null;
+    }
+  }
+
+  // return unitless value for length
+  @return shift-convert-length($length, 'unitless');
+}
+
+// =shift-convert-length( $value, $unit )
+// -----------------------------------------------------------------------------
+/// Convert a length value into the given unit. When converting from or to 'ems'
+/// the media-queries' context is always 16px.
+/// **Note:** Unitless values are considered as pixel values. This is so they
+/// can be more easily shared with js scripts.
+/// @link https://www.filamentgroup.com/lab/how-we-learned-to-leave-body-font-size-alone.html
+///
+/// @param {number} $value - The length value to convert
+/// @param {string} $unit - A css unit keyword in which to convert `$length`
+///
+/// @return {number} - The value converted in `$unit` (using correct context length of 16px for media-queries)
+/// @throw Description
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-convert-length( $value, $unit )
+{
+  // sanitize `$value`
+  @if type-of($value) != 'number' {
+    @return throw-error("`$value` must be a number. Was #{inspect($value)}");
+  }
+
+  // accept null or 'unitless' to convert to unitless value
+  @if $unit == null or $unit == 'unitless'
+  {
+    @if unitless($value) {
+      @return $value;
+    }
+
+    @return strip-unit(shift-convert-length($value, 'px'));
+  }
+
+  // consider unitless values as pixel values
+  $value: if(unitless($value), $value * 1px, $value);
+
+  // convert value based on a 16px font-size context
+  @return convert-length($value, $unit, 16px);
+}

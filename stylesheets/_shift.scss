@@ -4,7 +4,7 @@
 
 @import "shift/config";
 @import "shift/constants";
-@import "shift/convert-length";
+@import "shift/length";
 
 @import "shift/breakpoint/set";
 @import "shift/breakpoint/tweak";
@@ -14,7 +14,6 @@
 @import "shift/params/parse";
 
 @import "shift/query";
-@import "shift/breakpoint";
 
 // CREATING MEDIA-QUERIES
 // ----------------------

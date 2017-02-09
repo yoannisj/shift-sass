@@ -12,61 +12,66 @@
 @import "shift/config";
 @import "shift/constants";
 @import "shift/breakpoint/get";
+@import "shift/params/handle";
 
-// SUPPORTED SYNTAXES
-// ==================
-//
-// KEYWORDS
-// --------
-// 'only'
-// {CSS_MEDIA_TYPES}
+// =shift-expression( $params )
+// -----------------------------------------------------------------------------
+/// Builds a shift expression for given shift parameters
+///
+/// @param {map} $params - The shift parameters to use
+///
+/// @return {string} - The corresponding shift expression
+/// @throw Error if $params is not a map
+///
+/// @access public
+/// @since 0.3.0
 
-// MIN-WIDTH
-// ---------
-// 's'
-// 's_'
-// 'w>s'
-// 'w > s'
-// 'width>s'
-// 'width > s'
-// 'min-width:s'
-// 'min-width: s'
+@function shift-expression($params)
+{
+  @if not type-of($params) == 'map' {
+    @return throw-error('shift-handle(): $params must be a map – was #{inspect($params)}.');
+  }
 
-// MAX-WIDTH
-// ---------
-// '_l'
-// 'w<l'
-// 'w < l'
-// 'width<l'
-// 'width < l'
-// 'max-width:l'
-// 'max-width: l'
+  // allow empty params
+  @if length($params) == 0 {
+    @return 'df';
+  }
 
-// MIN-HEIGHT
-// ----------
-// '-l_'
-// 'h>l'
-// 'h > l'
-// 'height>l'
-// 'height > l'
-// 'min-height:l'
-// 'min-height: l'
+  $expr: '';
+  $strict-query: map-get($params, 'strict-query');
+  $media-type: map-get($params, 'media-type');
+  $min-w: map-get($params, 'min-width');
+  $max-w: map-get($params, 'max-width');
+  $min-h: map-get($params, 'min-height');
+  $max-h: map-get($params, 'max-height');
 
-// MAX-HEIGHT
-// ----------
-// '-_xl'
-// 'h<xl'
-// 'h < xl'
-// 'height<xl'
-// 'height < xl'
-// 'max-height:xl'
-// 'max-height: xl'
+  @if $strict-query {
+    $expr: 'only ';
+  }
 
-// RESOLUTION
-// ----------
-// '2x'
-// '1.5x'
-// '31x'
+  @if $media-type {
+    $expr: '#{$expr}#{$media-type} ';
+  }
+
+  @if $min-w {
+    $expr: '#{$expr}w>#{$min-w} ';
+  }
+
+  @if $max-w {
+    $expr: '#{$expr}w<#{$max-w} ';
+  }
+
+  @if $min-h {
+    $expr: '#{$expr}h>#{$min-h} ';
+  }
+
+  @if $max-h {
+    $expr: '#{$expr}h<#{$max-h} ';
+  }
+
+  // return built expression, without extra spaces
+  @return str-trim($expr);
+}
 
 // =shift-validate-expression( $str )
 // -----------------------------------------------------------------------------
@@ -84,8 +89,8 @@
 
 @function shift-validate-expression( $str )
 {
-  // accept an empty string
-  @if str-length($str) == 0 {
+  // accept 'df' and empty string
+  @if $str == 'df' or $str == '' {
     @return true;
   }
 

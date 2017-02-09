@@ -4,32 +4,48 @@
 
 @import "sassy-maps";
 @import "aleksi/general/throw";
+@import "shift/config";
 
-// shift-list-breakpoints( $feature )
+// shift-list-breakpoints( $feature[, $tweakpoint ])
 // -----------------------------------------------------------------------------
 /// Returns all breakpoints registered for given @media feature.
 ///
 /// @param {string} $feature - The media-query feature to retrieve
+/// @param {string} $tweakpoint [null] - Optionally retreive tweaked values
 ///
-/// @return {list} - The list of labels registered for $feature
+/// @return {map} - The registered breakpoints registered for $feature
 /// @throw Error if `$feature` is not a string
 /// @throw Error if `$tweakpoint` is not a string
-/// 
-/// @TODO: return feautre used to set `$tweakpoints` only
+///
+/// @api public
+/// @since 0.3.0
 
 @function shift-list-breakpoints($feature, $tweakpoint: null)
 {
   // sanitize `$feature`
   @if not type-of($feature) == 'string' {
-    $e: throw-error("`$feature` must be a string. Was #{inspect($feature)}.");
+    @return throw-error("shift-list-breakpoints(): `$feature` must be a string. Was #{inspect($feature)}.");
   }
 
   // sanitize `$tweakpoint`
   @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
-    $e: throw-error("`$tweakpoint` must be a string. Was #{inspect($tweakpoint)}.");
+    @return throw-error("shift-list-breakpoints(): `$tweakpoint` must be a string. Was #{inspect($tweakpoint)}.");
   }
 
-  @return map-get-deep($__shift__, 'breakpoints', $feature);
+  // remove 'min-' and 'max-' from feature name
+  $feature: str-remove(str-remove($feature, 'min-'), 'max-');
+
+  // get all breakpoints registered for given feature
+  $breakpoints: default-to(map-get-deep($__shift__, 'breakpoints', $feature), ());
+
+  // optionally override with tweaked breakpoint values
+  @if $tweakpoint
+  {
+    $tweakpoints: default-to(map-get-deep($__shift__, 'tweakpoints', $feature), ());
+    $breakpoints: map-merge-deep($breakpoints, $tweakpoints);
+  }
+
+  @return $breakpoints;
 }
 
 // shift-breakpoints( $feature[, $tweakpoint ])
@@ -49,31 +65,22 @@
 ///
 /// @return {list} - The list of labels registered for $feature
 /// @throw Error if `$feature` is not a string
-/// @throw Error if `$tweakpoint` is not a string
-/// 
-/// @TODO: return labels used to set `$tweakpoints` only
+///
+/// @api public
+/// @since 0.3.0
 
-@function shift-list-labels($feature, $tweakpoint: null)
+@function shift-list-labels($feature)
 {
   // sanitize `$feature`
   @if not type-of($feature) == 'string' {
-    $e: throw-error("`$feature` must be a string. Was #{inspect($feature)}.");
+    @return throw-error("shift-list-values(): `$feature` must be a string. Was #{inspect($feature)}.");
   }
 
-  // sanitize `$tweakpoint`
-  @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
-    $e: throw-error("`$tweakpoint` must be a string. Was #{inspect($tweakpoint)}.");
-  }
-
-  $breakpoints: map-get($__shift__, 'breakpoints');
-
-  @if not map-has-key($breakpoints, $feature) {
-    $w: throw-warning("No breakpoints registere for feature #{inspect($feature)}, returning empty list.");
-    @return ();
-  }
+  // get all breakpoints/tweakpoints registered for given feature
+  $breakpoints: shift-list-breakpoints($feature);
 
   // return list of labels registered under the given feature
-  @return map-keys( map-get($breakpoints, $feature) );
+  @return map-keys($breakpoints);
 }
 
 // shift-labels( $feature[, $tweakpoint ])
@@ -90,23 +97,32 @@
 /// Returns the values of all breakpoints registered for given @media feature.
 ///
 /// @param {string} $feature - The media-query feature to retrieve
+/// @param {string} $tweakpoint [null] - Optionally retreive tweaked values
 ///
 /// @return {list} - The list of values registered for $feature
 /// @throw Error if `$feature` is not a string
 /// @throw Error if `$tweakpoint` is not a string
-/// 
-/// @TODO: return values used to set `$tweakpoints` only
+///
+/// @api public
+/// @since 0.3.0
 
 @function shift-list-values($feature, $tweakpoint: null)
 {
-  $labels: shift-list-labels($feature, $tweakpoint);
-  $values: ();
-
-  @each $label in $labels {
-    $values: append($values, shift-get($feature, $label, $tweakpoint));
+  // sanitize `$feature`
+  @if not type-of($feature) == 'string' {
+    @return throw-error("shift-list-values(): `$feature` must be a string. Was #{inspect($feature)}.");
   }
 
-  @return $values;
+  // sanitize `$tweakpoint`
+  @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
+    @return throw-error("shift-list-values(): `$tweakpoint` must be a string. Was #{inspect($tweakpoint)}.");
+  }
+
+  // get all breakpoints/tweakpoints registered for given feature
+  $breakpoints: shift-list-breakpoints($feature, $tweakpoint);
+
+  // return list of values registered under the given feature
+  @return map-values($breakpoints);
 }
 
 // shift-values( $feature[, $tweakpoint ])

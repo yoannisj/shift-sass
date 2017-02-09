@@ -43,6 +43,55 @@ Import shift-sass files in your project's stylesheets
     /* SOON! */ @include shift-height($heights[, $tweakpoint ]);
     /* SOON! */ @include shift-resolution($resolution[, $tweakpoint ]);
 
+
+#### Supported syntaxes for expressions
+
+**keywords**
++ `only`
++ `{CSS_MEDIA_TYPES}`
+
+**min-width**
++ `s`
++ `s_`
++ `w>s`
++ `w > s`
++ `width>s`
++ `width > s`
++ `min-width:s`
++ `min-width: s`
+
+**max-width**
++ `_l`
++ `w<l`
++ `w < l`
++ `width<l`
++ `width < l`
++ `max-width:l`
++ `max-width: l`
+
+**min-height**
++ `-l_`
++ `h>l`
++ `h > l`
++ `height>l`
++ `height > l`
++ `min-height:l`
++ `min-height: l`
+
+**max-height**
++ `-_xl`
++ `h<xl`
++ `h < xl`
++ `height<xl`
++ `height < xl`
++ `max-height:xl`
++ `max-height: xl`
+
+**resolution**
++ `2x`
++ `1.5x`
++ `31x`
+
 ##### Examples
 
     // min-width queries

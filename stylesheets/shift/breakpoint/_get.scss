@@ -8,6 +8,8 @@
 @import "aleksi/strings/str-remove";
 @import "aleksi/maps/map-merge-deep";
 
+@import "shift/breakpoint/list";
+
 $__shift__: () !default;
 
 // =shift-get( $feature, $label[, $tweakpoint ])
@@ -32,42 +34,38 @@ $__shift__: () !default;
 ///
 /// @access public
 /// @since 0.1.0
+///
+/// @TODO: implement memoization for performance
 
 @function shift-get( $feature, $label, $tweakpoint: null )
 {
   // sanitize `$feature`
   @if not type-of($feature) == 'string' {
-    $e: throw-error("`$feature` must be a string. Was #{$feature}.");
+    @return throw-error("shift-get(): `$feature` must be a string. Was #{$feature}.");
   }
 
   // sanitize `$label`
   @if not type-of($label) == 'string' {
-    $e: throw-error("`$label` must be a string. Was #{$label}.");
+    @return throw-error("shift-get(): `$label` must be a string. Was #{$label}.");
   }
 
   // sanitize `$tweakpoint`
   @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
-    $e: throw-error("`$tweakpoint` must be a string. Was #{$tweakpoint}.");
-  }
-
-  // retrieve all breakpoints that were registered
-  $breakpoints: map-get($__shift__, 'breakpoints');
-
-  // give priority to tweakpoint values
-  @if $tweakpoint {
-    $tweakpoints: map-get-deep($__shift__, 'tweakpoints', $tweakpoint);
-    $breakpoints: map-merge-deep($breakpoints, default-to($tweakpoints, ()));
+    @return throw-error("shift-get(): `$tweakpoint` must be a string. Was #{$tweakpoint}.");
   }
 
   // remove 'min-' and 'max-' from feature name
   $feature-core: str-remove(str-remove($feature, 'min-'), 'max-');
 
+  // retrieve all breakpoints that were registered
+  $breakpoints: shift-list-breakpoints($feature-core, $tweakpoint);
+
   // in order to find registered value
-  $value: map-get-deep($breakpoints, $feature-core, $label);
+  $value: map-get($breakpoints, $label);
 
   // throw a warning if no value was found
   @if $value == null {
-    @return throw-warning("No  #{$feature} value was found for #{$label}.");
+    @return throw-warning("shift-get(): No #{$feature} value was found for #{$label}.");
   }
 
   // consider unitless numbers as px values

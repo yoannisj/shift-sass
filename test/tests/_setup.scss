@@ -2,10 +2,10 @@
 // =SHIFT TESTS - SETUP
 // =============================================================================
 
-@import "shift/config";
-@import "shift/constants";
-@import "shift/breakpoint/set";
-@import "shift/breakpoint/tweak";
+@import "../../stylesheets/shift/config";
+@import "../../stylesheets/shift/constants";
+@import "../../stylesheets/shift/breakpoint/set";
+@import "../../stylesheets/shift/breakpoint/tweak";
 
 // =configuration
 // -----------------------------------------------------------------------------
@@ -17,14 +17,17 @@ $shift-height-unit: 'px';
 
 // =register breakpoints
 // -----------------------------------------------------------------------------
+@include shift-set('width', 'xs', 340px);
 @include shift-set('width', 's', 420px);
 @include shift-set('width', 'm', 750px);
 @include shift-set('width', 'l', 1100px);
+@include shift-set('width', 'xl', 1400px);
 
 @include shift-set('height', 's', 500);
 @include shift-set('height', 'm', 700);
+@include shift-set('height', 'l', 900);
 
-// =register-tweakpoints
+// =register tweakpoints
 // -----------------------------------------------------------------------------
 @include shift-tweak('foo', 'width', 's', 540px);
 @include shift-tweak('foo', 'height', 's', 600px);

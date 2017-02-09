@@ -25,7 +25,6 @@
 /// @param {string} $tweakpoint - An optional tweakpoint to get values from
 ///
 /// @return {map} - A map of media-query parameters with corresponding values
-/// @throw Description
 ///
 /// @example scss
 ///   Example Code
@@ -40,7 +39,12 @@
   // parse expression/handle if params is given as a string
   @if type-of($params) == 'string'
   {
-    @if shift-validate-expression($params) {
+    // allow 'df' or emtpy string
+    @if $params == 'df' or $params == '' {
+      @return ();
+    }
+
+    @else if shift-validate-expression($params) {
       $params: _shift-parse-expression($params);
     }
 
@@ -49,15 +53,9 @@
     }
   }
 
-  // merge with defaults
-  $params: map-merge((
-    'strict-query': $shift-strict-queries,
-    'media-type': $shift-media-type
-  ), $params);
-
+  // get labeled feature values, and adapt to tweakpoint
   $labels: ();
 
-  // get labeled feature values, and adapt to tweakpoint
   @each $feature, $value in map-remove($params, 'strict-mode', 'media-type')
   {
     // recognize labeled values
@@ -92,13 +90,13 @@
 
 @function _shift-parse-expression( $expr )
 {
-  // accept an empty string
-  @if str-length($expr) == 0 {
-    @return ();
-  }
-
   // initialize map of parameters
   $params: ();
+
+  // accept 'df' and empty string
+  @if $expr == 'df' or $expr == '' {
+    @return $params;
+  }
 
   // normalize expression in order to support multiple syntaxes
   $expr: shift-normalize-expression($expr);
@@ -120,25 +118,25 @@
 
     // recognize 'min-width' feature
     @else if str-index($part, 'w>') {
-      $length: _shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3));
       $params: map-set($params, 'min-width', $length);
     }
 
     // recognize 'max-width' feature
     @else if str-index($part, 'w<') {
-      $length: _shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3));
       $params: map-set($params, 'max-width', $length);
     }
 
     // recognize 'min-height' feature
     @else if str-index($part, 'h>') {
-      $length: _shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3));
       $params: map-set($params, 'min-height', $length);
     }
 
     // recognize 'max-height' feature
     @else if str-index($part, 'h<') {
-      $length: _shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3));
       $params: map-set($params, 'max-height', $length);
     }
   }
@@ -165,8 +163,13 @@
 
 @function _shift-parse-handle( $handle )
 {
-  // initialize map of parameters
+// initialize map of parameters with defaults
   $params: ();
+
+  // accept 'df' and empty string
+  @if $handle == 'df' or $handle == '' {
+    @return $params;
+  }
 
   // loop over parts of combined handles
   $fcount: 1;
@@ -181,7 +184,7 @@
       // recognize the breakpoint feature's limit ('min' or 'max')
       $limit: if($pcount == 1, 'min', 'max');
       // get the breakpoint feature's length value
-      $length: if($part == '', null, _shift-parse-length($part));
+      $length: if($part == '', null, shift-parse-length($part));
 
       @if $feature != '' and $part != '' {
         // register the breakpoint parameter
@@ -195,20 +198,4 @@
   }
 
   @return $params;
-}
-
-// =_shift-parse-length( $length )
-// -----------------------------------------------------------------------------
-/// Parses a length value from a shift handle or expression. If the length
-/// value is given on-the-fly, it will return a number. Otherwise, it will
-/// assume it is a feature label.
-///
-/// @api private
-/// @since 0.3.0
-
-@function _shift-parse-length($length)
-{
-  $number: to-number($length);
-  // return either casted length, or labeled length
-  @return if($number == null, $length, $number);
 }

@@ -3,7 +3,7 @@
 // =============================================================================
 
 @import "shift/config";
-@import "shift/convert-length";
+@import "shift/length";
 @import "shift/params/parse";
 
 // =shift-query( $params[, $tweakpoint, $units ])
@@ -33,6 +33,12 @@
   // parse expression/parameter maps
   $params: shift-parse($params, $tweakpoint);
 
+  // inject defaults
+  $params: map-merge((
+    'strict-query': $shift-strict-queries,
+    'media-type': $shift-media-type
+  ), $params);
+
   // start with optional 'only' keyword
   $query: if(map-get($params, 'strict-query') == true, "only ", "");
 
@@ -61,4 +67,79 @@
   }
 
   @return $query;
+}
+
+// =shift-query( $params[, $tweakpoint, $units ])
+// -----------------------------------------------------------------------------
+/// Wraps content into a media-query based on given params and sets current
+/// context. Content block will only output if the current stylesheet should
+/// actually include it.
+/// **Note**: If the `$shift-include-mq` global is set to `false`, content will
+/// not be output, unless the `$shift-no-mq-fallback` global is set to true and
+/// the given expression is in range with the `$shift-no-mq-min-width` global.
+/// This makes it possible to generate a stylesheet targeted at legacy browsers
+/// that dont support media-queries.
+/// @link http://jakearchibald.github.io/sass-ie/
+///
+/// @param {string|map} $params - A shift expression or a map of media-query parameters
+/// @param {string} $tweakpoint - An optional tweakpoint to get values from
+/// @param {map} $units - The units to use for media-query feature
+///
+/// @content Css rules that should be applied for the given breakpoint query.
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@mixin shift-query( $params, $tweakpoint: null, $units: () )
+{
+  // get all params and replace labels with values
+  $params: shift-parse($params, $tweakpoint);
+
+  // save current context, so it can be restored later on
+  @include shift-context-save();
+  // store @media params into context
+  @include shift-context($params);
+  @include shift-context('tweakpoint', $tweakpoint);
+
+  // include content if stylesheet should contain media-queries
+  // (aimed at browsers)
+  @if $shift-include-mq
+  {
+    // output media-query based on given parameters
+    @media #{shift-query($params, $tweakpoint, $units)}
+    {
+      @content;
+    }
+  }
+
+  // include content *at-root* in media-query-free stylesheets
+  // (aimed at browsers not supporting media-queries)
+  @else if $shift-include-fallback
+  {
+    $min-width: map-get($params, 'min-width');
+    $max-width: map-get($params, 'max-width');
+
+    @if ($min-width == null or $min-width <= $shift-fallback-min-width) and
+      ($max-width == null or $max-width >= $shift-fallback-min-width)
+    {
+      @content;
+    }
+  }
+
+  // restore context as it was, outside of breakpoint @media block
+  @include shift-context-restore();
+}
+
+// =shift( $params[, $tweakpoint, $units ])
+// -----------------------------------------------------------------------------
+/// @alias shift-query
+
+@mixin shift( $params, $tweakpoint: null, $units: ())
+{
+  @include shift-query($params, $tweakpoint, $units) {
+    @content;
+  }
 }
