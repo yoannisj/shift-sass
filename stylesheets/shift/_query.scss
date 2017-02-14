@@ -108,10 +108,24 @@
   // (aimed at browsers)
   @if $shift-include-mq
   {
-    // output media-query based on given parameters
-    @media #{shift-query($params, $tweakpoint, $units)}
+
+    @if length($params) > 0
     {
-      @content;
+      // output media-query based on given parameters
+      @media #{shift-query($params, $tweakpoint, $units)} {
+        @content;
+      }
+    }
+
+    @else
+    {
+      // default to root level
+      @at-root (without: media)
+      {
+        & {
+          @content;
+        }
+      }
     }
   }
 

@@ -1,0 +1,74 @@
+
+@import "aleksi/maps/debug-map";
+
+@import "shift/params/parse";
+@import "shift/context";
+@import "shift/variable";
+
+@include test-module('the shift-scope-variable function')
+{
+  $var-a: (
+    'df': 5,
+    's_m': 10,
+    'm_l': 20,
+    'l': 30
+  );
+
+  $var-b: (
+    'm_l': red,
+    'l': blue
+  );
+
+  $var-c: (
+    '_s': true,
+    's_m': false,
+    'm': true
+  );
+
+  $context-df: ();
+  $context-s_l: shift-parse('s_l');
+
+  $var-a-df: (
+    'df': 5,
+    'w>420 w<750': 10,
+    'w>750 w<1100': 20,
+    'w>1100': 30
+  );
+
+  $var-b-df: (
+    'w>750 w<1100': red,
+    'w>1100': blue
+  );
+
+  $var-a-s_l: (
+    'w>420 w<750': 10,
+    'w>750 w<1100': 20
+  );
+
+  $var-c-s_l: (
+    'w>420 w<750': false,
+    'w>750 w<1100': true
+  );
+
+  @include test('should remove keys that are out of scope from given shift variable')
+  {
+  }
+
+  @include test('should leave shift variables untouched in default context')
+  {
+    @include assert-equal(shift-scope-variable($var-a, $context-df), $var-a-df);
+    @include assert-equal(shift-scope-variable($var-b, $context-df), $var-b-df);
+  }
+
+  @include test('should default to current context')
+  {
+    // set context
+    @include shift-context-save();
+    @include shift-context($context-s_l);
+
+    @include assert-equal(shift-scope-variable($var-a), $var-a-s_l);
+    @include assert-equal(shift-scope-variable($var-c), $var-c-s_l);
+
+    @include shift-context-restore();
+  }
+}

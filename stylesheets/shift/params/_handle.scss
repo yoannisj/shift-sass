@@ -30,7 +30,7 @@
     @return throw-error('shift-handle(): $params must be a map – was #{inspect($params)}.');
   }
 
-  // allow empty params
+  // optimize for empty params
   @if length($params) == 0 {
     @return 'df';
   }
@@ -64,7 +64,7 @@
   }
 
   // return built handle
-  @return $handle;
+  @return if($handle == '', 'df', $handle);
 }
 
 // =shift-validate-handle( $str )

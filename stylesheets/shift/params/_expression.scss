@@ -32,7 +32,7 @@
     @return throw-error('shift-handle(): $params must be a map – was #{inspect($params)}.');
   }
 
-  // allow empty params
+  // optimize for empty params
   @if length($params) == 0 {
     @return 'df';
   }
@@ -69,8 +69,11 @@
     $expr: '#{$expr}h<#{$max-h} ';
   }
 
-  // return built expression, without extra spaces
-  @return str-trim($expr);
+  // remove extra spaces
+  $expr: str-trim($expr);
+
+  // return built expression
+  @return if($expr == '', 'df', $expr);
 }
 
 // =shift-validate-expression( $str )

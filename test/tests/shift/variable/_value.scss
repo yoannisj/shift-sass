@@ -1,0 +1,65 @@
+
+@import "shift/query";
+@import "shift/variable";
+
+@include test-module('the shift-value mixin')
+{
+  $var-a: (
+    'df': 5,
+    's': 10,
+    'm': 20,
+    'l': 30
+  );
+
+  // @include test('should output all media-queries for given variable')
+  // {
+  //   @include assert
+  //   {
+  //     @include output
+  //     {
+  //       @include shift-value('padding', $var-a);
+  //     }
+
+  //     @include expect
+  //     {
+  //       padding: 5;
+
+  //       @media screen and (min-width: 26.25em) {
+  //         padding: 10;
+  //       }
+
+  //       @media screen and (min-width: 46.875em) {
+  //         padding: 20;
+  //       }
+
+  //       @media screen and (min-width: 68.75em) {
+  //         padding: 30;
+  //       }
+  //     }
+  //   }
+  // }
+
+  // @include test('should limit output to current context\’s scope')
+  // {
+  //   @include assert
+  //   {
+  //     @include output
+  //     {
+  //       @include shift-query('s_l') {
+  //         @include shift-value('padding', $var-a);
+  //       }
+  //     }
+
+  //     @include expect
+  //     {
+  //       @media screen and (min-width: 26.25em) and (max-width: 68.75em) {
+  //         padding: 10;
+  //       }
+
+  //       @media screen and (min-width: 46.875em) and (max-width: 68.75em) {
+  //         padding: 20;
+  //       }
+  //     }
+  //   }
+  // }
+}

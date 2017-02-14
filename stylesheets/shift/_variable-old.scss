@@ -1,0 +1,541 @@
+// =============================================================================
+// =SHIFT - VARIABLE
+// =============================================================================
+
+@import "sassy-maps";
+@import "SassyLists";
+@import "aleksi/general/default-to";
+@import "aleksi/maps/map-sort";
+
+@import "shift/params/expression";
+@import "shift/params/handle";
+@import "shift/params/parse";
+@import "shift/context";
+
+// =is-shift-variable( $var )
+// -----------------------------------------------------------------------------
+/// Checks whether the given variable defines values for different media
+/// contexts. A shift variable is a map with keys that each describe a media
+/// context (either a shift expression or a shift handle).
+///
+/// @param {any} $var - The variable to test
+/// @return {bool} - Wheter $var is a shift variable or not
+///
+/// @access public
+/// @since 0.3.0
+///
+/// @TODO: implement memoization for performance
+
+@function is-shift-variable($var)
+{
+  // only maps can be shift variables
+  @if type-of($var) != 'map' {
+    @return false;
+  }
+
+  @each $key, $val in $var
+  {
+    // if any of the keys is neither a shift expression nor a shift handle
+    @if $key != 'df' and not shift-validate-expression($key)
+      and not shift-validate-handle($key)
+    {
+      // this is not a shift variable
+      @return false;
+    }
+  }
+
+  // all keys are either a shift expression or a shift handle
+  @return true;
+}
+
+// =shift-parse-var( $var )
+// -----------------------------------------------------------------------------
+
+// _l: 30
+// s_m: 20
+// BECOMES
+// _s: 30
+// s_m: 20
+// m_l: 30
+
+// df: 5
+// s: 10
+// m: 20
+// l: 30
+// BECOMES
+// _s: 5
+// s_m: 10
+// m_l: 20
+// l: 30
+
+// df: 5
+// s: 10
+// m_xl: 20
+// m: 30
+// BECOMES
+// _s: 5
+// s_m: 10
+// m_: 30
+
+// df: 5
+// s_m: 10
+// m_xl: 20
+// l: 30
+// BECOMES
+// _s: 5
+// s_m: 10
+// m_l: 20
+// l_xl: 30
+// l: 20
+
+// DON'T SORT KEYS !
+
+// TECHNIQUE 1:
+// - if curr-max > next-min ==> curr-max = next-min
+// - if curr-max > next-max ==> add a key for 'next-max -> curr-max' after next
+// CAUTION: if at the end we finish with a max- value, use df
+
+// TECHNIQUE 2:
+// - list all ≠ widths, and create stepped keys
+// - for each stepped key, get first value that corresponds (starting from the end)
+
+@function shift-parse-var( $var )
+{
+  $params: shift-parse-keys($var);
+  $values: map-values($var);
+
+  $i: 1;
+  $total: length($var);
+
+  $res: ();
+
+  @while $i <= $total
+  {
+    $val: nth($values, $i);
+
+    $prm: nth($params, $i);
+    $min-w: map-get($prm, 'min-width');
+    $max-w: map-get($prm, 'max-width');
+    $min-h: map-get($prm, 'min-height');
+    $max-h: map-get($prm, 'max-height');
+
+    @if $i < $total
+    {
+      $next: nth($params, $i + 1);
+      $next-min-w: map-get($next, 'min-width');
+      $next-max-w: map-get($next, 'max-width');
+      $next-min-h: map-get($next, 'min-height');
+      $next-max-h: map-get($next, 'max-height');
+
+      @debug '#{shift-expression($prm)} - #{shift-expression($next)} [#{$i} / #{$total}]';
+
+      // limit 'max-' of this key to 'min-' of next key
+      @if $next-min-w and default-to($max-w, 999999) > $next-min-w {
+        $prm: map-set($prm, 'max-width', $next-min-w);
+      }
+
+      @if $next-min-h and default-to($max-h, 999999) > $next-min-h {
+        $prm: map-set($prm, 'max-height', $next-min-h);
+      }
+
+      // re-insert value after next key's 'max-' ?
+      $add-prm: ();
+
+      @if $next-max-w and default-to($max-w, 999999) > $next-max-w {
+        $add-prm: map-merge($add-prm, (
+          'min-width': $next-max-w,
+          'max-width': $max-w
+        ));
+      }
+
+      @if $next-max-h and default-to($max-h, 999999) > $next-max-h {
+        $add-prm: map-merge($add-prm, (
+          'min-height': $next-max-h,
+          'max-height': $max-h
+        ));
+      }
+
+      @if length($add-prm) > 0 {
+        // add new key after next one
+        $add-prm: map-merge($prm, $add-prm);
+        $params: sl-insert-nth($params, $i + 2, $add-prm);
+        $values: sl-insert-nth($values, $i + 2, $val);
+        $total: $total + 1;
+      }
+    }
+
+    // add value to parsed result, with adjusted params
+    $res: map-set($res, shift-expression($prm), $val);
+    $i: $i + 1;
+  }
+
+  @return $res;
+}
+
+// =shift-parse-keys( $var )
+// -----------------------------------------------------------------------------
+
+@function shift-parse-keys( $var )
+{
+  $params: ();
+
+  @each $key, $val in $var {
+    $params: append($params, shift-parse($key));
+  }
+
+  @return $params;
+}
+
+// =shift-parse-var( $var )
+// -----------------------------------------------------------------------------
+
+// @function shift-parse-var( $var )
+// {
+//   $params-map: shift-parse-keys($var);
+//   $keys: map-keys($params-map);
+//   $ln: length($params-map);
+
+//   $res: ();
+
+//   // loop over ordered keys
+//   @for $i from 1 through $ln
+//   {
+//     $key: nth($keys, $i);
+//     $prm: map-get($params-map, $key);
+//     $val: map-get($var, $key);
+
+//     // TODO: only mix values from keys with same media type
+//     $media: default-to(map-get($params-map, 'media-type'), $shift-media-type);
+//     $min-w: map-get($prm, 'min-width');
+//     $max-w: map-get($prm, 'max-width');
+//     $min-h: map-get($prm, 'min-height');
+//     $max-h: map-get($prm, 'max-height');
+
+//     // there is a previous key
+//     @if $i > 1
+//     {
+//       // fill-in 'min-' with previous 'max-'
+//       @if $min-w == null {
+//         $prev-max-w: shift-previous-param($params-map, 'max-width', $i);
+//         $prm: map-set($prm, 'min-width', $prev-max-w);
+//       }
+
+//       @if $min-h == null {
+//         $prev-max-h: shift-previous-param($params-map, 'max-height', $i);
+//         $prm: map-set($prm, 'min-height', $prev-max-h);
+//       }
+//     }
+
+//     // there is a next key
+//     @if $i < $ln
+//     {
+//       // fill-in 'max-' with next 'min-'
+//       @if $max-w == null {
+//         $next-min-w: shift-next-param($params-map, 'min-width', $i);
+//         $prm: map-set($prm, 'max-width', $next-min-w);
+//       }
+
+//       @if $max-h == null {
+//         $next-min-h: shift-next-param($params-map, 'min-height', $i);
+//         $prm: map-set($prm, 'max-height', $next-min-h);
+//       }
+//     }
+
+//     $expr: shift-expression($prm);
+//     $res: map-set($res, $expr, $val);
+//   }
+
+//   @debug $keys;
+
+//   @return $res;
+// }
+
+// @function shift-parse-var($var)
+// {
+//   $keys: map-keys($var);
+//   $params-map: ();
+//   $widths: ();
+//   $heights: ();
+
+//   // inspect and collect features defined by each key
+//   @each $key in $keys
+//   {
+//     $prm: shift-parse($key);
+//     $min-w: map-get($prm, 'min-width');
+//     $max-w: map-get($prm, 'max-width');
+//     $min-h: map-get($prm, 'min-height');
+//     $max-h: map-get($prm, 'max-height');
+
+//     // collect new length values
+//     @if $min-w and not index($widths, $min-w) {
+//       $widths: append($widths, $min-w);
+//     }
+
+//     @if $max-w and not index($widths, $max-w) {
+//       $widths: append($widths, $max-w);
+//     }
+
+//     @if $min-h and not index($heights, $min-h) {
+//       $heights: append($heights, $min-h);
+//     }
+
+//     @if $max-h and not index($heights, $max-h) {
+//       $heights: append($heights, $min-h);
+//     }
+
+//     // collect original params for each key
+//     $params-map: map-set($params-map, $key, $prm);
+//   }
+
+//   // sort length values from smallest to largest
+//   $widths: sl-sort($widths);
+//   $heights: sl-sort($heights);
+
+//   $has-widths: if(length($widths), true, false);
+//   $has-heights: if(length($heights), true, false);
+
+//   $res: ();
+//   $ln: length($keys);
+
+//   // fill-in missing features in each key
+//   @for $i from 1 through $ln
+//   {
+//     $key: nth($keys, $i);
+//     $prm: map-get($params-map, $key);
+//     $val: map-get($var, $key);
+
+//     $min-w: map-get($prm, 'min-width');
+//     $max-w: map-get($prm, 'max-width');
+//     $min-h: map-get($prm, 'min-height');
+//     $max-h: map-get($prm, 'max-height');
+
+//     // fill-in 'max-' lengths with closest 'min-' from next
+//     @if not $max-w and $has-widths {
+//       $max-w: shift-larger-length($widths, default-to($min-w, 0));
+//       $prm: map-set($prm, 'max-width', $max-w);
+//     }
+
+//     @if not $max-h and $has-heights {
+//       $max-h: shift-larger-length($heights, default-to($min-h, 0));
+//       $prm: map-set($prm, 'max-height', $max-h);
+//     }
+
+//     // fill-in 'min-' lengths with closest 'max-'
+//     @if not $min-w and $has-widths {
+//       $min-w: shift-smaller-length($widths, default-to($max-w, 999999));
+//       $prm: map-set($prm, 'min-width', $min-w);
+//     }
+
+//     @if not $min-h and $has-heights {
+//       $min-h: shift-smaller-length($heights, default-to($max-h, 999999));
+//       $prm: map-set($prm, 'min-height', $min-h);
+//     }
+
+//     $expr: shift-expression($prm);
+//     $res: map-set($res, $expr, $val);
+//   }
+
+//   @return $var;
+// }
+
+// =shift-next-param( $var )
+// -----------------------------------------------------------------------------
+
+@function shift-next-param($params-map, $feature, $index)
+{
+  $params: map-values($params-map);
+
+  // loop over params, starting at next index
+  @for $i from $index + 1 through length($params)
+  {
+    $val: map-get(nth($params, $i), $feature);
+    @if $val {
+      @return $val;
+    }
+  }
+
+  // no value found for $feature after $index
+  @return null;
+}
+
+// =shift-previous-param( $var )
+// -----------------------------------------------------------------------------
+
+@function shift-previous-param($params-map, $feature, $index)
+{
+  $params: map-values($params-map);
+  $i: $index;
+
+  // loop over params in reverse order, starting at previous index
+  @while $i > 1
+  {
+    $i: $i - 1;
+
+    $val: map-get(nth($params, $i), $feature);
+    @if $val {
+      @return $val;
+    }
+  }
+
+  // no value found for $feature before $index
+  @return null;
+}
+
+// =shift-sort-var( $var )
+// -----------------------------------------------------------------------------
+/// Sorts a shift variable by comparing the keys based on given context feature.
+///
+/// @param {map} $params-map - The shift variable to sort
+/// @return {map} - The shift variable sorted based on key params
+///
+/// @access public
+/// @since 0.3.0
+
+@function shift-sort-var( $var )
+{
+  @if not is-shift-variable($var) {
+    @return throw-error('shift-sort-var(): $var must be a valid shift variable — was #{inspect($var)}.');
+  }
+
+  // parse and order keys based on the parameters they define
+  $params-map: shift-parse-keys($var);
+
+  // apply order to the variable
+  $res: ();
+  @each $key, $prm in $params-map {
+    $res: map-set($res, $key, map-get($var, $key));
+  }
+
+  // re-inject default value at the beginning
+  @return $res;
+}
+
+// =shift-parse-keys( $var )
+// -----------------------------------------------------------------------------
+
+// @function shift-parse-keys( $var )
+// {
+//   @if not is-shift-variable($var) {
+//     @return throw-error('shift-parse-keys(): $var must be a valid shift variable — was #{inspect($var)}.');
+//   }
+
+//   $has-w: false;
+//   $has-h: false;
+
+//   // get context defined by each key
+//   $params-map: ();
+//   @each $key, $val in $var {
+//     $params-map: map-set($params-map, $key, shift-parse($key));
+//   }
+
+//   // sort contexts based on 'ordering-by' feature
+//   // @return shift-sort-keys($params-map);
+//   @return $params-map;
+// }
+
+// =shift-sort-keys( $params-map )
+// -----------------------------------------------------------------------------
+/// Sorts a map with shift context values, comparing each context based on a
+/// given context feature. Only the 'width' and 'height' features are supported.
+///
+/// @param {map} $params-map - The map of contexts to sort
+/// @return {map} - The $params-map map sorted based on context values
+///
+/// @access public
+/// @since 0.3.0
+
+@function shift-sort-keys( $params-map )
+{
+  // optimize for empty and single-item maps
+  @if length($params-map) <= 1 {
+    @return $params-map;
+  }
+
+  $less: ();
+  $equal: ();
+  $more: ();
+
+  $keys: map-keys($params-map);
+  $seed-key: nth($keys, ceil(length($keys) / 2));
+  $seed: map-get($params-map, $seed-key);
+
+  $seed-min-w: default-to(map-get($seed, 'min-width'), 0);
+  $seed-max-w: default-to(map-get($seed, 'max-width'), 999999);
+  $seed-min-h: default-to(map-get($seed, 'min-height'), 0);
+  $seed-max-h: default-to(map-get($seed, 'max-height'), 999999);
+
+  @each $key, $prm in $params-map
+  {
+    // default params, always in front
+    @if $prm == () {
+      $less: map-set($less, $key, $prm);
+    }
+
+    @else
+    {
+      $min-w: default-to(map-get($prm, 'min-width'), 0);
+      $max-w: default-to(map-get($prm, 'max-width'), 999999);
+      $min-h: default-to(map-get($prm, 'min-height'), 0);
+      $max-h: default-to(map-get($prm, 'max-height'), 999999);
+
+      @if $min-w == $seed-min-w
+        and $max-w == $seed-max-w
+        and $min-h == $seed-min-h
+        and $max-h == $seed-max-h
+      {
+        // the param equals the seed
+        $equal: map-set($equal, $key, $prm);
+      }
+
+      @else if $min-w <= $seed-min-w
+        and $max-w <= $seed-max-w
+        and $min-h <= $seed-min-h
+        and $max-h <= $seed-max-h
+      {
+        $less: map-set($less, $key, $prm);
+      }
+
+      @else {
+        $more: map-set($more, $key, $prm);
+      }
+
+      // @else if $min-w and $min-w < $seed-min-w { $less: map-set($less, $key, $prm); }
+      // @else if $min-w and $min-w > $seed-min-w { $more: map-set($more, $key, $prm); }
+
+      // @else if $max-w and $max-w < $seed-max-w { $less: map-set($less, $key, $prm); }
+      // @else if $max-w and $max-w > $seed-max-w { $more: map-set($more, $key, $prm); }
+
+      // @else if $min-h and $min-h < $seed-min-h { $less: map-set($less, $key, $prm); }
+      // @else if $min-h and $min-h > $seed-min-h { $more: map-set($more, $key, $prm); }
+
+      // @else if $max-h and $max-h < $seed-max-h { $less: map-set($less, $key, $prm); }
+      // @else if $min-h and $min-h > $seed-min-h { $more: map-set($more, $key, $prm); }
+
+      // @else if $min-w == null or $min-w < $seed-min-w { $less: map-set($less, $key, $prm); }
+      // @else if $min-w != null and $min-w > $seed-min-w { $more: map-set($more, $key, $prm); }
+      // @else if $max-w != null and $max-w < $seed-max-w { $less: map-set($less, $key, $prm); }
+      // @else if $max-w == null or $max-w > $seed-max-w { $more: map-set($more, $key, $prm); }
+      // @else if $min-h == null or $min-h < $seed-min-h { $less: map-set($less, $key, $prm); }
+      // @else if $min-h != null and $min-h > $seed-min-h { $more: map-set($more, $key, $prm); }
+      // @else if $max-h != null and $max-h < $seed-max-h { $less: map-set($less, $key, $prm); }
+      // @else if $max-h == null or $max-h > $seed-max-h { $more: map-set($more, $key, $prm); }
+
+      // @else if $min-w < $seed-min-w { $less: map-set($less, $key, $prm); }
+      // @else if $min-w > $seed-min-w { $more: map-set($more, $key, $prm); }
+      // @else if $max-w < $seed-max-w { $less: map-set($less, $key, $prm); }
+      // @else if $max-w > $seed-max-w { $more: map-set($more, $key, $prm); }
+      // @else if $min-h < $seed-min-h { $less: map-set($less, $key, $prm); }
+      // @else if $min-h > $seed-min-h { $more: map-set($more, $key, $prm); }
+      // @else if $max-h < $seed-max-h { $less: map-set($less, $key, $prm); }
+      // @else if $max-h > $seed-max-h { $more: map-set($more, $key, $prm); }
+    }
+  }
+
+  // order the previous and next contexts
+  $less: shift-sort-keys($less);
+  $more: shift-sort-keys($more);
+
+  // join the ordered maps
+  @return map-merge(map-merge($less, $equal), $more);
+}
+
