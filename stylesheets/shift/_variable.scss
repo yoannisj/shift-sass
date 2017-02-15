@@ -6,6 +6,7 @@
 @import "SassyLists";
 @import "aleksi/general/default-to";
 @import "aleksi/general/css-rule";
+@import "aleksi/lists/walk";
 
 @import "shift/config";
 @import "shift/params/expression";
@@ -50,7 +51,7 @@
   @return true;
 }
 
-// =shift-parse-keys( $var )
+// =_shift-parse-keys( $var )
 // -----------------------------------------------------------------------------
 /// Parses each key in given shift variable, and returns a map pairing each key
 /// with the parsed features it defines.
@@ -60,16 +61,16 @@
 /// @throw Error - if $var is not a valid shift variable
 /// @return {map} - the map of keys -> parsed features
 ///
-/// @api public
+/// @api private
 /// @since 0.3.0
 ///
 /// @todo: implement memoization for increased performance
 
-@function shift-parse-keys( $var )
+@function _shift-parse-keys( $var )
 {
   // this only works on valid shift variables
   @if not is-shift-variable($var) {
-    @return throw-error('shift-parse-keys(): $var must be a valid shift variable – was #{inspect($var)}.');
+    @return throw-error('_shift-parse-keys(): $var must be a valid shift variable – was #{inspect($var)}.');
   }
 
   $params: ();
@@ -80,39 +81,149 @@
   @return $params;
 }
 
-// =shift-stagger-variable( $var )
+// =_shift-key-lengths( $vars... )
 // -----------------------------------------------------------------------------
+/// Collects all media widths/heights found in given shift variable(s)' keys and
+/// sorts them in ascending order. Regular variables use no media widths/heights
+/// are therefor ignored.
+///
+/// @param {arglist} $vars.. - shift variable(s) to inspect
+///
+/// @return {map} map listing the 'width' and 'height' lengths
+///
+/// @api private
+/// @since 0.3.0
+///
+/// @todo: return widths/heights per media
 
-@function shift-stagger-variable( $var )
+@function _shift-key-lengths( $vars... )
 {
-  $params: shift-parse-keys($var);
-
   $widths: ();
   $heights: ();
 
-  @each $key, $val in $var
+  @each $var in $vars
   {
-    $prm: map-get($params, $key);
-    $min-w: map-get($prm, 'min-width');
-    $max-w: map-get($prm, 'min-height');
+    @if is-shift-variable($var)
+    {
+      $params: _shift-parse-keys($var);
 
-    @if not index($widths, $min-w) { $widths: append($widths, $min-w); }
-    @if not index($widths, $max-w) { $widths: append($widths, $max-w); }
-    @if not index($heights, $min-h) { $heights: append($heights, $min-h); }
-    @if not index($heights, $max-h) { $heights: append($heights, $max-h); }
+      @each $key, $val in $var
+      {
+        $prm: map-get($params, $key);
+        $min-w: map-get($prm, 'min-width');
+        $max-w: map-get($prm, 'max-width');
+        $min-h: map-get($prm, 'min-height');
+        $max-h: map-get($prm, 'max-height');
+
+        @if $min-w != null and not index($widths, $min-w) { $widths: append($widths, $min-w); }
+        @if $max-w != null and not index($widths, $max-w) { $widths: append($widths, $max-w); }
+        @if $min-h != null and not index($heights, $min-h) { $heights: append($heights, $min-h); }
+        @if $max-h != null and not index($heights, $max-h) { $heights: append($heights, $max-h); }
+      }
+    }
   }
 
-  $widths: sl-sort($widths);
-  $heights: sl-sort($heights);
+  @return (
+    'widths': sl-sort($widths),
+    'heights': sl-sort($heights)
+  );
+}
 
-  $keys: ();
 
+// =_shift-length-intervals( $lengths )
+// -----------------------------------------------------------------------------
+/// Builds shift params for each 'min-/max-' interval between given media
+/// widths/heights, and returns them in an ordered list (first width-only
+/// intervals, then height-only and finally mixed intervals).
+/// 
+/// @param {map} $lengths - map of widths/heights to build intervals for
+/// @return {list} - The ordered list of params representing intervals
+///
+/// @api private
+/// @since 0.3.0
+
+@function _shift-length-intervals( $lengths )
+{
+  $widths: map-get($lengths, 'widths');
+  $heights: map-get($lengths, 'heights');
+
+  $total-w: length($widths);
+  $total-h: length($heights);
+
+  $w-params: ();
+  $h-params: ();
+  $params: ();
+
+  @if $total-w > 0
+  {
+    // add 'max-' only params at the beginning
+    $max-w-prm: ('max-width': nth($widths, 1));
+    $w-params: append($w-params, $max-w-prm);
+    $params: append($params, $max-w-prm);
+
+    // add params for each 'min-' 'max-' interval
+    @for $i from 1 to $total-w
+    {
+      $min-w: nth($widths, $i);
+      $max-w: nth($widths, $i + 1);
+      $prm: ('min-width': $min-w, 'max-width': $max-w);
+
+      $w-params: append($w-params, $prm);
+      $params: append($params, $prm);
+    }
+
+    // add 'min-' only params at the end
+    $min-w-prm: ('min-width': nth($widths, $total-w));
+    $w-params: append($w-params, $min-w-prm);
+    $params: append($params, $min-w-prm);
+  }
+
+  @if $total-h > 0
+  {
+    // add 'max-' only params at the beginning
+    $max-h-prm: ('max-height': nth($heights, 1));
+    $h-params: append($h-params, $max-h-prm);
+    $params: append($params, $max-h-prm);
+
+    // add params for each 'min-' 'max-' interval
+    @for $i from 1 to $total-h
+    {
+      $min-h: nth($heights, $i);
+      $max-h: nth($heights, $i + 1);
+      $prm: ('min-height': $min-h, 'max-height': $max-h);
+
+      $h-params: append($h-params, $prm);
+      $params: append($params, $prm);
+    }
+
+    // add 'min-' only params at the end
+    $min-h-prm: ('min-height': nth($heights, $total-h));
+    $h-params: append($h-params, $min-h-prm);
+    $params: append($params, $min-h-prm);
+  }
+
+  // add mixed length params
+  @if $total-w > 0 and $total-h > 0
+  {
+    @each $w-prm in $w-params
+    {
+      @each $h-prm in $h-params
+      {
+        $prm: map-merge($w-prm, $h-prm);
+        $params: append($params, $prm);
+      }
+    }
+  }
+
+  @return $params;
 }
 
 // =shift-scope-variable( $var[, $context ])
 // -----------------------------------------------------------------------------
 /// Limits a shift-variable to the scope of given context. Keys that are out of
 /// scope are removed, and keys overlapping context scope are limited to fit in.
+/// **Note**: If a regular variable is given, it will be wrapped in a shift
+/// variable using the context as single key.
 ///
 /// @param $var - the shift variable to re-scope
 /// @param $context [shift-context()] - the context features to use as scope
@@ -148,7 +259,7 @@
   }
 
   // get shift params for each key
-  $params: shift-parse-keys($var);
+  $params: _shift-parse-keys($var);
 
   @each $key, $val in $var
   {
@@ -200,6 +311,12 @@
 
 // =shift-value( $var[, $context ])
 // -----------------------------------------------------------------------------
+/// Returns the value(s) from a shift variable that correspond to given context.
+/// **Note**: if a regular variable is given, that will be returned as is.
+///
+/// @param {map|any} $var - The shift variable to get value(s) from
+/// @param {map} $context - The shift context for which to get value(s)
+///
 /// @todo: implement memoization for increased performance
 
 @function shift-value( $var, $context: null )
@@ -226,6 +343,202 @@
   }
 
   // return all values that correspond
+  @return $res;
+}
+
+// =shift-computed-value( $var[, $context ])
+// -----------------------------------------------------------------------------
+/// Returns the last value from a shift variable that corresponds to given
+/// context. Assuming that the variable's values are output in the same order in
+/// the final CSS, this is the computed value at given context.
+///
+/// @param {map} $var - the shift variable to retreive the value from
+/// @param {map} $context - the shift context for which to retreive the value
+///
+/// @api public
+/// @since 0.3.0
+//
+// WORKS ONLY IF CONTEXT DOES NOT OVERLAP KEY INTERVALS !!
+// -> MAKE SURE THE KEY INTERVALS ARE MINIMAL BEFORE RUNNING THROUGH THIS..
+
+@function shift-computed-value( $var, $context: null )
+{
+  // get context feature values
+  $context: default-to($context, shift-context());
+
+  $media: default-to(map-get($context, 'media-type'), $shift-media-type);
+  $min-w: default-to(map-get($context, 'min-width'), 0);
+  $max-w: default-to(map-get($context, 'max-width'), 999999);
+  $min-h: default-to(map-get($context, 'min-height'), 0);
+  $max-h: default-to(map-get($context, 'max-height'), 999999);
+
+  // extract default value
+  $df: map-get($var, 'df');
+  $var: map-remove($var, 'df');
+
+  // loop over other keys in reverse order, and get first value that fits
+  $params: _shift-parse-keys($var);
+  $keys: map-keys($var);
+  $i: length($var);
+
+  @while $i > 0
+  {
+    $key: nth($keys, $i);
+    $prm: map-get($params, $key);
+
+    $prm-media: default-to(map-get($prm, 'media-type'), $shift-media-type);
+    $prm-min-w: default-to(map-get($prm, 'min-width'), 0);
+    $prm-max-w: default-to(map-get($prm, 'max-width'), 999999);
+    $prm-min-h: default-to(map-get($prm, 'min-height'), 0);
+    $prm-max-h: default-to(map-get($prm, 'max-height'), 999999);
+
+    // if context is in key's scope
+    @if $media == $prm-media
+      and $min-w >= $prm-min-w
+      and $max-w <= $prm-max-w
+      and $min-h >= $prm-min-h
+      and $max-h <= $prm-max-h
+    {
+      // return its value
+      @return map-get($var, $key);
+    }
+
+    $i: $i - 1;
+  }
+
+  // return default value (can be 'null')
+  @return $df;
+}
+
+// =shift-transpose-variable( $var, $keys )
+// -----------------------------------------------------------------------------
+/// Transforms a shift variable, by using the given list of keys and the values
+/// that correspond in the original variable.
+///
+/// @throw Error - if $var is not a valid shift variable
+/// @return {map} - transformed variable, using given keys
+///
+/// @api public
+/// @since 0.3.0
+///
+/// @todo: implement memoization for increased performance
+
+@function shift-transpose-variable($var, $keys)
+{
+  @if not is-shift-variable($var) {
+    @return throw-error('shift-transpose-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  $res: ();
+
+  @each $key in $keys
+  {
+    $val: shift-computed-value($var, shift-parse($key));
+    $res: map-set($res, $key, $val);
+  }
+
+  @return $res;
+}
+
+// =shift-expand-variable( $var )
+// -----------------------------------------------------------------------------
+/// Expands a given shift variable, staggering keys to cover all possible width
+/// and/or height intervals.
+///
+/// @param $var - the shift variable to re-scope
+/// @param $context [shift-context()] - the context features to use as scope
+///
+/// @throw Error - if $var is not a valid shift variable
+/// @return {map} - the map of keys -> parsed features
+///
+/// @api public
+/// @since 0.3.0
+///
+/// @todo: implement memoization for increased performance
+
+@function shift-expand-variable( $var )
+{
+  @if not is-shift-variable($var) {
+    @return throw-error('shift-expand-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  // get ordered length intervals from variable's keys
+  $lengths: _shift-key-lengths($var);
+  $intervals: _shift-length-intervals($lengths);
+
+  $keys: walk($intervals, 'shift-expression');
+
+  $keys: ();
+  @each $prm in $intervals {
+    $keys: append($keys, shift-expression($prm));
+  }
+
+  @return shift-transpose-variable($var, $keys);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// =shift-reduce-variable( $var )
+// -----------------------------------------------------------------------------
+// WHATS WITH HEIGHTS
+
+@function shift-reduce-variable( $var )
+{
+  $values: map-values($var);
+  $params: map-values(_shift-parse-keys($var));
+
+  $i: 1;
+  $ln: length($var);
+
+  @while $i < $ln
+  {
+    $val: nth($values, $i);
+    $next-val: nth($values, $i + 1);
+
+    @if $val == $next-val
+    {
+      // merge the sibling params into one
+      $prm: nth($params, $i);
+      $next-prm: nth($params, $i + 1);
+      $merged-prm: (
+        'min-width': map-get($prm, 'min-width'),
+        'max-width': map-get($next-prm, 'max-width')
+      );
+
+      // remove next params and value
+      $params: sl-remove-nth($params, $i + 1);
+      $values: sl-remove-nth($values, $i + 1);
+
+      // replace current params with merged params
+      $params: sl-replace-nth($params, $i, $merged-prm);
+
+      $ln: $ln - 1;
+    }
+
+    @else {
+      // move on..
+      $i: $i + 1;
+    }
+  }
+
+  $res: ();
+  @for $i from 1 through $ln
+  {
+    $prm: nth($params, $i);
+    $val: nth($values, $i);
+
+    $res: map-set($res, shift-expression($prm), $val);
+  }
+
   @return $res;
 }
 
@@ -283,7 +596,7 @@
   // collect unique values for length features
   @each $var in $vars
   {
-    $params: shift-parse-keys($var);
+    $params: _shift-parse-keys($var);
 
     @each $key, $prm in $params
     {
