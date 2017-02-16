@@ -16,10 +16,11 @@ tmp
 # ---------
 *.gem
 
-# DEPENDENCIES
+# NODE + BOWER
 # ------------
 node_modules
 bower_components
+npm-debug
 
 # SASSDOC
 # -------
