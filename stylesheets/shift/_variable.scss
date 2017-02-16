@@ -7,6 +7,9 @@
 @import "aleksi/general/default-to";
 @import "aleksi/general/css-rule";
 @import "aleksi/lists/walk";
+@import "aleksi/lists/remove-nth";
+@import "aleksi/lists/replace-nth";
+@import "aleksi/maps/map-insert";
 
 @import "shift/config";
 @import "shift/params/expression";
@@ -128,7 +131,6 @@
     'heights': sl-sort($heights)
   );
 }
-
 
 // =_shift-length-intervals( $lengths )
 // -----------------------------------------------------------------------------
@@ -476,66 +478,175 @@
   @return shift-transpose-variable($var, $keys);
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // =shift-reduce-variable( $var )
 // -----------------------------------------------------------------------------
-// WHATS WITH HEIGHTS
+/// Reduces a shift variable that was previously expanded using
+/// 'shift-expand-variable', so it uses the least keys as possible.
+///
+/// @param {map} $var - the shift variable to reduce
+/// @return {map} - a reduced copy of $var, with least keys being used
+///
+/// @api public
+/// @since 0.3.0
 
 @function shift-reduce-variable( $var )
+{
+  // only accept valid shift variables
+  @if not is-shift-variable($var) {
+    @return throw-error('shift-expand-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  // reduce intervals from variable
+  $res: _shift-reduce-intervals($var);
+
+  // get default value (defaults to prevailing value)
+  $df: '__none__';
+  @if map-has-key($var, 'df') {
+    $df: map-get($var, 'df');
+  } @else {
+    $df: _shift-prevailing-value($var);
+  }
+
+  // add default value at the beginning of reduced copy
+  $res: map-insert($res, 1, ('df': $df));
+
+  @return $res;
+}
+
+// =_shift-prevailing-value( $var )
+// -----------------------------------------------------------------------------
+/// Returns the value that occurs the most often in given shift variable. If all
+/// values occur the same amount of times, the first value will be returned.
+///
+/// @param {map} $var - the shift variable to inspect
+///
+/// @return {any} the prevailing value in $var
+/// @throw Error - if $var is not a shift variable
+///
+/// @api private
+/// @since 0.3.0
+
+@function _shift-prevailing-value($var)
+{
+  $most: '__none__';
+  $vals: map-values($var);
+  $counts: ();
+
+  @each $val in $vals
+  {
+    // use index of first occurence of value as key
+    $key: index($vals, $val);
+
+    // update count for value
+    $count: default-to(map-get($counts, $key), 0) + 1;
+    $counts: map-set($counts, $key, $count);
+
+    // update default value
+    @if $most == '__none__'
+      or $count > map-get($counts, index($vals, $most))
+    {
+      $most: $val;
+    }
+  }
+
+  @return $most;
+}
+
+// =_shift-reduce-intervals( $var )
+// -----------------------------------------------------------------------------
+/// Reduces 'min-/max-' intervals in keys from given shift variable.
+///
+/// @return {map} - the shift variable with reduced intervals
+/// @throw Error - if $var is not a shift variable
+///
+/// @api private
+/// @since 0.3.0
+
+@function _shift-reduce-intervals( $var )
 {
   $values: map-values($var);
   $params: map-values(_shift-parse-keys($var));
 
+  // compare each entry with next one
   $i: 1;
   $ln: length($var);
 
   @while $i < $ln
   {
+    $next-i: $i + 1;
+
     $val: nth($values, $i);
-    $next-val: nth($values, $i + 1);
+    $next-val: nth($values, $next-i);
+
+    $merge: false;
 
     @if $val == $next-val
     {
-      // merge the sibling params into one
+      // candidate for merging
       $prm: nth($params, $i);
-      $next-prm: nth($params, $i + 1);
-      $merged-prm: (
-        'min-width': map-get($prm, 'min-width'),
-        'max-width': map-get($next-prm, 'max-width')
-      );
+      $min-w: map-get($prm, 'min-width');
+      $max-w: map-get($prm, 'max-width');
+      $min-h: map-get($prm, 'min-height');
+      $max-h: map-get($prm, 'max-height');
 
-      // remove next params and value
-      $params: sl-remove-nth($params, $i + 1);
-      $values: sl-remove-nth($values, $i + 1);
+      $next-prm: nth($params, $next-i);
+      $next-min-w: map-get($next-prm, 'min-width');
+      $next-max-w: map-get($next-prm, 'max-width');
+      $next-min-h: map-get($next-prm, 'min-height');
+      $next-max-h: map-get($next-prm, 'max-height');
 
-      // replace current params with merged params
-      $params: sl-replace-nth($params, $i, $merged-prm);
+      $merged: $prm;
 
-      $ln: $ln - 1;
+      // if keys are compatible and width intervals follow-up
+      @if default-to($min-h, 0) == default-to($next-min-h, 0)
+        and default-to($max-h, 999999) == default-to($next-max-h, 999999)
+        and default-to($max-w, 999999) >= default-to($next-min-w, 0)
+      {
+        // merge them by expanding max-w
+        $merge: true;
+        $merged: map-merge($merged, (
+          'max-width': $next-max-w
+        ));
+      }
+
+      // if keys are compatible and height intervals follow-up
+      @if default-to($min-w, 0) == default-to($next-min-w, 0)
+        and default-to($max-w, 999999) == default-to($next-max-w, 999999)
+        and default-to($max-h, 999999) >= default-to($next-min-h, 0)
+      {
+        // merge them by expanding max-h
+        $merge: true;
+        $merged: map-merge($merged, (
+          'max-height': $next-max-h
+        ));
+      }
+
+      @if $merge == true
+      {
+        // remove next interval
+        $values: remove-nth($values, $next-i);
+        $params: remove-nth($params, $next-i);
+        $ln: $ln - 1;
+
+        // and replace current one with expanded one
+        $params: replace-nth($params, $i, $merged);
+      }
     }
 
-    @else {
+    @else if $merge == false {
       // move on..
       $i: $i + 1;
     }
   }
 
+  // build reduced copy of the variable based on new intervals
   $res: ();
+
   @for $i from 1 through $ln
   {
     $prm: nth($params, $i);
     $val: nth($values, $i);
-
+    
     $res: map-set($res, shift-expression($prm), $val);
   }
 
@@ -544,132 +655,205 @@
 
 // =shift-align-variables( $vars )
 // -----------------------------------------------------------------------------
+/// Aligns multiple shift variables by transposing them to the same keys, which
+/// represent the intervals between all media widths/heights found in the
+/// original variable keys. This way, the variables can be compared directly.
+///
+/// @param $vars - the shift variables to align
+/// @param $context [shift-context()] - the context features to use as scope
+///
+/// @return {list} - list of transposed $vars
+///
+/// @api public
+/// @since 0.3.0
 
-@function shift-align-keys( $vars )
+@function shift-align-variables( $vars, $context: null )
 {
-  $first: shift-scope-variable(nth($vars, 1));
-  $keys: map-keys($first);
+  // default to current context
+  $context: default-to($context, shift-context());
 
-  @debug $first;
+  // limit variables to context scope
+  // (also transforms regular variables into shift variables)
+  $vars: walk($vars, 'shift-scope-variable', $context);
 
-  $num-vars: length($vars);
+  // get complete list of media lengths and intervals from all orignal keys
+  $lengths: _shift-key-lengths($vars...);
+  $intervals: _shift-length-intervals($lengths);
 
-  @for $i from 2 through $num-vars
-  {
-    $var: shift-scope-variable(nth($vars, $i));
+  // initialize list of aligned variables
+  $aligned: ();
 
-    @for $i from 1 through length($keys)
-    {
-      $key: nth($keys, $i);
-      $prm: shift-parse($key);
-      $key-val: shift-scope-variable($var, $prm);
+  // transpose each variable to expanded interval keys
+  $keys: walk($intervals, 'shift-expression');
+  $aligned: walk($vars, 'shift-transpose-variable', $keys);
 
-      @if length($key-val) > 1
-      {
-        // replace the current key, with those from returned value
-        $keys: sl-remove-nth($keys, $i);
-
-        $val-keys: map-keys($key-val);
-        $j: length($val-keys);
-
-        @while $j > 0
-        {
-          $k: nth($val-keys, $j);
-          $keys: sl-insert-nth($keys, $i, $k);
-          $j: $j - 1;
-        }
-      }
-    }
-  }
-
-  @return $keys;
+  @return $aligned;
 }
 
-// =shift-align-variables( $vars )
+// =shift-call( $fn[, $args... ])
+// -----------------------------------------------------------------------------
+/// Calls a given function with shift variable arguments. The function will be
+/// called on each different value that is defined in the arguments.
+///
+/// @param $fn - the transforming function.
+/// @param $args - the arguments to pass to $fn
+///
+/// @return {map} - a shift variable representing the different values returned by fn
+///
+/// @api public
+/// @since 0.3.0
+
+@function shift-call($fn, $args...)
+{
+  $res: ();
+
+  // align all arguments and get list of shared keys
+  $args: shift-align-variables($args);
+  $keys: map-keys(nth($args, 1));
+
+  @debug $args;
+
+  // call transforming function with values for each key
+  @each $key in $keys
+  {
+    $key-args: walk($args, 'map-get', $key);
+    $key-val: call($fn, $key-args...);
+
+    // and get value returned by transforming function
+    $res: map-set($res, $key, $key-val);
+  }
+
+  @return $res;
+}
+
+// =shift-align-keys( $vars )
 // -----------------------------------------------------------------------------
 
-@function shift-align-variables( $vars )
-{
-  $widths: ();
-  $heights: ();
+// @function shift-align-keys( $vars )
+// {
+//   $first: shift-scope-variable(nth($vars, 1));
+//   $keys: map-keys($first);
 
-  // collect unique values for length features
-  @each $var in $vars
-  {
-    $params: _shift-parse-keys($var);
+//   @debug $first;
 
-    @each $key, $prm in $params
-    {
-      $min-w: map-get($prm, 'min-width');
-      $max-w: map-get($prm, 'min-width');
-      $min-h: map-get($prm, 'min-height');
-      $max-h: map-get($prm, 'min-height');
+//   $num-vars: length($vars);
 
-      @if $min-w != null and not index($widths, $min-w) {
-        $widths: append($widths, $min-w);
-      }
+//   @for $i from 2 through $num-vars
+//   {
+//     $var: shift-scope-variable(nth($vars, $i));
 
-      @if $max-w != null and not index($widths, $max-w) {
-        $widths: append($widths, $max-w);
-      }
+//     @for $i from 1 through length($keys)
+//     {
+//       $key: nth($keys, $i);
+//       $prm: shift-parse($key);
+//       $key-val: shift-scope-variable($var, $prm);
 
-      @if $min-h != null and not index($widths, $min-h) {
-        $heights: append($widths, $min-h);
-      }
+//       @if length($key-val) > 1
+//       {
+//         // replace the current key, with those from returned value
+//         $keys: sl-remove-nth($keys, $i);
 
-      @if $max-h != null and not index($widths, $max-h) {
-        $heights: append($widths, $max-h);
-      }
-    }
-  }
+//         $val-keys: map-keys($key-val);
+//         $j: length($val-keys);
 
-  // sort collected length values in ascending order
-  $widths: sl-sort($widths);
-  $heights: sl-sort($heights);
+//         @while $j > 0
+//         {
+//           $k: nth($val-keys, $j);
+//           $keys: sl-insert-nth($keys, $i, $k);
+//           $j: $j - 1;
+//         }
+//       }
+//     }
+//   }
 
-  // create list of keys for all possible intervals...
-  $keys: ();
+//   @return $keys;
+// }
 
-  // add 'max-' length only at start
-  $keys: append($keys, shift-expression('max-width', nth($widths, 1)));
+// // =shift-align-variables( $vars )
+// // -----------------------------------------------------------------------------
 
-  @for $w from 1 through $w-total
-  {
-    $min-w: if($w == 1, null, nth($widths, $w));
-    $max-w: if($w == $w-total, null, nth($widths, $w + 1));
+// @function shift-align-variables( $vars )
+// {
+//   $widths: ();
+//   $heights: ();
 
-    @for $h from 1 through $h-total
-    {
-      $min-h: if($h == 1, null, nth($heights, $h));
-      $max-h: if($h == $h-total, null, nth($height, $h + 1));
+//   // collect unique values for length features
+//   @each $var in $vars
+//   {
+//     $params: _shift-parse-keys($var);
 
-      $key: shift-expression((
-        'min-width': $min-w,
-        'max-width': $max-w,
-        'min-height': $min-h,
-        'max-height': $max-h
-      ));
-    }
+//     @each $key, $prm in $params
+//     {
+//       $min-w: map-get($prm, 'min-width');
+//       $max-w: map-get($prm, 'min-width');
+//       $min-h: map-get($prm, 'min-height');
+//       $max-h: map-get($prm, 'min-height');
 
-    @if $i == 1 {
-      $prm: ('max-width': $w);
-    }
+//       @if $min-w != null and not index($widths, $min-w) {
+//         $widths: append($widths, $min-w);
+//       }
 
-    @else if $i == $num-widths {
-      $prm: ('max-width': $w);
-    }
+//       @if $max-w != null and not index($widths, $max-w) {
+//         $widths: append($widths, $max-w);
+//       }
 
-    @else {
-      $prm: ('min-width': $w, 'max-width': $next-w);
-    }
+//       @if $min-h != null and not index($widths, $min-h) {
+//         $heights: append($widths, $min-h);
+//       }
 
-    $keys: append($keys, shift-expression($prm));
-  }
+//       @if $max-h != null and not index($widths, $max-h) {
+//         $heights: append($widths, $max-h);
+//       }
+//     }
+//   }
 
-  // add 'min-' length only at end
+//   // sort collected length values in ascending order
+//   $widths: sl-sort($widths);
+//   $heights: sl-sort($heights);
 
-  @return $keys;
-}
+//   // create list of keys for all possible intervals...
+//   $keys: ();
+
+//   // add 'max-' length only at start
+//   $keys: append($keys, shift-expression('max-width', nth($widths, 1)));
+
+//   @for $w from 1 through $w-total
+//   {
+//     $min-w: if($w == 1, null, nth($widths, $w));
+//     $max-w: if($w == $w-total, null, nth($widths, $w + 1));
+
+//     @for $h from 1 through $h-total
+//     {
+//       $min-h: if($h == 1, null, nth($heights, $h));
+//       $max-h: if($h == $h-total, null, nth($height, $h + 1));
+
+//       $key: shift-expression((
+//         'min-width': $min-w,
+//         'max-width': $max-w,
+//         'min-height': $min-h,
+//         'max-height': $max-h
+//       ));
+//     }
+
+//     @if $i == 1 {
+//       $prm: ('max-width': $w);
+//     }
+
+//     @else if $i == $num-widths {
+//       $prm: ('max-width': $w);
+//     }
+
+//     @else {
+//       $prm: ('min-width': $w, 'max-width': $next-w);
+//     }
+
+//     $keys: append($keys, shift-expression($prm));
+//   }
+
+//   // add 'min-' length only at end
+
+//   @return $keys;
+// }
 
 // =Mixins
 // =============================================================================
