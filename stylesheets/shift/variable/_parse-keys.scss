@@ -1,0 +1,36 @@
+// =============================================================================
+// =SHIFT - VARIABLE PARSE KEYS
+// =============================================================================
+///
+//// @group shift-variable
+//// @author [Yoannis Jamar](http://yoannis.com)
+
+// =shift-parse-keys( $var )
+// -----------------------------------------------------------------------------
+/// Parses each key in given shift variable, and returns a map pairing each key
+/// with the parsed features it defines.
+///
+/// @param $var - the shift variable to parse
+///
+/// @throw Error - if $var is not a valid shift variable
+/// @return {map} - the map of keys -> parsed features
+///
+/// @api public
+/// @since 0.3.0
+///
+/// @todo: implement memoization for increased performance
+
+@function shift-parse-keys( $var )
+{
+  // this only works on valid shift variables
+  @if not shift-validate-variable($var) {
+    @return throw-error('shift-parse-keys(): $var must be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  $params: ();
+  @each $key, $val in $var {
+    $params: map-set($params, $key, shift-parse($key));
+  }
+
+  @return $params;
+}

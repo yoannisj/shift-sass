@@ -1,0 +1,190 @@
+// =============================================================================
+// =SHIFT - VARIABLE EXPAND
+// =============================================================================
+///
+//// @group shift-variable
+//// @author [Yoannis Jamar](http://yoannis.com)
+
+@import "SassyLists";
+@import "aleksi/general/throw";
+@import "aleksi/lists/walk";
+
+@import "shift/params/expression";
+@import "shift/variable/validate";
+@import "shift/variable/parse-keys";
+@import "shift/variable/transpose";
+
+// =Functions
+// =============================================================================
+
+// =shift-expand-variable( $var )
+// -----------------------------------------------------------------------------
+/// Expands a given shift variable, staggering keys to cover all possible width
+/// and/or height intervals.
+///
+/// @param $var - the shift variable to re-scope
+/// @param $context [shift-context()] - the context features to use as scope
+///
+/// @throw Error - if $var is not a valid shift variable
+/// @return {map} - the map of keys -> parsed features
+///
+/// @api public
+/// @since 0.3.0
+///
+/// @todo: implement memoization for increased performance
+
+@function shift-expand-variable( $var )
+{
+  @if not shift-validate-variable($var) {
+    @return throw-error('shift-expand-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  // get ordered length intervals from variable's keys
+  $lengths: _shift-key-lengths($var);
+  $intervals: _shift-length-intervals($lengths);
+
+  $keys: walk($intervals, 'shift-expression');
+
+  $keys: ();
+  @each $prm in $intervals {
+    $keys: append($keys, shift-expression($prm));
+  }
+
+  @return shift-transpose-variable($var, $keys);
+}
+
+// =_shift-key-lengths( $vars... )
+// -----------------------------------------------------------------------------
+/// Collects all media widths/heights found in given shift variable(s)' keys and
+/// sorts them in ascending order. Regular variables use no media widths/heights
+/// are therefor ignored.
+///
+/// @param {arglist} $vars.. - shift variable(s) to inspect
+///
+/// @return {map} map listing the 'width' and 'height' lengths
+///
+/// @api private
+/// @since 0.3.0
+///
+/// @todo: return widths/heights per media
+
+@function _shift-key-lengths( $vars... )
+{
+  $widths: ();
+  $heights: ();
+
+  @each $var in $vars
+  {
+    @if shift-validate-variable($var)
+    {
+      $params: shift-parse-keys($var);
+
+      @each $key, $val in $var
+      {
+        $prm: map-get($params, $key);
+        $min-w: map-get($prm, 'min-width');
+        $max-w: map-get($prm, 'max-width');
+        $min-h: map-get($prm, 'min-height');
+        $max-h: map-get($prm, 'max-height');
+
+        @if $min-w != null and not index($widths, $min-w) { $widths: append($widths, $min-w); }
+        @if $max-w != null and not index($widths, $max-w) { $widths: append($widths, $max-w); }
+        @if $min-h != null and not index($heights, $min-h) { $heights: append($heights, $min-h); }
+        @if $max-h != null and not index($heights, $max-h) { $heights: append($heights, $max-h); }
+      }
+    }
+  }
+
+  @return (
+    'widths': sl-sort($widths),
+    'heights': sl-sort($heights)
+  );
+}
+
+// =_shift-length-intervals( $lengths )
+// -----------------------------------------------------------------------------
+/// Builds shift params for each 'min-/max-' interval between given media
+/// widths/heights, and returns them in an ordered list (first width-only
+/// intervals, then height-only and finally mixed intervals).
+/// 
+/// @param {map} $lengths - map of widths/heights to build intervals for
+/// @return {list} - The ordered list of params representing intervals
+///
+/// @api private
+/// @since 0.3.0
+
+@function _shift-length-intervals( $lengths )
+{
+  $widths: map-get($lengths, 'widths');
+  $heights: map-get($lengths, 'heights');
+
+  $total-w: length($widths);
+  $total-h: length($heights);
+
+  $w-params: ();
+  $h-params: ();
+  $params: ();
+
+  @if $total-w > 0
+  {
+    // add 'max-' only params at the beginning
+    $max-w-prm: ('max-width': nth($widths, 1));
+    $w-params: append($w-params, $max-w-prm);
+    $params: append($params, $max-w-prm);
+
+    // add params for each 'min-' 'max-' interval
+    @for $i from 1 to $total-w
+    {
+      $min-w: nth($widths, $i);
+      $max-w: nth($widths, $i + 1);
+      $prm: ('min-width': $min-w, 'max-width': $max-w);
+
+      $w-params: append($w-params, $prm);
+      $params: append($params, $prm);
+    }
+
+    // add 'min-' only params at the end
+    $min-w-prm: ('min-width': nth($widths, $total-w));
+    $w-params: append($w-params, $min-w-prm);
+    $params: append($params, $min-w-prm);
+  }
+
+  @if $total-h > 0
+  {
+    // add 'max-' only params at the beginning
+    $max-h-prm: ('max-height': nth($heights, 1));
+    $h-params: append($h-params, $max-h-prm);
+    $params: append($params, $max-h-prm);
+
+    // add params for each 'min-' 'max-' interval
+    @for $i from 1 to $total-h
+    {
+      $min-h: nth($heights, $i);
+      $max-h: nth($heights, $i + 1);
+      $prm: ('min-height': $min-h, 'max-height': $max-h);
+
+      $h-params: append($h-params, $prm);
+      $params: append($params, $prm);
+    }
+
+    // add 'min-' only params at the end
+    $min-h-prm: ('min-height': nth($heights, $total-h));
+    $h-params: append($h-params, $min-h-prm);
+    $params: append($params, $min-h-prm);
+  }
+
+  // add mixed length params
+  @if $total-w > 0 and $total-h > 0
+  {
+    @each $w-prm in $w-params
+    {
+      @each $h-prm in $h-params
+      {
+        $prm: map-merge($w-prm, $h-prm);
+        $params: append($params, $prm);
+      }
+    }
+  }
+
+  @return $params;
+}

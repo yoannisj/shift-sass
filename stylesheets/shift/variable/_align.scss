@@ -1,0 +1,51 @@
+// =============================================================================
+// =SHIFT - VARIABLE ALIGN
+// =============================================================================
+///
+//// @group shift-variable
+//// @author [Yoannis Jamar](http://yoannis.com)
+
+@import "aleksi/general/default-to";
+@import "aleksi/lists/walk";
+
+@import "shift/params/expression";
+@import "shift/variable/expand";
+@import "shift/variable/scope";
+@import "shift/variable/transpose";
+
+// =Functions
+// =============================================================================
+
+// =shift-align-variables( $vars )
+// -----------------------------------------------------------------------------
+/// Aligns multiple shift variables by transposing them to the same keys, which
+/// represent the intervals between all media widths/heights found in the
+/// original variable keys. This way, the variables can be compared directly.
+///
+/// @param $vars - the shift variables to align
+/// @param $context [shift-context()] - the context features to use as scope
+///
+/// @return {list} - list of transposed $vars
+///
+/// @api public
+/// @since 0.3.0
+
+@function shift-align-variables( $vars, $context: shift-context() )
+{
+  // limit variables to context scope
+  // (also transforms regular variables into shift variables)
+  $vars: walk($vars, 'shift-scope-variable', $context);
+
+  // get complete list of media lengths and intervals from all orignal keys
+  $lengths: _shift-key-lengths($vars...);
+  $intervals: _shift-length-intervals($lengths);
+
+  // initialize list of aligned variables
+  $aligned: ();
+
+  // transpose each variable to expanded interval keys
+  $keys: walk($intervals, 'shift-expression');
+  $aligned: walk($vars, 'shift-transpose-variable', $keys);
+
+  @return $aligned;
+}

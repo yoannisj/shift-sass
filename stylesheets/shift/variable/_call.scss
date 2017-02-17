@@ -1,0 +1,51 @@
+// =============================================================================
+// =SHIFT - VARIABLE CALL
+// =============================================================================
+///
+//// @group shift-variable
+//// @author [Yoannis Jamar](http://yoannis.com)
+
+@import "sassy-maps";
+@import "aleksi/lists/walk";
+@import "shift/variable/align";
+
+// =Functions
+// =============================================================================
+
+// =shift-call( $fn[, $args... ])
+// -----------------------------------------------------------------------------
+/// Calls a given function with shift variable arguments. The function will be
+/// called on each different value that is defined in the arguments.
+/// **Note**: If regular arguments are passed, they will be transformed into
+/// shift variables by scoping them to the current context.
+///
+/// @param $fn - the transforming function.
+/// @param $args - the arguments to pass to $fn
+///
+/// @return {map} - a shift variable representing the different values returned by fn
+///
+/// @api public
+/// @since 0.3.0
+
+@function shift-call($fn, $args...)
+{
+  $res: ();
+
+  // align all arguments and get list of shared keys
+  $args: shift-align-variables($args);
+  $keys: map-keys(nth($args, 1));
+
+  @debug $args;
+
+  // call transforming function with values for each key
+  @each $key in $keys
+  {
+    $key-args: walk($args, 'map-get', $key);
+    $key-val: call($fn, $key-args...);
+
+    // and get value returned by transforming function
+    $res: map-set($res, $key, $key-val);
+  }
+
+  @return $res;
+}

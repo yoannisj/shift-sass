@@ -5,15 +5,11 @@
 @import "shift/config";
 @import "shift/constants";
 @import "shift/length";
-
-@import "shift/breakpoint/set";
-@import "shift/breakpoint/tweak";
-@import "shift/breakpoint/get";
-@import "shift/params/expression";
-@import "shift/params/handle";
-@import "shift/params/parse";
-
+@import "shift/breakpoint";
+@import "shift/params";
+@import "shift/context";
 @import "shift/query";
+@import "shift/variable";
 
 // CREATING MEDIA-QUERIES
 // ----------------------

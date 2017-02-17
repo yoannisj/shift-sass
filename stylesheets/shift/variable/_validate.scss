@@ -1,0 +1,45 @@
+// =============================================================================
+// =SHIFT - VARIABLE VALIDATE
+// =============================================================================
+///
+//// @group shift-variable
+//// @author [Yoannis Jamar](http://yoannis.com)
+
+@import "shift/params/expression";
+@import "shift/params/handle";
+
+// =_shift-validate-variable( $var )
+// -----------------------------------------------------------------------------
+/// Checks whether the given variable defines values for different media
+/// contexts. A shift variable is a map with keys that each describe a media
+/// context (either a shift expression or a shift handle).
+///
+/// @param {any} $var - The variable to test
+/// @return {bool} - Wheter $var is a shift variable or not
+///
+/// @access public
+/// @since 0.3.0
+///
+/// @TODO: implement memoization for performance
+
+@function _shift-validate-variable($var)
+{
+  // only maps can be shift variables
+  @if type-of($var) != 'map' {
+    @return false;
+  }
+
+  @each $key, $val in $var
+  {
+    // if any of the keys is neither a shift expression nor a shift handle
+    @if $key != 'df' and not shift-validate-expression($key)
+      and not shift-validate-handle($key)
+    {
+      // this is not a shift variable
+      @return false;
+    }
+  }
+
+  // all keys are either a shift expression or a shift handle
+  @return true;
+}

@@ -8,15 +8,14 @@
 // @import "tests/shift/params/parse";
 // @import "tests/shift/query";
 
-// @import "tests/shift/variable/value";
+@import "tests/shift/variable/value";
 // @import "tests/shift/variable/scope";
 
 @import "aleksi/maps/debug-map";
 
 // @import "../../stylesheets/shift/params/parse";
-@import "../../stylesheets/shift/variable";
+// @import "../../stylesheets/shift/variable";
 // @import "../../stylesheets/shift/query";
-
 
 $min-w-only: (
   'df': 5,
@@ -140,7 +139,7 @@ $super-mix: (
 {
   @include test('should work like it is supposed to work..')
   {
-    @debug '######################';
+    // @debug '######################';
 
     $var-a: 10;
     $var-b: (
@@ -161,15 +160,13 @@ $super-mix: (
 
     // $res: debug-map(shift-call('math-add', $var-a, $var-b));
 
-    @debug '######################';
-
-    $expanded: debug-map(shift-expand-variable($mix-min-only));
-    @debug '----------------------';
-    $reduced: debug-map(shift-reduce-variable($expanded));
-    @debug '----------------------';
+    // @debug '######################';
+    // $expanded: debug-map(shift-expand-variable($mix-min-only));
+    // @debug '----------------------';
+    // $reduced: debug-map(shift-reduce-variable($expanded));
+    // @debug '----------------------';
     // $reduced: debug-map(_shift-reduce-intervals($reduced));
-
-    @debug '######################';
+    // @debug '######################';
 
     // @debug '######################';
     // $staggered: debug-map(shift-expand-variable($min-w-only));

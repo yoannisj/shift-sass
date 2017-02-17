@@ -1,0 +1,111 @@
+// =============================================================================
+// =SHIFT - VARIABLE TRANSPOSE
+// =============================================================================
+///
+//// @group shift-variable
+//// @author [Yoannis Jamar](http://yoannis.com)
+
+@import "sassy-maps";
+@import "aleksi/general/throw";
+@import "aleksi/general/default-to";
+
+@import "shift/variable/validate";
+@import "shift/variable/parse-keys";
+
+// =Functions
+// =============================================================================
+
+// =shift-transpose-variable( $var, $keys )
+// -----------------------------------------------------------------------------
+/// Transforms a shift variable, by using the given list of keys and the values
+/// that correspond in the original variable.
+///
+/// @throw Error - if $var is not a valid shift variable
+/// @return {map} - transformed variable, using given keys
+///
+/// @api public
+/// @since 0.3.0
+///
+/// @todo: implement memoization for increased performance
+
+@function shift-transpose-variable($var, $keys)
+{
+  @if not shift-validate-variable($var) {
+    @return throw-error('shift-transpose-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  $params: shift-parse-keys($var);
+  $res: ();
+
+  @each $key in $keys
+  {
+    $val: _shift-computed-value($var, map-get($params, $key));
+    $res: map-set($res, $key, $val);
+  }
+
+  @return $res;
+}
+
+// =_shift-computed-value( $var[, $context ])
+// -----------------------------------------------------------------------------
+/// Returns the last value from a shift variable that corresponds to given
+/// context. Assuming that the variable's values are output in the same order in
+/// the final CSS, this is the computed value at given context.
+/// **Note:** This is only reliable if $context covers smaller interval then
+/// the ones defined by the variable's keys.
+///
+/// @param {map} $var - the shift variable to retreive the value from
+/// @param {map} $context - the shift context for which to retreive the value
+///
+/// @api private
+/// @since 0.3.0
+//
+// WORKS ONLY IF CONTEXT DOES NOT OVERLAP KEY INTERVALS !!
+// -> MAKE SURE THE KEY INTERVALS ARE MINIMAL BEFORE RUNNING THROUGH THIS..
+
+@function _shift-computed-value( $var, $context: shift-context() )
+{
+  // get context feature values
+  $media: default-to(map-get($context, 'media-type'), $shift-media-type);
+  $min-w: default-to(map-get($context, 'min-width'), 0);
+  $max-w: default-to(map-get($context, 'max-width'), 999999);
+  $min-h: default-to(map-get($context, 'min-height'), 0);
+  $max-h: default-to(map-get($context, 'max-height'), 999999);
+
+  // extract default value
+  $df: map-get($var, 'df');
+  $var: map-remove($var, 'df');
+
+  // loop over other keys in reverse order, and get first value that fits
+  $params: shift-parse-keys($var);
+  $keys: map-keys($var);
+  $i: length($var);
+
+  @while $i > 0
+  {
+    $key: nth($keys, $i);
+    $prm: map-get($params, $key);
+
+    $prm-media: default-to(map-get($prm, 'media-type'), $shift-media-type);
+    $prm-min-w: default-to(map-get($prm, 'min-width'), 0);
+    $prm-max-w: default-to(map-get($prm, 'max-width'), 999999);
+    $prm-min-h: default-to(map-get($prm, 'min-height'), 0);
+    $prm-max-h: default-to(map-get($prm, 'max-height'), 999999);
+
+    // if context is in key's scope
+    @if $media == $prm-media
+      and $min-w >= $prm-min-w
+      and $max-w <= $prm-max-w
+      and $min-h >= $prm-min-h
+      and $max-h <= $prm-max-h
+    {
+      // return its value
+      @return map-get($var, $key);
+    }
+
+    $i: $i - 1;
+  }
+
+  // return default value (can be 'null')
+  @return $df;
+}

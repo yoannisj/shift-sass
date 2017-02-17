@@ -1,0 +1,128 @@
+// =============================================================================
+// =SHIFT - VARIABLE VALUE
+// =============================================================================
+///
+//// @group shift-variable
+//// @author [Yoannis Jamar](http://yoannis.com)
+
+@import "aleksi/general/default-to";
+@import "aleksi/general/css-rule";
+@import "aleksi/lists/walk";
+@import "aleksi/arglists/prepend";
+
+@import "shift/config";
+@import "shift/context";
+@import "shift/query";
+@import "shift/variable/validate";
+@import "shift/variable/scope";
+@import "shift/variable/call";
+
+// =Functions
+// =============================================================================
+
+// =shift-value( $var[, $context, $fn, $args... ])
+// -----------------------------------------------------------------------------
+/// Returns the value(s) from a shift variable that correspond to given context.
+/// **Note**: if a regular variable is given, that will be returned as is.
+///
+/// @param {map|any} $var - The shift variable to get value(s) from
+/// @param {map} $context - The shift context for which to get value(s)
+/// @param {bool} $important [false] - Whether to add the '!important' flag or not
+/// @param {string} $fn ['__none__'] - Optional function to call on values
+/// @param {arglist} $args... - Optional additional parameters for $fn
+///
+/// @todo: implement memoization for increased performance
+
+@function shift-value( $var, $context: shift-context(), $important: false, $fn: '__none__', $args... )
+{
+  // allow omitting the $important argument
+  @if type-of($important) == 'string'
+  {
+    $args: if($fn != '__none__', arglist-prepend($args, $fn), $args);
+    $fn: $important;
+    $important: false;
+  }
+
+  // allow omitting the $context argument
+  @if type-of($context) == 'string'
+  {
+    $args: if($fn != '__none__', arglist-prepend($args, $fn), $args);
+    $fn: $important;
+    $important: $context;
+    $context: shift-context();
+  }
+
+  // return regular variables' value
+  @if not shift-validate-variable($var) {
+    @return css-value($var, $important, $fn, $args...);
+  }
+
+  // scope variable to context to remove irrelevant values
+  $res: shift-scope-variable($var, $context);
+
+  // return null if no value corresponded
+  @if $res-ln == 0 {
+    @return null;
+  }
+
+  // return a single value if only one key corresponded
+  @else if $res-ln == 1 {
+    $res: map-get($res, nth(map-keys($res), 1));
+    @return css-value($res, $important, $fn, $args...);
+  }
+
+  // call $fn on all values that correspond
+  @if $fn != '__none__' {
+    $args: arglist-prepend($res, $args);
+    $res: shift-call($fn, $args...);
+  }
+
+  // return resulting shift variable, with $important flag appended to values
+  @return walk($res, 'css-value', $important);
+}
+
+// =Mixins
+// =============================================================================
+
+// =shift-value( $prop, $var[, $important, $fn, $args... ])
+// -----------------------------------------------------------------------------
+/// Outputs styles for a given css property and corresponding values from a
+/// shift variable, scoped into current context and wrapped in media-queries.
+///
+/// @param {string} $prop - The css property to output
+/// @param {map} $var - The shift variable to use as value
+/// @param {bool} $important [false] - Whether to append the `!important` flag or not
+/// @param {string} $fn ['__none__'] - Optional function to call to resulting values
+/// @param {arglist} $args... - Optional additional parameters for $fn
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.3.0
+
+@mixin shift-value($prop, $var, $important: false, $fn: '__none__', $args... )
+{
+  // allow the '__none__' string for no $fn
+  $fn: if($fn == '__none__', null, $fn);
+
+  // allow regular variables
+  @if not shift-validate-variable($var) {
+    #{$prop}: css-value($var, $important, $fn, $args...);
+  }
+
+  // scope variable in current context
+  $var: shift-scope-variable($var);
+
+  @each $key, $val in $var
+  {
+    @at-root (without: media)
+    {
+      & {
+        @include shift-query($key) {
+          #{$prop}: css-value($val, $important, $fn, $args...);
+        }
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@
 
 @import "shift/params/parse";
 @import "shift/context";
-@import "shift/variable";
+@import "shift/variable/scope";
 
 @include test-module('the shift-scope-variable function')
 {
