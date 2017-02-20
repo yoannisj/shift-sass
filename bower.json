@@ -32,8 +32,7 @@
     "sassdoc"
   ],
   "dependencies": {
-    "sassy-maps": "^0.4.0",
     "SassyLists": "^3.0.1",
-    "sass-aleksi": "^0.3.8",
+    "sass-aleksi": "^0.3.8"
   }
 }

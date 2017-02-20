@@ -2,12 +2,12 @@
 // =SHIFT - PARSE
 // =============================================================================
 
-@import "sassy-maps";
 @import "aleksi/general/throw";
 @import "aleksi/general/const";
 @import "aleksi/general/default-to";
 @import "aleksi/cast/to-number";
 @import "aleksi/strings/str-explode";
+@import "aleksi/maps/map-set";
 
 @import "shift/config";
 @import "shift/constants";

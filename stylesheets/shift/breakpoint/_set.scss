@@ -2,8 +2,8 @@
 // =SHIFT - SET
 // =============================================================================
 
-@import "sassy-maps";
 @import "aleksi/general/throw";
+@import "aleksi/maps/map-set-deep";
 
 // make sure the `$__shift__` global exists
 $__shift__: () !default;
@@ -37,7 +37,7 @@ $__shift__: () !default;
   }
 
   @else {
-    $__shift__: map-set-deep($__shift__, 'breakpoints' $feature $label, $value) !global;
+    $__shift__: map-set-deep($__shift__, 'breakpoints', $feature, $label, $value) !global;
   }
 }
 

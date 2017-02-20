@@ -4,11 +4,11 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
-@import "sassy-maps";
 @import "aleksi/general/throw";
 @import "aleksi/general/default-to";
 @import "aleksi/lists/remove-nth";
 @import "aleksi/lists/replace-nth";
+@import "aleksi/maps/map-set";
 @import "aleksi/maps/map-insert";
 
 @import "shift/params/expression";
