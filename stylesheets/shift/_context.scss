@@ -14,8 +14,16 @@ $__shift__: () !default;
 
 // =shift-context([ $args... ])
 // -----------------------------------------------------------------------------
-/// Store or fetch a property in current context. If a map is given, each key
+/// Stores or fetches a property in current context. If a map is given, each key
 /// will be used to store the corresponding value.
+///
+/// @param {string|list|map} $props - properties to store/fetch
+/// @param {any} $val - value to set for given property name $prop
+///
+/// @return {map|any} - the current/stored value for given property/-ies
+///
+/// @api public
+/// @since 0.1.0
 
 @function shift-context($args...)
 {
@@ -38,8 +46,16 @@ $__shift__: () !default;
 
 // =shift-context([ $args... ])
 // -----------------------------------------------------------------------------
-/// Store or fetch a property in current context. If a map is given, each key
+/// Stores or fetches a property in current context. If a map is given, each key
 /// will be used to store the corresponding value.
+///
+/// @param {string|list|map} $props - properties to store/fetch
+/// @param {any} $val - value to set for given property name $prop
+///
+/// @return {map|any} - the current/stored value for given property/-ies
+///
+/// @api public
+/// @since 0.1.0
 
 @mixin shift-context($args...) {
   $context: shift-context($args...);

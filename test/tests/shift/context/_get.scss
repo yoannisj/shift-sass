@@ -1,0 +1,43 @@
+// =============================================================================
+// =SHIFT TESTS - CONTEXT GET
+// =============================================================================
+
+@import "shift/context/get";
+@import "shift/context/set";
+
+@include test-module('The shift-context-get function')
+{
+  @include test('should return the value previously set using shift-context-set for given property') 
+  {
+    // reset shift context
+    $__shift__: map-remove($__shift__, 'context') !global;
+    @include shift-context-set('min-width', 400);
+    @include shift-context-set('max-width', 920);
+
+    @include assert-equal(shift-context-get('min-width'), 400);
+    @include assert-equal(shift-context-get('max-width'), 920);
+  }
+
+  @include test('should accept a list of properties to retreive a map of name->value pairs for each property') 
+  {
+    // reset shift context
+    $__shift__: map-remove($__shift__, 'context') !global;
+    @include shift-context-set('min-height', 500);
+    @include shift-context-set('max-width', 920);
+    @include shift-context-set('max-height', 820);
+
+    $props: ( 'min-height': 500, 'max-height': 820 );
+    @include assert-equal(shift-context-get('min-height' 'max-height'), $props);
+  }
+
+  @include test('should retrieve all properties set in current context if no argument is given')
+  {
+    // reset shift context
+    $__shift__: map-remove($__shift__, 'context') !global;
+    @include shift-context-set('min-width', 400);
+    @include shift-context-set('max-height', 820);
+
+    $context: ('min-width': 400, 'max-height': 820);
+    @include assert-equal(shift-context-get(), $context);
+  }
+}

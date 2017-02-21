@@ -1,0 +1,30 @@
+// =============================================================================
+// =SHIFT TESTS - CONTEXT RESTORE
+// =============================================================================
+
+@import "shift/context/restore";
+@import "shift/context/set";
+@import "shift/context/get";
+@import "shift/context/save";
+
+@include test-module('The shift-context-restore function')
+{
+  @include test('should restore the context that was previously saved')
+  {
+    // reset shift context
+    $__shift__: map-remove($__shift__, 'context') !global;
+    @include shift-context-set(( 'min-width': 400, 'max-width': 920 ));
+
+    // perform test
+    $saved: shift-context-save();
+    @include shift-context-set('max-width', 760);
+    @include shift-context-set('min-height', 500);
+    $changed: shift-context-get();
+    $restored: shift-context-restore();
+
+    @include assert-equal($saved, $restored);
+    @include assert-unequal($restored, $changed);
+    @include assert-equal(map-get($restored, 'max-width'), 920);
+    @include assert-unequal(map-get($restored, 'max-width'), map-get($changed, 'max-width'));
+  }
+}

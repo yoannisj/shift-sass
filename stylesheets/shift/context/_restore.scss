@@ -11,7 +11,10 @@ $__shift__: () !default;
 
 // =shift-context-restore()
 // -----------------------------------------------------------------------------
-/// Restore context values saved previously with 'shift-context-save'.
+/// Restores context values saved previously with 'shift-context-save'.
+///
+/// @api public
+/// @since 0.1.0
 
 @function shift-context-restore()
 {
@@ -27,7 +30,10 @@ $__shift__: () !default;
 
 // =shift-context-restore()
 // -----------------------------------------------------------------------------
-/// Restore context values saved previously with 'shift-context-save'.
+/// Restores context values saved previously with 'shift-context-save'.
+///
+/// @api public
+/// @since 0.1.0
 
 @mixin shift-context-restore()
 {

@@ -11,16 +11,24 @@ $__shift__: () !default;
 
 // =shift-context-set( $prop[, $val ])
 // -----------------------------------------------------------------------------
-/// Store given property in current context. If a map is given, each key
-/// will be used as property and given the corresponding value.
+/// Stores given property in current context. If a map is given, each key
+/// will be used as property name, and given the corresponding value.
+///
+/// @param {string|map} $prop - the name of the context property to store
+/// @param {any} $val - the value to store for the context property
+///
+/// @return {any} - $val
+///
+/// @api public
+/// @since 0.1.0
 
 @function shift-context-set( $prop, $val: null )
 {
   // accept a map of 'name' => 'value' to set as context
   @if type-of($prop) == 'map'
   {
-    @each $name, $value in $prop {
-      $res: shift-context-set($name, $value);
+    @each $name, $val in $prop {
+      $res: shift-context-set($name, $val);
     }
 
     @return $prop;
@@ -38,8 +46,16 @@ $__shift__: () !default;
 
 // =shift-context-set( $prop[, $val ])
 // -----------------------------------------------------------------------------
-/// Store or fetch a 'in-context' value. If a map is given, each key will be
-/// used to store the corresponding value.
+/// Stores given property in current context. If a map is given, each key
+/// will be used as property name, and given the corresponding value.
+///
+/// @param {string|map} $prop - the name of the context property to store
+/// @param {any} $val - the value to store for the context property
+///
+/// @return {any} - $val
+///
+/// @api public
+/// @since 0.1.0
 
 @mixin shift-context-set($prop, $val: null)
 {

@@ -69,11 +69,6 @@ $__shift__: (
     @include assert-equal(shift-list-breakpoints('height', 'narrow'), $narrow-height-bps);
   }
 
-  @include test('should be aliased by `shift-breakpoints()`')
-  {
-    @include assert-equal(shift-list-breakpoints('width'), shift-breakpoints('width'));
-  }
-
   // @include xtest('should throw an error if given $feature is not a string') {
   //   @include assert-equal(shift-list-breakpoints(10), null);
   // }

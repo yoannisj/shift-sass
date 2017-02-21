@@ -6,17 +6,26 @@
 @import "tests/shift/breakpoint/list";
 @import "tests/shift/breakpoint/get";
 
-@import "tests/shift/setup";
+@import "tests/shift/length/convert";
+@import "tests/shift/length/parse";
+@import "tests/shift/length/compare";
 
-// @import "tests/shift/length";
-// @import "tests/shift/breakpoint/get";
 // @import "tests/shift/params/expression";
 // @import "tests/shift/params/handle";
 // @import "tests/shift/params/parse";
+
+@import "tests/shift/context/set";
+@import "tests/shift/context/get";
+@import "tests/shift/context/save";
+@import "tests/shift/context/restore";
+@import "tests/shift/context";
+
 // @import "tests/shift/query";
 
 // @import "tests/shift/variable/value";
 // @import "tests/shift/variable/scope";
+
+@import "tests/shift/setup";
 
 @import "aleksi/maps/debug-map";
 

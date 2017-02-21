@@ -13,7 +13,15 @@ $__shift__: () !default;
 // =shift-context-get([ $prop ])
 // -----------------------------------------------------------------------------
 /// Fetch value currently stored for given context property. If a list is given,
-/// a map will be returned with values for each property in the list.
+/// a map will be returned with values for each property in the list. If no
+/// argument is given, a map of all properties set in current context will be
+/// returned.
+///
+/// @param {string|list} $prop [null] - property name(s) for which to retreive current values
+//// @return {map|any} - the value(s) currently stored for given $prop
+///
+/// @api public
+/// @since 0.1.0
 
 @function shift-context-get( $prop: null )
 {
@@ -44,8 +52,16 @@ $__shift__: () !default;
 
 // =shift-context-get( $prop )
 // -----------------------------------------------------------------------------
-/// Store or fetch a 'in-context' value. If a map is given, each key will be
-/// used to store the corresponding value.
+/// Fetch value currently stored for given context property. If a list is given,
+/// a map will be returned with values for each property in the list. If no
+/// argument is given, a map of all properties set in current context will be
+/// returned.
+///
+/// @param {string|list} $prop [null] - property name(s) for which to retreive current values
+//// @return {map|any} - the value(s) currently stored for given $prop
+///
+/// @api public
+/// @since 0.1.0
 
 @mixin shift-context-get($prop: null)
 {
