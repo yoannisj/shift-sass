@@ -41,7 +41,6 @@ $__shift__: () !default;
 /// Store or fetch a property in current context. If a map is given, each key
 /// will be used to store the corresponding value.
 
-@mixin shift-context($args...)
-{
+@mixin shift-context($args...) {
   $context: shift-context($args...);
 }

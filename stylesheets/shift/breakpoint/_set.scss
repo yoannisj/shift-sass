@@ -8,6 +8,87 @@
 // make sure the `$__shift__` global exists
 $__shift__: () !default;
 
+// =Functions
+// =============================================================================
+
+// =shift-set( $feature, $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a breakpoint value.
+///
+/// @param {string} $feature - The media-query feature
+/// @param {string} $label - The label under which to store `$value`
+/// @param {any} $value - The value to store
+///
+/// @return {any} - $value
+///
+/// @throw Error if `$feature` is not a string
+/// @throw Error if `$label` is not a string
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.3.0
+
+@function shift-set( $feature, $label, $value )
+{
+  // sanitize `$feature`
+  @if type-of($feature) != 'string' {
+    @return throw-error("shift-set(): `$feature` must be a string – was `#{inspect($feature)}`");
+  }
+
+  // sanitize `$label`
+  @if type-of($label) != 'string' {
+    @return throw-error("shift-set(): `$label` must be a string – was `#{inspect($label)}`");
+  }
+
+  // register $value as breakpoint, for given feature and label
+  $__shift__: map-set-deep($__shift__, 'breakpoints', $feature, $label, $value) !global;
+
+  // return value that was just registered
+  @return $value;
+}
+
+// =shift-set-width( $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a width breakpoint value.
+///
+/// @param {string} $label - The label under which to store width value
+/// @param {any} $value - The width value to store
+///
+/// @return {any} - $value
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-set-width( $label, $value )
+{
+  @return shift-set('width', $label, $value);
+}
+
+// =shift-set-height( $label, $value )
+// -----------------------------------------------------------------------------
+/// Stores or updates a height breakpoint value.
+///
+/// @param {string} $label - The label under which to store height value
+/// @param {any} $value - The height value to store
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-set-height( $label, $value ) {
+  @return shift-set('height', $label, $value);
+}
+
+// =Mixins
+// =============================================================================
+
 // =shift-set( $feature, $label, $value )
 // -----------------------------------------------------------------------------
 /// Stores or updates a breakpoint value.
@@ -26,19 +107,7 @@ $__shift__: () !default;
 /// @since 0.1.0
 
 @mixin shift-set( $feature, $label, $value ) {
-  // sanitize `$feature`
-  @if not type-of($feature) == 'string' {
-    $e: throw-error("`$feature` must be a string. Was #{$feature}.");
-  }
-
-  // sanitize `$label`
-  @if not type-of($label) == 'string' {
-    $e: throw-error("`$label` must be a string. Was #{$label}.");
-  }
-
-  @else {
-    $__shift__: map-set-deep($__shift__, 'breakpoints', $feature, $label, $value) !global;
-  }
+  $value: shift-set($feature, $label, $value);
 }
 
 // =shift-set-width( $label, $value )
@@ -55,7 +124,7 @@ $__shift__: () !default;
 /// @since 0.1.0
 
 @mixin shift-set-width( $label, $value ) {
-  @include shift-set('width', $label, $value);
+  $value: shift-set-width($label, $value);
 }
 
 // =shift-set-height( $label, $value )
@@ -72,5 +141,5 @@ $__shift__: () !default;
 /// @since 0.1.0
 
 @mixin shift-set-height( $label, $value ) {
-  @include shift-set('height', $label, $value);
+  $value: shift-set-height($label, $value);
 }

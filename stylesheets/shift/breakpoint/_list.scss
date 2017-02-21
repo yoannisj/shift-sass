@@ -3,12 +3,17 @@
 // =============================================================================
 
 @import "aleksi/general/throw";
+@import "aleksi/general/default-to";
+@import "aleksi/strings/str-remove";
 @import "aleksi/maps/map-get-deep";
 @import "aleksi/maps/map-merge-deep";
 
 @import "shift/setup";
 
 $__shift__: () !default;
+
+// =Functions
+// =============================================================================
 
 // shift-list-breakpoints( $feature[, $tweakpoint ])
 // -----------------------------------------------------------------------------
@@ -27,13 +32,13 @@ $__shift__: () !default;
 @function shift-list-breakpoints($feature, $tweakpoint: null)
 {
   // sanitize `$feature`
-  @if not type-of($feature) == 'string' {
-    @return throw-error("shift-list-breakpoints(): `$feature` must be a string. Was #{inspect($feature)}.");
+  @if type-of($feature) != 'string' {
+    @return throw-error("shift-list-breakpoints(): `$feature` must be a string — was `#{inspect($feature)}`");
   }
 
   // sanitize `$tweakpoint`
   @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
-    @return throw-error("shift-list-breakpoints(): `$tweakpoint` must be a string. Was #{inspect($tweakpoint)}.");
+    @return throw-error("shift-list-breakpoints(): `$tweakpoint` must be a string — was `#{inspect($tweakpoint)}`");
   }
 
   // remove 'min-' and 'max-' from feature name
@@ -45,7 +50,7 @@ $__shift__: () !default;
   // optionally override with tweaked breakpoint values
   @if $tweakpoint
   {
-    $tweakpoints: default-to(map-get-deep($__shift__, 'tweakpoints', $feature), ());
+    $tweakpoints: default-to(map-get-deep($__shift__, 'tweakpoints', $tweakpoint, $feature), ());
     $breakpoints: map-merge-deep($breakpoints, $tweakpoints);
   }
 
@@ -61,7 +66,7 @@ $__shift__: () !default;
   @return shift-list-breakpoints($feature, $tweakpoint);
 }
 
-// shift-list-labels( $feature[, $tweakpoint ])
+// shift-list-labels( $feature)
 // -----------------------------------------------------------------------------
 /// Returns the labels of all breakpoints registered for given @media feature.
 ///
@@ -76,8 +81,8 @@ $__shift__: () !default;
 @function shift-list-labels($feature)
 {
   // sanitize `$feature`
-  @if not type-of($feature) == 'string' {
-    @return throw-error("shift-list-values(): `$feature` must be a string. Was #{inspect($feature)}.");
+  @if type-of($feature) != 'string' {
+    @return throw-error("shift-list-labels(): `$feature` must be a string – was `#{inspect($feature)}`");
   }
 
   // get all breakpoints/tweakpoints registered for given feature
@@ -114,12 +119,12 @@ $__shift__: () !default;
 {
   // sanitize `$feature`
   @if not type-of($feature) == 'string' {
-    @return throw-error("shift-list-values(): `$feature` must be a string. Was #{inspect($feature)}.");
+    @return throw-error("shift-list-values(): `$feature` must be a string – was `#{inspect($feature)}`");
   }
 
   // sanitize `$tweakpoint`
   @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
-    @return throw-error("shift-list-values(): `$tweakpoint` must be a string. Was #{inspect($tweakpoint)}.");
+    @return throw-error("shift-list-values(): `$tweakpoint` must be a string – was `#{inspect($tweakpoint)}`");
   }
 
   // get all breakpoints/tweakpoints registered for given feature

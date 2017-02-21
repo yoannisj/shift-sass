@@ -1,0 +1,53 @@
+// =============================================================================
+// =SHIFT TESTS - BREAKPOINT SET
+// =============================================================================
+
+@import "shift/breakpoint/set";
+
+@include test-module('the shift-set() function')
+{
+  @include test('should register a breakpoint value for given feature and label')
+  {
+    $__shift__: () !global;
+
+    $_: shift-set('width', 'foo', 600px);
+    $_: shift-set('height', 'bar', 500px);
+
+    // check if breakpoints get registered correctly
+    @include assert-equal(map-has-key($__shift__, 'breakpoints'), true);
+    $breakpoints: map-get($__shift__, 'breakpoints');
+
+    // check if width breakpoints get registered correctly
+    @include assert-equal(map-has-key($breakpoints, 'width'), true);
+    $widths: map-get($breakpoints, 'width');
+
+    @include assert-equal(map-has-key($widths, 'foo'), true);
+    @include assert-equal(map-get($widths, 'foo'), 600px);
+
+    // check if height breakpoints get registered correctly
+    @include assert-equal(map-has-key($breakpoints, 'height'), true);
+    $heights: map-get($breakpoints, 'height');
+
+    @include assert-equal(map-has-key($heights, 'bar'), true);
+    @include assert-equal(map-get($heights, 'bar'), 500px);
+  }
+
+  @include test('should return the value that it registers')
+  {
+    $__shift__: () !global;
+
+    $width-foo: shift-set('width', 'foo', 600px);
+    $height-bar: shift-set('height', 'bar', 500px);
+
+    @include assert-equal($width-foo, 600px);
+    @include assert-equal($height-bar, 500px);
+  }
+
+  // @include xtest('should throw an error if $feature is not a string') {
+  //   @include assert-equal(shift-set(null, 'foo', 600px), null);
+  // }
+
+  // @include xtest('should throw an error if $label is not a string') {
+  //   @include assert-equal(shift-set('width', 10, 600px), null);
+  // }
+}

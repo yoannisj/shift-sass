@@ -1,0 +1,57 @@
+// =============================================================================
+// =SHIFT TESTS - BREAKPOINT TWEAK
+// =============================================================================
+
+@import "shift/breakpoint/tweak";
+
+@include test-module('the shift-tweak() function')
+{
+  @include test('should register a tweakpoint value for given feature and label')
+  {
+    $__shift__: () !global;
+
+    $_: shift-tweak('wide', 'width', 'foo', 600px);
+    $_: shift-tweak('wide', 'height', 'bar', 500px);
+
+    // check if tweakpoints get registered correctly
+    @include assert-equal(map-has-key($__shift__, 'tweakpoints'), true);
+    $tweakpoints: map-get(map-get($__shift__, 'tweakpoints'), 'wide');
+
+    // check if width tweakpoints get registered correctly
+    @include assert-equal(map-has-key($tweakpoints, 'width'), true);
+    $widths: map-get($tweakpoints, 'width');
+
+    @include assert-equal(map-has-key($widths, 'foo'), true);
+    @include assert-equal(map-get($widths, 'foo'), 600px);
+
+    // check if height tweakpoints get registered correctly
+    @include assert-equal(map-has-key($tweakpoints, 'height'), true);
+    $heights: map-get($tweakpoints, 'height');
+
+    @include assert-equal(map-has-key($heights, 'bar'), true);
+    @include assert-equal(map-get($heights, 'bar'), 500px);
+  }
+
+  @include test('should return the value that it registers')
+  {
+    $__shift__: () !global;
+
+    $width-foo: shift-set('width', 'foo', 600px);
+    $height-bar: shift-set('height', 'bar', 500px);
+
+    @include assert-equal($width-foo, 600px);
+    @include assert-equal($height-bar, 500px);
+  }
+
+  // @include xtest('should throw an error if $tweakpoint is not a string') {
+  //   @include assert-equal(shift-tweak(null, 'width', 'foo', 600px), null);
+  // }
+
+  // @include xtest('should throw an error if $feature is not a string') {
+  //   @include assert-equal(shift-tweak('wide', true, 'foo', 600px), null);
+  // }
+
+  // @include xtest('should throw an error if $label is not a string') {
+  //   @include assert-equal(shift-tweak('width', 'width', 10, 600px), null);
+  // }
+}

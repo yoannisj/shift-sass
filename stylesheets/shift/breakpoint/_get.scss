@@ -43,18 +43,18 @@
   }
 
   // sanitize `$feature`
-  @if not type-of($feature) == 'string' {
-    @return throw-error("shift-get(): `$feature` must be a string. Was #{$feature}.");
+  @if type-of($feature) != 'string' {
+    @return throw-error("shift-get(): `$feature` must be a string – was `#{inspect($feature)}`");
   }
 
   // sanitize `$label`
-  @if not type-of($label) == 'string' {
-    @return throw-error("shift-get(): `$label` must be a string. Was #{$label}.");
+  @if type-of($label) != 'string' {
+    @return throw-error("shift-get(): `$label` must be a string – was `#{inspect($label)}`");
   }
 
   // sanitize `$tweakpoint`
   @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
-    @return throw-error("shift-get(): `$tweakpoint` must be a string. Was #{$tweakpoint}.");
+    @return throw-error("shift-get(): `$tweakpoint` must be a string – was `#{inspect($tweakpoint)}`");
   }
 
   // remove 'min-' and 'max-' from feature name
@@ -68,7 +68,7 @@
 
   // throw a warning if no value was found
   @if $value == null {
-    $_: throw-warning("shift-get(): No #{$feature} value was found for #{$label}.");
+    $_: throw-warning("shift-get(): no #{$feature} value was found for `#{$label}`");
     @return memo-set('shift', $_memo_, null);
   }
 

@@ -1,0 +1,153 @@
+// =============================================================================
+// =SHIFT TESTS - BREAKPOINT LIST
+// =============================================================================
+
+@import "shift/breakpoint/list";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400,
+      'm': 760,
+      'l': 920
+    ),
+    'height': (
+      's': 500,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340,
+        'l': 820
+      ),
+      'height': (
+        'l': 600
+      )
+    )
+  )
+) !global;
+
+@include test-module('the shift-list-breakpoints() function')
+{
+  @include test('should return a map of label->value pairs for given feature\'s registered breakpoints')
+  {
+    $width-bps: map-get(map-get($__shift__, 'breakpoints'), 'width');
+    $height-bps: map-get(map-get($__shift__, 'breakpoints'), 'height');
+
+    @include assert-equal(shift-list-breakpoints('width'), $width-bps);
+    @include assert-equal(shift-list-breakpoints('height'), $height-bps);
+  }
+
+  @include test('should accept "min-*" and "max-*" feature names')
+  {
+    $width-bps: shift-list-breakpoints('width');
+    $min-width-bps: shift-list-breakpoints('min-width');
+
+    $height-bps: shift-list-breakpoints('height');
+    $max-height-bps: shift-list-breakpoints('max-height');
+
+    @include assert-equal($min-width-bps, $width-bps);
+    @include assert-equal($max-height-bps, $height-bps);
+  }
+
+  @include test('should override breakpoint values with given tweakpoint values')
+  {
+    $narrow-width-bps: (
+      's': 340,
+      'm': 760,
+      'l': 820
+    );
+    
+    $narrow-height-bps: (
+      's': 500,
+      'l': 600
+    );
+
+    @include assert-equal(shift-list-breakpoints('width', 'narrow'), $narrow-width-bps);
+    @include assert-equal(shift-list-breakpoints('height', 'narrow'), $narrow-height-bps);
+  }
+
+  @include test('should be aliased by `shift-breakpoints()`')
+  {
+    @include assert-equal(shift-list-breakpoints('width'), shift-breakpoints('width'));
+  }
+
+  // @include xtest('should throw an error if given $feature is not a string') {
+  //   @include assert-equal(shift-list-breakpoints(10), null);
+  // }
+
+  // @include xtest('should throw an error if given $tweakpoint is not a string') {
+  //   @include assert-equal(shift-list-breakpoints('width', true), null);
+  // }
+}
+
+@include test-module('the shift-list-labels() function')
+{
+  @include test('should return the list of registered breakpoint labels for given feature')
+  {
+    $width-labels: map-keys(map-get(map-get($__shift__, 'breakpoints'), 'width'));
+    $height-labels: map-keys(map-get(map-get($__shift__, 'breakpoints'), 'height'));
+
+    @include assert-equal(shift-list-labels('width'), $width-labels);
+    @include assert-equal(shift-list-labels('height'), $height-labels);
+  }
+
+  @include test('should accept "min-*" and "max-*" feature names')
+  {
+    $width-labels: shift-list-labels('width');
+    $min-width-labels: shift-list-labels('min-width');
+
+    $height-labels: shift-list-labels('height');
+    $max-height-labels: shift-list-labels('max-height');
+
+    @include assert-equal($min-width-labels, $width-labels);
+    @include assert-equal($max-height-labels, $height-labels);
+  }
+
+  // @include xtest('should throw an error if given $feature is not a string') {
+  //   @include assert-equal(shift-list-labels(10), null);
+  // }
+}
+
+@include test-module('the shift-list-values() function')
+{
+  @include test('should return the list of registered breakpoint values for given feature')
+  {
+    $width-values: map-values(map-get(map-get($__shift__, 'breakpoints'), 'width'));
+    $height-values: map-values(map-get(map-get($__shift__, 'breakpoints'), 'height'));
+
+    @include assert-equal(shift-list-values('width'), $width-values);
+    @include assert-equal(shift-list-values('height'), $height-values);
+  }
+
+  @include test('should accept "min-*" and "max-*" feature names')
+  {
+    $width-values: shift-list-values('width');
+    $min-width-values: shift-list-values('min-width');
+
+    $height-values: shift-list-values('height');
+    $max-height-values: shift-list-values('max-height');
+
+    @include assert-equal($min-width-values, $width-values);
+    @include assert-equal($max-height-values, $height-values);
+  }
+
+  @include test('should override breakpoint values with given tweakpoint values')
+  {
+    $narrow-width-values: (340, 760, 820);
+    $narrow-height-values: (500, 600);
+
+    @include assert-equal(shift-list-values('width', 'narrow'), $narrow-width-values);
+    @include assert-equal(shift-list-values('height', 'narrow'), $narrow-height-values);
+  }
+
+  // @include xtest('should throw an error if given $feature is not a string') {
+  //   @include assert-equal(shift-list-values(10), null);
+  // }
+
+  // @include xtest('should throw an error if given $tweakpoint is not a string') {
+  //   @include assert-equal(shift-list-values('width', true), null);
+  // }
+}
