@@ -5,6 +5,7 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
+@import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/general/default-to";
 @import "aleksi/maps/map-set";
@@ -25,11 +26,15 @@
 ///
 /// @api public
 /// @since 0.3.0
-///
-/// @todo: implement memoization for increased performance
 
 @function shift-transpose-variable($var, $keys)
 {
+  // memoization
+  $_memo_: 'shift-transpose-variable' '#{$var}-#{$keys}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   @if not shift-validate-variable($var) {
     @return throw-error('shift-transpose-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
   }
@@ -43,7 +48,7 @@
     $res: map-set($res, $key, $val);
   }
 
-  @return $res;
+  @return memo-set('shift', $_memo_, $res);
 }
 
 // =_shift-computed-value( $var[, $context ])
@@ -60,7 +65,7 @@
 /// @api private
 /// @since 0.3.0
 //
-// WORKS ONLY IF CONTEXT DOES NOT OVERLAP KEY INTERVALS !!
+// WORKS ONLY IF CONTEXT DOES NOT OVERLAP KEY INTERVALS ?!!
 // -> MAKE SURE THE KEY INTERVALS ARE MINIMAL BEFORE RUNNING THROUGH THIS..
 
 @function _shift-computed-value( $var, $context: shift-context() )

@@ -2,6 +2,7 @@
 // =SHIFT - GET
 // =============================================================================
 
+@import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/general/default-to";
 @import "aleksi/strings/str-remove";
@@ -33,11 +34,15 @@ $__shift__: () !default;
 ///
 /// @access public
 /// @since 0.1.0
-///
-/// @TODO: implement memoization for performance
 
 @function shift-get( $feature, $label, $tweakpoint: null )
 {
+  // memoization
+  $_memo_: 'shift-get' '#{$feature}-#{$label}-#{$tweakpoint}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   // sanitize `$feature`
   @if not type-of($feature) == 'string' {
     @return throw-error("shift-get(): `$feature` must be a string. Was #{$feature}.");
@@ -64,7 +69,8 @@ $__shift__: () !default;
 
   // throw a warning if no value was found
   @if $value == null {
-    @return throw-warning("shift-get(): No #{$feature} value was found for #{$label}.");
+    $_: throw-warning("shift-get(): No #{$feature} value was found for #{$label}.");
+    @return memo-set('shift', $_memo_, null);
   }
 
   // consider unitless numbers as px values
@@ -72,7 +78,7 @@ $__shift__: () !default;
     $value: 1px * $value;
   }
 
-  @return $value;
+  @return memo-set('shift', $_memo_, $value);
 }
 
 // =shift-get-width( $label[, $tweakpoint ])

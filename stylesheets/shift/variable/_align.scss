@@ -34,7 +34,7 @@
 {
   // limit variables to context scope
   // (also transforms regular variables into shift variables)
-  $vars: walk($vars, 'shift-scope-variable', $context);
+  $vars: list-walk($vars, 'shift-scope-variable', $context);
 
   // get complete list of media lengths and intervals from all orignal keys
   $lengths: _shift-key-lengths($vars...);
@@ -44,8 +44,8 @@
   $aligned: ();
 
   // transpose each variable to expanded interval keys
-  $keys: walk($intervals, 'shift-expression');
-  $aligned: walk($vars, 'shift-transpose-variable', $keys);
+  $keys: list-walk($intervals, 'shift-expression');
+  $aligned: list-walk($vars, 'shift-transpose-variable', $keys);
 
   @return $aligned;
 }

@@ -2,6 +2,7 @@
 // =SHIFT - EXPRESSION
 // =============================================================================
 
+@import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/cast/to-number";
 @import "aleksi/strings/str-explode";
@@ -28,13 +29,19 @@
 
 @function shift-expression($params)
 {
+  // memoization
+  $_memo_: 'shift-expression' '#{$params}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   @if not type-of($params) == 'map' {
     @return throw-error('shift-handle(): $params must be a map – was #{inspect($params)}.');
   }
 
   // optimize for empty params
   @if length($params) == 0 {
-    @return 'df';
+    @return memo-set('shift', $_memo_, 'df');
   }
 
   $expr: '';
@@ -73,7 +80,8 @@
   $expr: str-trim($expr);
 
   // return built expression
-  @return if($expr == '', 'df', $expr);
+  $expr: if($expr == '', 'df', $expr);
+  @return memo-set('shift', $_memo_, $expr);
 }
 
 // =shift-validate-expression( $str )
@@ -87,11 +95,15 @@
 ///
 /// @access public
 /// @since 0.2.0
-///
-/// @TODO: implement memoization for better performance
 
 @function shift-validate-expression( $str )
 {
+  // memoization
+  $_memo_: 'shift-validate-expression' '#{$str}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   // accept 'df' and empty string
   @if $str == 'df' or $str == '' {
     @return true;
@@ -99,14 +111,14 @@
 
   // do not allow comma-separated expressions
   @if str-index($str, ',') or str-index($str, 'not') == 1 {
-    $w: throw-warning('shift-validate-expression(): multiple, comma-separated media-queries are not supported.');
-    @return false;
+    $_: throw-warning('shift-validate-expression(): multiple, comma-separated media-queries are not supported.');
+    @return memo-set('shift', $_memo_, false);
   }
 
   // do not allow negated expressions
   @if str-index($str, 'not ') == 1 {
-    $w: throw-warning('shift-validate-expression(): the "not" keyword for media-query negation is not supported.');
-    @return false;
+    $_: throw-warning('shift-validate-expression(): the "not" keyword for media-query negation is not supported.');
+    @return memo-set('shift', $_memo_, false);
   }
 
   // normalize as an expression to reduce possibilities and simplify testing
@@ -114,26 +126,26 @@
 
   // do not allow multiple 'min-width' values
   @if length(str-find-all($str, 'w>')) > 2 {
-    $w: throw-warning($str, 'shift-validate-expression(): only one "min-width" feature is allowed.');
-    @return false;
+    $_: throw-warning($str, 'shift-validate-expression(): only one "min-width" feature is allowed.');
+    @return memo-set('shift', $_memo_, false);
   }
 
   // do not allow multiple 'max-width' values
   @if length(str-find-all($str, 'w<')) > 2 {
-    $w: throw-warning($str, 'shift-validate-expression(): only one "max-width" feature is allowed.');
-    @return false;
+    $_: throw-warning($str, 'shift-validate-expression(): only one "max-width" feature is allowed.');
+    @return memo-set('shift', $_memo_, false);
   }
 
   // do not allow multiple 'min-height' values
   @if length(str-find-all($str, 'h>')) > 2 {
-    $w: throw-warning($str, 'shift-validate-expression(): only one "min-height" feature is allowed.');
-    @return false;
+    $_: throw-warning($str, 'shift-validate-expression(): only one "min-height" feature is allowed.');
+    @return memo-set('shift', $_memo_, false);
   }
 
   // do not allow multiple 'max-height' values
   @if length(str-find-all($str, 'h<')) > 2 {
-    $w: throw-warning($str, 'shift-validate-expression(): only one "max-height" feature is allowed.');
-    @return false;
+    $_: throw-warning($str, 'shift-validate-expression(): only one "max-height" feature is allowed.');
+    @return memo-set('shift', $_memo_, false);
   }
 
   // test parts of combined expressions separately
@@ -143,7 +155,7 @@
     @if str-index($str, 'only') == 1 and str-length($str) > 4
       and shift-validate-expression(str-slice($str, 5))
     {
-      @return true;
+      @return memo-set('shift', $_memo_, true);
     }
 
     $parts: str-explode($str, ' ');
@@ -152,33 +164,33 @@
     {
       // if any of the combined expression's parts is not a valid expression
       @if not shift-validate-expression($part) {
-        @return false;
+        @return memo-set('shift', $_memo_, false);
       }
     }
 
     // all parts in combination are valid expressions
-    @return true;
+    @return memo-set('shift', $_memo_, true);
   }
 
   // recognize valid 'min-' and 'max-' length values
   @if str-index($str, 'w>') == 1 or str-index($str, 'w<') == 1
     or str-index($str, 'h>') == 1 or str-index($str, 'h<') == 1
   {
-    @return true;
+    @return memo-set('shift', $_memo_, true);
   }
 
   // recognize resolution handles
   @if shift-validate-resolution-expression($str) {
-    @return true;
+    @return memo-set('shift', $_memo_, true);
   }
 
   // recognize CSS media-types
   @else if index(const('SHIFT_MEDIA_TYPES'), $str) {
-    @return true;
+    @return memo-set('shift', $_memo_, true);
   }
 
   // no valid pattern was found
-  @return false;
+  @return memo-set('shift', $_memo_, false);
 }
 
 // =shift-validate-resolution-expression( $str )
@@ -194,8 +206,14 @@
 /// @access private
 /// @since 0.2.0
 
-@function shift-validate-resolution-expression($str)
+@function shift-validate-resolution-expression( $str )
 {
+  // memoization
+  $_memo_: 'shift-validate-resolution-expression' '#{$str}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   @if type-of($str) != 'string' {
     @return throw-error('shift-validate-resolution-expression(): `$str` must be a string, was #{inspect($str)}.');
   }
@@ -207,11 +225,11 @@
     $lead: if(str-length($str) > 2, str-slice($str, 1, -2), str-slice($str, 1, 1));
     // and check if it is a number
     @if to-number($lead) != null {
-      @return true;
+      @return memo-set('shift', $_memo_, true);
     }
   }
 
-  @return false;
+  @return memo-set('shift', $_memo_, false);
 }
 
 // =shift-normalize-expression( $expr )
@@ -227,11 +245,15 @@
 ///
 /// @access public
 /// @since 0.1.0
-///
-/// @TODO: implement memoization for performance
 
-@function shift-normalize-expression( $expr)
+@function shift-normalize-expression( $expr )
 {
+  // memoization
+  $_memo_: 'shift-normalize-expression' '#{$expr}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   // recognize 'width', 'min-width:' and 'max-width:'
   $expr: str-replace($expr, 'min-width:', 'w>');
   $expr: str-replace($expr, 'max-width:', 'w<');
@@ -256,5 +278,6 @@
     $expr: str-replace($expr, '  ', ' ');
   }
 
-  @return str-trim($expr);
+  $expr: str-trim($expr);
+  @return memo-set('shift', $_memo_, $expr);
 }

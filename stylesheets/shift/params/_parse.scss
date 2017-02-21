@@ -2,6 +2,9 @@
 // =SHIFT - PARSE
 // =============================================================================
 
+@import "aleksi/maps/debug-map";
+
+@import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/general/const";
 @import "aleksi/general/default-to";
@@ -31,17 +34,25 @@
 ///
 /// @access public
 /// @since 0.1.0
-///
-/// @TODO: implement memoization for performance
 
 @function shift-parse( $params, $tweakpoint: null )
 {
+  // memoization
+  $_memo_: 'shift-parse' '#{$params}-#{$tweakpoint}';
+  @if memo-has('shift', $_memo_) {
+
+    @debug 'memo has!!!';
+    @debug $__memo-table__;
+
+    @return memo-get('shift', $_memo_);
+  }
+
   // parse expression/handle if params is given as a string
   @if type-of($params) == 'string'
   {
     // allow 'df' or emtpy string
     @if $params == 'df' or $params == '' {
-      @return ();
+      @return memo-set('shift', $_memo_, ());
     }
 
     @else if shift-validate-expression($params) {
@@ -69,7 +80,8 @@
     }
   }
 
-  @return map-merge($labels, $params);
+  $res: map-merge($labels, $params);
+  @return memo-set('shift', $_memo_, $res);
 }
 
 // =_shift-parse-expression( $expr )
@@ -85,17 +97,21 @@
 ///
 /// @access private
 /// @since 0.1.0
-///
-/// @TODO: implement memoization for performance
 
 @function _shift-parse-expression( $expr )
 {
+  // memoization
+  $_memo_: '_shift-parse-expression' '#{$expr}';
+  @if memo-has('_shift', $_memo_) {
+    @return memo-get('_shift', $_memo_);
+  }
+
   // initialize map of parameters
   $params: ();
 
   // accept 'df' and empty string
   @if $expr == 'df' or $expr == '' {
-    @return $params;
+    @return memo-set('_shift', $_memo_, $params);
   }
 
   // normalize expression in order to support multiple syntaxes
@@ -141,7 +157,7 @@
     }
   }
 
-  @return $params;
+  @return memo-set('_shift', $_memo_, $params);
 }
 
 // =_shift-parse-handle( $handle )
@@ -158,17 +174,21 @@
 ///
 /// @access private
 /// @since 0.3.0
-///
-/// @TODO: implement memoization for performance
 
 @function _shift-parse-handle( $handle )
 {
-// initialize map of parameters with defaults
+  // memoization
+  $_memo_: '_shift-parse-handle' '#{$handle}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
+  // initialize map of parameters with defaults
   $params: ();
 
   // accept 'df' and empty string
   @if $handle == 'df' or $handle == '' {
-    @return $params;
+    @return memo-set('shift', $_memo_, $params);
   }
 
   // loop over parts of combined handles
@@ -197,5 +217,5 @@
     $fcount: $fcount + 1;
   }
 
-  @return $params;
+  @return memo-set('shift', $_memo_, $params);
 }

@@ -6,6 +6,7 @@
 //// @author [Yoannis Jamar](http://yoannis.com)
 
 @import "SassyLists";
+@import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/lists/walk";
 
@@ -30,11 +31,15 @@
 ///
 /// @api public
 /// @since 0.3.0
-///
-/// @todo: implement memoization for increased performance
 
 @function shift-expand-variable( $var )
 {
+  // memoization
+  $_memo_: 'shift-expand-variable' '#{$var}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   @if not shift-validate-variable($var) {
     @return throw-error('shift-expand-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
   }
@@ -43,14 +48,15 @@
   $lengths: _shift-key-lengths($var);
   $intervals: _shift-length-intervals($lengths);
 
-  $keys: walk($intervals, 'shift-expression');
+  $keys: list-walk($intervals, 'shift-expression');
 
   $keys: ();
   @each $prm in $intervals {
     $keys: append($keys, shift-expression($prm));
   }
 
-  @return shift-transpose-variable($var, $keys);
+  $res: shift-transpose-variable($var, $keys);
+  @return memo-set('shift', $_memo_, $res);
 }
 
 // =_shift-key-lengths( $vars... )
@@ -70,6 +76,12 @@
 
 @function _shift-key-lengths( $vars... )
 {
+  // memoization
+  $_memo_: '_shift-key-lengths' '#{$vars}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   $widths: ();
   $heights: ();
 
@@ -95,10 +107,12 @@
     }
   }
 
-  @return (
+  $res: (
     'widths': sl-sort($widths),
     'heights': sl-sort($heights)
   );
+
+  @return memo-set('shift', $_memo_, $res);
 }
 
 // =_shift-length-intervals( $lengths )
@@ -115,6 +129,12 @@
 
 @function _shift-length-intervals( $lengths )
 {
+  // memoization
+  $_memo_: '_shift-length-intervals' '#{$lengths}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   $widths: map-get($lengths, 'widths');
   $heights: map-get($lengths, 'heights');
 
@@ -186,5 +206,5 @@
     }
   }
 
-  @return $params;
+  @return memo-set('shift', $_memo_, $params);
 }

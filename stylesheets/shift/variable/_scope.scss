@@ -5,6 +5,7 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
+@import "aleksi/general/memo";
 @import "aleksi/general/default-to";
 @import "aleksi/maps/map-set";
 
@@ -33,11 +34,15 @@
 ///
 /// @api public
 /// @since 0.3.0
-///
-/// @todo: implement memoization for increased performance
 
 @function shift-scope-variable( $var, $context: shift-context() )
 {
+  // memoization
+  $_memo_: 'shift-scope-variable' '#{$var}-#{context}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   // get context's scoping features
   $media: default-to(map-get($context, 'media'), $shift-media-type);
   $min-w: map-get($context, 'min-width');
@@ -52,7 +57,9 @@
   @if not shift-validate-variable($var) {
     // return a shift variable with scope as only key
     $scoped-key: shift-expression($context);
-    @return map-set($scoped, $scoped-key, $var);
+    $scoped: map-set($scoped, $scoped-key, $var);
+  
+    @return memo-set('shift', $_memo_, $scoped);
   }
 
   // get shift params for each key
@@ -103,5 +110,5 @@
   }
 
   // return scoped copy of variable
-  @return $scoped;
+  @return memo-set('shift', $_memo_, $scoped);
 }

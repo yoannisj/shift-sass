@@ -5,10 +5,11 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
+@import "aleksi/general/memo";
 @import "aleksi/general/default-to";
 @import "aleksi/general/css-rule";
-@import "aleksi/lists/walk";
-@import "aleksi/arglists/prepend";
+@import "aleksi/maps/map-walk-values";
+@import "aleksi/arglists/arglist-prepend";
 
 @import "shift/config";
 @import "shift/context";
@@ -30,11 +31,15 @@
 /// @param {bool} $important [false] - Whether to add the '!important' flag or not
 /// @param {string} $fn ['__none__'] - Optional function to call on values
 /// @param {arglist} $args... - Optional additional parameters for $fn
-///
-/// @todo: implement memoization for increased performance
 
 @function shift-value( $var, $context: shift-context(), $important: false, $fn: '__none__', $args... )
 {
+  // memoization
+  $_memo_: 'shift-value' '#{$var}-#{$context}-#{$important}-#{$fn}-#{$args}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   // allow omitting the $important argument
   @if type-of($important) == 'string'
   {
@@ -54,7 +59,8 @@
 
   // return regular variables' value
   @if not shift-validate-variable($var) {
-    @return css-value($var, $important, $fn, $args...);
+    $res: css-value($var, $important, $fn, $args...);
+    @return memo-set('shift', $_memo_, $res);
   }
 
   // scope variable to context to remove irrelevant values
@@ -62,13 +68,15 @@
 
   // return null if no value corresponded
   @if $res-ln == 0 {
-    @return null;
+    @return memo-set('shift', $_memo_, null);
   }
 
   // return a single value if only one key corresponded
   @else if $res-ln == 1 {
     $res: map-get($res, nth(map-keys($res), 1));
-    @return css-value($res, $important, $fn, $args...);
+    $res: css-value($res, $important, $fn, $args...);
+    
+    @return memo-set('shift', $_memo_, $res);
   }
 
   // call $fn on all values that correspond
@@ -77,8 +85,9 @@
     $res: shift-call($fn, $args...);
   }
 
-  // return resulting shift variable, with $important flag appended to values
-  @return walk($res, 'css-value', $important);
+  // append $important flag to each value in resulting shift-variable and return
+  $res: walk-map-values($res, 'css-value', $important);
+  @return memo-set('shift', $_memo_, $res);
 }
 
 // =Mixins

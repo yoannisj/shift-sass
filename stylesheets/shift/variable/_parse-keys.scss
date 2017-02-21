@@ -5,6 +5,8 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
+@import "aleksi/general/memo";
+
 // =shift-parse-keys( $var )
 // -----------------------------------------------------------------------------
 /// Parses each key in given shift variable, and returns a map pairing each key
@@ -17,11 +19,15 @@
 ///
 /// @api public
 /// @since 0.3.0
-///
-/// @todo: implement memoization for increased performance
 
 @function shift-parse-keys( $var )
 {
+  // memoization
+  $_memo_: 'shift-parse-keys' '#{$var}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   // this only works on valid shift variables
   @if not shift-validate-variable($var) {
     @return throw-error('shift-parse-keys(): $var must be a valid shift variable – was #{inspect($var)}.');
@@ -32,5 +38,5 @@
     $params: map-set($params, $key, shift-parse($key));
   }
 
-  @return $params;
+  @return memo-set('shift', $_memo_, $params);
 }

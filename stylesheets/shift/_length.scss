@@ -2,6 +2,7 @@
 // =SHIFT - LENGTH
 // =============================================================================
 
+@import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/lengths/convert";
 @import "aleksi/const/css/length-units";
@@ -46,11 +47,15 @@
 ///
 /// @api public
 /// @since 0.3.0
-///
-/// @TODO implement memoization for performance
 
 @function shift-parse-length($length, $feature: 'width', $tweakpoint: null, $unit: 'unitless')
 {
+  // memoization
+  $_memo_: 'shift-parse-length' '#{$length}-#{$feature}-#{$tweakpoint}-#{$unit}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   $type: type-of($length);
 
   @if $type != 'string' and $type != 'number' {
@@ -72,12 +77,13 @@
 
     // if no corresponding label was found
     @if $length == null {
-      @return null;
+      @return memo-set('shift', $_memo_, null);
     }
   }
 
   // return unitless value for length
-  @return shift-convert-length($length, 'unitless');
+  $res: shift-convert-length($length, 'unitless');
+  @return memo-set('shift', $_memo_, $res);
 }
 
 // =shift-convert-length( $value, $unit )

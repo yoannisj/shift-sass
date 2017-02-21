@@ -5,6 +5,7 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
+@import "aleksi/general/memo";
 @import "shift/params/expression";
 @import "shift/params/handle";
 
@@ -19,14 +20,18 @@
 ///
 /// @access public
 /// @since 0.3.0
-///
-/// @TODO: implement memoization for performance
 
 @function _shift-validate-variable($var)
 {
+  // memoization
+  $_memo_: '_shift-validate-variable' '#{$var}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   // only maps can be shift variables
   @if type-of($var) != 'map' {
-    @return false;
+    @return memo-set('shift', $_memo_, false);
   }
 
   @each $key, $val in $var
@@ -36,10 +41,10 @@
       and not shift-validate-handle($key)
     {
       // this is not a shift variable
-      @return false;
+      @return memo-set('shift', $_memo_, false);
     }
   }
 
   // all keys are either a shift expression or a shift handle
-  @return true;
+  @return memo-set('shift', $_memo_, true);
 }

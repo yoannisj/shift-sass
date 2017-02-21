@@ -36,12 +36,10 @@
   $args: shift-align-variables($args);
   $keys: map-keys(nth($args, 1));
 
-  @debug $args;
-
   // call transforming function with values for each key
   @each $key in $keys
   {
-    $key-args: walk($args, 'map-get', $key);
+    $key-args: list-walk($args, 'map-get', $key);
     $key-val: call($fn, $key-args...);
 
     // and get value returned by transforming function
