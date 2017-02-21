@@ -3,7 +3,8 @@
 // =============================================================================
 
 @import "shift/config";
-@import "shift/length";
+@import "shift/context";
+@import "shift/length/convert";
 @import "shift/params/parse";
 
 // =shift-query( $params[, $tweakpoint, $units ])

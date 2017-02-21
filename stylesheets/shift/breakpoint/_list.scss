@@ -6,7 +6,9 @@
 @import "aleksi/maps/map-get-deep";
 @import "aleksi/maps/map-merge-deep";
 
-@import "shift/config";
+@import "shift/setup";
+
+$__shift__: () !default;
 
 // shift-list-breakpoints( $feature[, $tweakpoint ])
 // -----------------------------------------------------------------------------

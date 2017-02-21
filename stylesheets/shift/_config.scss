@@ -74,6 +74,31 @@ $shift-strict-queries: true !default;
 
 $shift-media-type: 'screen' !default;
 
+// =$shift-length-unit
+// -----------------------------------------------------------------------------
+/// The unit to use when creating length media-queries.
+///
+/// @type {string}
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-length-unit: 'em' !default;
+
+// =$shift-height-unit
+// -----------------------------------------------------------------------------
+/// The unit to use when creating height media-queries.
+///
+/// @type {string}
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-height-unit: $shift-length-unit !default;
+
 // =$shift-width-unit
 // -----------------------------------------------------------------------------
 /// The unit to use when creating width media-queries.
@@ -86,7 +111,7 @@ $shift-media-type: 'screen' !default;
 /// @access public
 /// @since 0.1.0
 
-$shift-width-unit: 'em' !default;
+$shift-width-unit: $shift-length-unit !default;
 
 // =$shift-height-unit
 // -----------------------------------------------------------------------------
@@ -98,3 +123,29 @@ $shift-width-unit: 'em' !default;
 /// @since 0.1.0
 
 $shift-height-unit: 'em' !default;
+
+// =$breakpoints
+// -----------------------------------------------------------------------------
+/// A common configuration map defining width breakpoints by name/handle. This
+/// is used as default value for `$shift-breakpoints`.
+///
+/// @type {map}
+///
+/// @access public
+/// @since 0.2.0
+
+$breakpoints: () !default;
+
+// =$shift-breakpoints
+// -----------------------------------------------------------------------------
+/// A configuration map defining the breakpoints to use with shift. This can
+/// either be a nested map, defining breakpoints for each @media feature, or a
+/// single-level map defining width breakpoints only. Note, this defaults to
+/// the common `$breakpoints` global.
+///
+/// @type {map}
+///
+/// @access public
+/// @since 0.2.0
+
+$shift-breakpoints: $breakpoints !default;

@@ -12,11 +12,11 @@
 @import "aleksi/strings/str-explode";
 @import "aleksi/maps/map-set";
 
-@import "shift/config";
 @import "shift/constants";
 @import "shift/params/expression";
 @import "shift/params/handle";
 @import "shift/breakpoint/get";
+@import "shift/length/parse";
 
 // =shift-parse( $params[, $tweakpoint ])
 // -----------------------------------------------------------------------------

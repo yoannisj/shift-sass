@@ -1,6 +1,8 @@
 // SHIFT TESTS
 // ------------
 
+@import "tests/shift/setup";
+
 // @import "tests/shift/length";
 // @import "tests/shift/breakpoint/get";
 // @import "tests/shift/params/expression";
@@ -8,7 +10,7 @@
 // @import "tests/shift/params/parse";
 // @import "tests/shift/query";
 
-@import "tests/shift/variable/value";
+// @import "tests/shift/variable/value";
 // @import "tests/shift/variable/scope";
 
 @import "aleksi/maps/debug-map";

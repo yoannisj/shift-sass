@@ -10,10 +10,7 @@
 @import "aleksi/strings/str-find";
 @import "aleksi/strings/str-replace";
 
-@import "shift/config";
 @import "shift/constants";
-@import "shift/breakpoint/get";
-@import "shift/params/handle";
 
 // =shift-expression( $params )
 // -----------------------------------------------------------------------------
@@ -36,7 +33,7 @@
   }
 
   @if not type-of($params) == 'map' {
-    @return throw-error('shift-handle(): $params must be a map – was #{inspect($params)}.');
+    @return throw-error('shift-expression(): $params must be a map – was #{inspect($params)}.');
   }
 
   // optimize for empty params

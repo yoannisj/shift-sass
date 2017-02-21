@@ -1,0 +1,206 @@
+// =============================================================================
+// =SHIFT TESTS - SETUP
+// =============================================================================
+
+@import "aleksi/maps/map-set";
+@import "shift/setup";
+
+@include test-module('the shift/setup module')
+{
+  $config-features: (
+    'width': (
+      's': 400,
+      'm': 760,
+      'l': 920
+    ),
+    'height': (
+      's': 500,
+      'l': 720
+    )
+  );
+
+  $config-widths: (
+    's': 400,
+    'm': 760,
+    'l': 920
+  );
+
+  $config-tweak-features: (
+    '*': (
+      'width': (
+        's': 400,
+        'm': 760,
+        'l': 920
+      ),
+      'height': (
+        's': 500,
+        'l': 720
+      )
+    ),
+    'narrow': (
+      'width': (
+        's': 340,
+        'l': 820
+      ),
+      'height': (
+        'l': 600
+      )
+    )
+  );
+
+  $config-tweak-widths: (
+    '*': (
+      's': 400,
+      'm': 760,
+      'l': 920
+    ),
+    'narrow': (
+      's': 340,
+      'm': 680,
+      'l': 820
+    )
+  );
+
+  @include test('should automatically register breakpoints defined in the $shift-breakpoints global')
+  {
+    $__shift__: () !global;
+    $shift-breakpoints: $config-features !global;
+    @include _shift-setup();
+
+    // check if breakpoints were registered correctly
+    @include assert-equal(map-has-key($__shift__, 'breakpoints'), true);
+    $breakpoints: map-get($__shift__, 'breakpoints');
+
+    // check if width breakpoints were registered correctly
+    @include assert-equal( map-has-key($breakpoints, 'width'), true);
+    $widths: map-get($breakpoints, 'width');
+
+    @include assert-equal( map-has-key($widths, 's'), true);
+    @include assert-equal( map-get($widths, 's'), 400);
+    @include assert-equal( map-has-key($widths, 'l'), true);
+    @include assert-equal( map-get($widths, 'l'), 920);
+
+    // check if height breakpoints were registered correctly
+    @include assert-equal( map-has-key($breakpoints, 'height'), true);
+    $heights: map-get($breakpoints, 'height');
+
+    @include assert-equal( map-has-key($heights, 's'), true);
+    @include assert-equal( map-get($heights, 's'), 500);
+
+    // check if tweakpoints were registered correctly
+    @include assert-equal(map-has-key($__shift__, 'tweakpoints'), false);
+  }
+
+  @include test('should detect and register tweakpoints when the "*" key is used for generic breakpoints')
+  {
+    $__shift__: () !global;
+    $shift-breakpoints: $config-tweak-features !global;
+    @include _shift-setup();
+
+    // check if breakpoints were registered correctly
+    @include assert-equal(map-has-key($__shift__, 'breakpoints'), true);
+    $breakpoints: map-get($__shift__, 'breakpoints');
+
+    // check if width breakpoints were registered correctly
+    @include assert-equal( map-has-key($breakpoints, 'width'), true);
+    $widths: map-get($breakpoints, 'width');
+
+    @include assert-equal( map-has-key($widths, 's'), true);
+    @include assert-equal( map-get($widths, 's'), 400);
+    @include assert-equal( map-has-key($widths, 'l'), true);
+    @include assert-equal( map-get($widths, 'l'), 920);
+
+    // check if height breakpoints were registered correctly
+    @include assert-equal( map-has-key($breakpoints, 'height'), true);
+    $heights: map-get($breakpoints, 'height');
+
+    @include assert-equal( map-has-key($heights, 's'), true);
+    @include assert-equal( map-get($heights, 's'), 500);
+
+    // check if tweakpoints were registered correctly
+    @include assert-equal(map-has-key($__shift__, 'tweakpoints'), true);
+    $tweakpoints: map-get($__shift__, 'tweakpoints');
+    @include assert-equal(map-has-key($tweakpoints, 'narrow'), true);
+    $tweakpoints: map-get($tweakpoints, 'narrow');
+
+    // check if width tweakpoints were registered correctly
+    @include assert-equal( map-has-key($tweakpoints, 'width'), true);
+    $tweaked-widths: map-get($tweakpoints, 'width');
+
+    @include assert-equal( map-has-key($tweaked-widths, 's'), true);
+    @include assert-equal( map-get($tweaked-widths, 's'), 340);
+
+    // check if height tweakpoints were registered correctly
+    @include assert-equal( map-has-key($tweakpoints, 'height'), true);
+    $tweaked-heights: map-get($tweakpoints, 'height');
+
+    @include assert-equal( map-has-key($tweaked-heights, 'l'), true);
+    @include assert-equal( map-get($tweaked-heights, 'l'), 600);
+  }
+
+  @include test('should map values to the "width" feature if features are not explicitly specified in $shift-breakpoints')
+  {
+    $__shift__: () !global;
+    $shift-breakpoints: $config-tweak-widths !global;
+    @include _shift-setup();
+
+    // check if breakpoints were registered correctly
+    @include assert-equal(map-has-key($__shift__, 'breakpoints'), true);
+    $breakpoints: map-get($__shift__, 'breakpoints');
+
+    // check if width breakpoints were registered correctly
+    @include assert-equal( map-has-key($breakpoints, 'width'), true);
+    $widths: map-get($breakpoints, 'width');
+
+    @include assert-equal( map-has-key($widths, 's'), true);
+    @include assert-equal( map-get($widths, 's'), 400);
+    @include assert-equal( map-has-key($widths, 'l'), true);
+    @include assert-equal( map-get($widths, 'l'), 920);
+
+    // check if height breakpoints were registered correctly
+    @include assert-equal(map-has-key($breakpoints, 'height'), false);
+
+    // check if tweakpoints were registered correctly
+    @include assert-equal(map-has-key($__shift__, 'tweakpoints'), true);
+    $tweakpoints: map-get($__shift__, 'tweakpoints');
+    @include assert-equal(map-has-key($tweakpoints, 'narrow'), true);
+    $tweakpoints: map-get($tweakpoints, 'narrow');
+
+    // check if width tweakpoints were registered correctly
+    @include assert-equal( map-has-key($tweakpoints, 'width'), true);
+    $tweaked-widths: map-get($tweakpoints, 'width');
+
+    @include assert-equal( map-has-key($tweaked-widths, 's'), true);
+    @include assert-equal( map-get($tweaked-widths, 's'), 340);
+
+    // check if height tweakpoints were registered correctly
+    @include assert-equal( map-has-key($tweakpoints, 'height'), false);
+  }
+
+  // @include xtest('should throw an error if $shift-breakpoints is not a map')
+  // {
+  //   $__shift__: () !global;
+  //   $shift-breakpoints: true !global;
+  //   @include _shift-setup();
+
+  //   @include assert-equal($__shift__, ());
+  // }
+
+  // @include xtest('should throw an error if generic breakpoints – under the "*" key – is not a map')
+  // {
+  //   $__shift__: () !global;
+  //   $shift-breakpoints: map-set($config-tweak-features, '*', true) !global;
+  //   @include _shift-setup();
+
+  //   @include assert-equal($__shift__, ());
+  // }
+
+  // @include xtest('should throw an error if any of the tweakpoints – other keys – is not a map')
+  // {
+  //   $__shift__: () !global;
+  //   $shift-breakpoints: map-set($config-tweak-features, 'narrow', true) !global;
+  //   @include _shift-setup();
+
+  //   @include assert-equal($__shift__, ());
+  // }
+}

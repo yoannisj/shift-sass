@@ -1,0 +1,150 @@
+// =============================================================================
+// =SHIFT - SETUP
+// =============================================================================
+
+@import "aleksi/general/throw";
+@import "aleksi/maps/is-map";
+@import "aleksi/maps/map-depth";
+
+@import "shift/config";
+@import "shift/breakpoint/set";
+@import "shift/breakpoint/tweak";
+
+// =MIXINS
+// =============================================================================
+
+// =_shift-setup()
+// -----------------------------------------------------------------------------
+/// Validates and registers the breakpoints and tweakpoints defined in the
+/// `$shift-breakpoints` global. Is called internally, when importing
+/// "shift/setup".
+///
+/// @throw {error} - if $shift-breakpoints is not a map
+/// @throw {error} - if $shift-breakpoints has a '*' key that doesn't contain a map of breakpoints
+/// @throw {error} - if $shift-breakpoints has tweakpoint keys that don't contain maps of breakpoints
+///
+/// @api private
+/// @since 0.2.0
+
+@mixin _shift-setup()
+{
+  // validate the $shift-breakpoints global
+  @if not is-map($shift-breakpoints) {
+    $_: throw-error('The `$shift-breakpoints` global must be a map – was #{inspect($shift-breakpoints)}');
+  }
+
+  @else
+  {
+    $breakpoints: $shift-breakpoints;
+    $tweakpoints: ();
+
+    // detect config maps defining tweakpoints
+    @if map-has-key($breakpoints, '*') {
+      $tweakpoints: map-remove($breakpoints, '*');
+      $breakpoints: map-get($breakpoints, '*');
+    }
+
+    // register breakpoints
+    @include _shift-setup-breakpoints($breakpoints);
+
+    // register tweakpoints
+    @include _shift-setup-tweakpoints($tweakpoints);
+  }
+}
+
+// =_shift-setup-breakpoints( $breakpoints )
+// -----------------------------------------------------------------------------
+/// Validates and registers the breakpoints defined in the `$shift-breakpoints`
+/// global. Is called internally, when importing "shift/setup".
+///
+/// @throw {error} - if $shift-breakpoints has a '*' key that doesn't contain a map of breakpoints
+///
+/// @api private
+/// @since 0.2.0
+
+@mixin _shift-setup-breakpoints( $breakpoints )
+{
+  @if not is-map($breakpoints) {
+    $_: throw-error('the `$shift-breakpoints` global must contain breakpoints maps at root level, or level 2 if it defines tweakpoints.');
+  }
+
+  @else if length($breakpoints) > 0
+  {
+    // Use the 'width' feature if not set explicitly
+    @if map-depth($breakpoints) == 1 {
+      $breakpoints: (
+        'width': $breakpoints
+      )
+    }
+
+    // for each breakpoint feature
+    @each $feature in ('width', 'height')
+    {
+      // get the feature's breakpoints
+      $bps: map-get($breakpoints, $feature);
+
+      // if valid breakpoints are defined for the feature
+      @if $bps and length($bps) > 0 and type-of($bps) == 'map'
+      {
+        // register all of them with 'shift-set()'
+        @each $bp, $val in $bps {
+          @include shift-set($feature, $bp, $val);
+        }
+      }
+    }
+  }
+}
+
+// =_shift-setup-tweakpoints( $tweakpoints )
+// -----------------------------------------------------------------------------
+/// Validates and registers the tweakpoints defined in the `$shift-breakpoints`
+/// global. Is called internally, when importing "shift/setup".
+///
+/// @throw {error} - if $shift-breakpoints has tweakpoint keys that don't contain maps of breakpoints
+///
+/// @api private
+/// @since 0.2.0
+
+@mixin _shift-setup-tweakpoints( $tweakpoints )
+{
+  @if length($tweakpoints) > 0
+  {
+    @each $tweakpoint, $breakpoints in $tweakpoints
+    {
+      @if not is-map($breakpoints) {
+        $_: throw-error('the `$shift-breakpoints` global must contain breakpoints maps at root level, or level 2 if it defines tweakpoints.');
+      }
+
+      @else
+      {
+        // Use the 'width' feature if not set explicitly
+        @if map-depth($breakpoints) == 1 {
+          $breakpoints: (
+            'width': $breakpoints
+          );
+        }
+
+        @each $feature in ('width', 'height')
+        {
+          // get the feature's tweaked breakpoints
+          $bps: map-get($breakpoints, $feature);
+
+          // if valid tweakpoints are defined for the feature
+          @if $bps and length($bps) > 0 and type-of($bps) == 'map'
+          {
+            // register all of them with 'shift-tweak()'
+            @each $bp, $val in $bps {
+              @include shift-tweak($tweakpoint, $feature, $bp, $val);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// =RUNTIME
+// =============================================================================
+
+// Automatically validate and register breakpoints and tweakpoints on import.
+@include _shift-setup();

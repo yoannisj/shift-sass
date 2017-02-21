@@ -1,0 +1,53 @@
+// =============================================================================
+// =SHIFT - LENGTH CONVERT
+// =============================================================================
+
+@import "aleksi/general/throw";
+@import "aleksi/lengths/convert";
+@import "aleksi/lengths/strip-unit";
+
+@import "shift/config";
+
+// =shift-convert-length( $value[, $unit ])
+// -----------------------------------------------------------------------------
+/// Convert a length value into the given unit. When converting from or to 'ems'
+/// the media-queries' context is always 16px.
+/// **Note:** Unitless values are considered as pixel values. This is so they
+/// can be more easily shared with js scripts.
+/// @link https://www.filamentgroup.com/lab/how-we-learned-to-leave-body-font-size-alone.html
+///
+/// @param {number} $value - The length value to convert
+/// @param {string} $unit [$shift-length-unit] - A css unit keyword in which to convert `$length`
+///
+/// @return {number} - The value converted in `$unit` (using correct context length of 16px for media-queries)
+/// @throw Description
+///
+/// @example scss
+///   Example Code
+///
+/// @access public
+/// @since 0.1.0
+
+@function shift-convert-length( $value, $unit: $shift-length-unit )
+{
+  // sanitize `$value`
+  @if type-of($value) != 'number' {
+    @return throw-error("`$value` must be a number. Was #{inspect($value)}");
+  }
+
+  // accept null or 'unitless' to convert to unitless value
+  @if $unit == null or $unit == 'unitless'
+  {
+    @if unitless($value) {
+      @return $value;
+    }
+
+    @return strip-unit(shift-convert-length($value, 'px'));
+  }
+
+  // consider unitless values as pixel values
+  $value: if(unitless($value), $value * 1px, $value);
+
+  // convert value based on a 16px font-size context
+  @return convert-length($value, $unit, 16px);
+}

@@ -1,0 +1,26 @@
+// =============================================================================
+// =SHIFT - LENGTH COMPARE
+// =============================================================================
+
+@import "shift/length/parse";
+
+// =shift-compare-lengths( $a, $b[, $feature ])
+// -----------------------------------------------------------------------------
+/// Takes two length values/labels to compare, and returns true if the first
+/// one is smaller then the second one.
+///
+/// @param {string|number} $a - The first length to compare
+/// @param {string|number} $b - The length to compare it with
+/// @param {string} $feature ['width'] - The feature to use when matching labels
+/// @param {string} $tweakpoint [null] - The tweakpoint to use when matching labels
+///
+/// @api public
+/// @since 0.3.0
+
+@function shift-compare-lengths($a, $b, $feature: 'width', $tweakpoint: null)
+{
+  $a: shift-parse-length($a, $feature, $tweakpoint);
+  $b: shift-parse-length($b, $feature, $tweakpoint);
+
+  @return $a < $b;
+}

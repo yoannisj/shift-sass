@@ -8,9 +8,8 @@
 @import "aleksi/strings/str-remove";
 @import "aleksi/maps/map-merge-deep";
 
+@import "shift/setup";
 @import "shift/breakpoint/list";
-
-$__shift__: () !default;
 
 // =shift-get( $feature, $label[, $tweakpoint ])
 // -----------------------------------------------------------------------------
