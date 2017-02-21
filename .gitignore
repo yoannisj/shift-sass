@@ -20,7 +20,7 @@ tmp
 # ------------
 node_modules
 bower_components
-npm-debug
+npm-debug.log
 
 # SASSDOC
 # -------
