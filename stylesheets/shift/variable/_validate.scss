@@ -24,7 +24,7 @@
 @function _shift-validate-variable($var)
 {
   // memoization
-  $_memo_: '_shift-validate-variable' '#{$var}';
+  $_memo_: '_shift-validate-variable-#{$var}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

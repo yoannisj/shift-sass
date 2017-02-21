@@ -38,12 +38,8 @@
 @function shift-parse( $params, $tweakpoint: null )
 {
   // memoization
-  $_memo_: 'shift-parse' '#{$params}-#{$tweakpoint}';
+  $_memo_: 'shift-parse-#{$params}-#{$tweakpoint}';
   @if memo-has('shift', $_memo_) {
-
-    @debug 'memo has!!!';
-    @debug $__memo-table__;
-
     @return memo-get('shift', $_memo_);
   }
 
@@ -101,7 +97,7 @@
 @function _shift-parse-expression( $expr )
 {
   // memoization
-  $_memo_: '_shift-parse-expression' '#{$expr}';
+  $_memo_: '_shift-parse-expression-#{$expr}';
   @if memo-has('_shift', $_memo_) {
     @return memo-get('_shift', $_memo_);
   }
@@ -178,7 +174,7 @@
 @function _shift-parse-handle( $handle )
 {
   // memoization
-  $_memo_: '_shift-parse-handle' '#{$handle}';
+  $_memo_: '_shift-parse-handle-#{$handle}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

@@ -30,7 +30,7 @@
 @function shift-transpose-variable($var, $keys)
 {
   // memoization
-  $_memo_: 'shift-transpose-variable' '#{$var}-#{$keys}';
+  $_memo_: 'shift-transpose-variable-#{$var}-#{$keys}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

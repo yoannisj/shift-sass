@@ -23,7 +23,7 @@
 @function shift-parse-keys( $var )
 {
   // memoization
-  $_memo_: 'shift-parse-keys' '#{$var}';
+  $_memo_: 'shift-parse-keys-#{$var}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
