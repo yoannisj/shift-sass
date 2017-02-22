@@ -88,17 +88,6 @@ $shift-media-type: 'screen' !default;
 
 $shift-length-unit: 'em' !default;
 
-// =$shift-height-unit
-// -----------------------------------------------------------------------------
-/// The unit to use when creating height media-queries.
-///
-/// @type {string}
-///
-/// @access public
-/// @since 0.1.0
-
-$shift-height-unit: $shift-length-unit !default;
-
 // =$shift-width-unit
 // -----------------------------------------------------------------------------
 /// The unit to use when creating width media-queries.
@@ -112,6 +101,17 @@ $shift-height-unit: $shift-length-unit !default;
 /// @since 0.1.0
 
 $shift-width-unit: $shift-length-unit !default;
+
+// =$shift-height-unit
+// -----------------------------------------------------------------------------
+/// The unit to use when creating height media-queries.
+///
+/// @type {string}
+///
+/// @access public
+/// @since 0.1.0
+
+$shift-height-unit: $shift-length-unit !default;
 
 // =$shift-height-unit
 // -----------------------------------------------------------------------------

@@ -22,5 +22,9 @@
   $a: shift-parse-length($a, $feature, $tweakpoint);
   $b: shift-parse-length($b, $feature, $tweakpoint);
 
-  @return $a < $b;
+  @if $a != null and $b != null {
+    @return $a < $b;
+  }
+
+  @return null;
 }

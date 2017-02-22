@@ -8,6 +8,8 @@
 
 @import "shift/config";
 
+$root-font-size: 16px !default;
+
 // =shift-convert-length( $value[, $unit ])
 // -----------------------------------------------------------------------------
 /// Convert a length value into the given unit. When converting from or to 'ems'
@@ -32,7 +34,7 @@
 {
   // sanitize `$value`
   @if type-of($value) != 'number' {
-    @return throw-error("`$value` must be a number. Was #{inspect($value)}");
+    @return throw-error("shift-convert-length(): `$value` must be a number – was #{inspect($value)}");
   }
 
   // accept null or 'unitless' to convert to unitless value
@@ -48,6 +50,15 @@
   // consider unitless values as pixel values
   $value: if(unitless($value), $value * 1px, $value);
 
+  // - temporarily set $root-font-size global to 16px for 'rem' conversions
+  $rfs: $root-font-size;
+  $root-font-size: 16px !global;
+
   // convert value based on a 16px font-size context
-  @return convert-length($value, $unit, 16px);
+  $res: convert-length($value, $unit, 16px);
+
+  // -reset $root-font-size global
+  $root-font-size: $rfs !global;
+
+  @return $res;
 }

@@ -22,13 +22,21 @@
 
 // @import "tests/shift/query";
 
-// @import "tests/shift/variable/value";
+// @import "tests/shift/variable/validate";
+// @import "tests/shift/variable/parse-keys";
+// @import "tests/shift/variable/transpose";
 // @import "tests/shift/variable/scope";
+// @import "tests/shift/variable/expand";
+// @import "tests/shift/variable/reduce";
+// @import "tests/shift/variable/align";
+// @import "tests/shift/variable/call";
+// @import "tests/shift/variable/value";
 
 @import "tests/shift/setup";
 
-@import "aleksi/maps/debug-map";
 
+
+@import "aleksi/maps/debug-map";
 // @import "../../stylesheets/shift/params/parse";
 // @import "../../stylesheets/shift/variable";
 // @import "../../stylesheets/shift/query";

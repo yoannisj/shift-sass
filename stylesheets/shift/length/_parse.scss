@@ -5,64 +5,54 @@
 @import "aleksi/general/throw";
 @import "aleksi/general/memo";
 @import "aleksi/cast/to-number";
-@import "aleksi/const/css/length-units";
 
 @import "shift/setup";
 @import "shift/breakpoint/get";
 @import "shift/length/convert";
 
-// =shift-parse-length( $length[, $feature, $tweakpoint, $unit ])
+// =shift-parse-length( $value[, $feature, $tweakpoint ])
 // -----------------------------------------------------------------------------
-/// Takes a length value/label and returns the corresponding value in given unit.
-/// It will return null if a string was given but could
-/// not be cast to a number or doesn't correspond to a label.
-/// **Note**: The $tweakpoint parameter can be omitted
+/// Takes a length value/label and returns the corresponding unitless px length.
+/// Returns `null` if a string was given but could not be cast to a number, nor
+/// matched with a registered breakpoint label.
 ///
-/// @param {string|number} $length - The length to parse
+/// @param {string|number} $value - The length to parse
 /// @param {string} $feature ['width'] - The feature to use when matching labels
 /// @param {string} $tweakpoint [null] - The tweakpoint to use when matching labels
-/// @param {string} $unit ['unitless'] - The unit in which to return the parsed length
 ///
-/// @return {number} - The unitless 'px' value corresponding to $length
-/// @throw Error - if $length is not a number nor a string
+/// @return {number} - The unitless px length corresponding to $value
+/// @throw Error - if $value is not a number nor a string
 ///
 /// @api public
 /// @since 0.3.0
 
-@function shift-parse-length($length, $feature: 'width', $tweakpoint: null, $unit: 'unitless')
+@function shift-parse-length( $value, $feature: 'width', $tweakpoint: null )
 {
   // memoization
-  $_memo_: 'shift-parse-length-#{$length}-#{$feature}-#{$tweakpoint}-#{$unit}';
+  $_memo_: 'shift-parse-length-#{$value}-#{$feature}-#{$tweakpoint}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
 
-  $type: type-of($length);
+  $type: type-of($value);
 
   @if $type != 'string' and $type != 'number' {
-    @return throw-error('shift-parse-length(): $length must be a number or a string – was #{inspect($length)}.');
-  }
-
-  // allow omitting tweakpoint
-  @if $tweakpoint == 'unitless' or index(const('CSS_LENGTH_UNITS'), $tweakpoint) {
-    $unit: $tweakpoint;
-    $tweakpoint: null;
+    @return throw-error('shift-parse-length(): $value must be a number or a string – was #{inspect($value)}.');
   }
 
   @if $type == 'string'
   {
     // try to cast length as a number in case it was given 'on the fly'
-    // in a shift handle/expression
-    $to-num: to-number($length);
-    $length: if($to-num == null, shift-get($feature, $length, $tweakpoint), $to-num);
+    // or try to match it with a registered label
+    $value: default-to(to-number($value), shift-get($feature, $value, $tweakpoint));
 
-    // if no corresponding label was found
-    @if $length == null {
+    // if could not cast and no corresponding label was found
+    @if $value == null {
       @return memo-set('shift', $_memo_, null);
     }
   }
 
-  // return unitless value for length
-  $res: shift-convert-length($length, 'unitless');
-  @return memo-set('shift', $_memo_, $res);
+  // convert to unitless px value
+  $value: shift-convert-length($value, 'unitless');
+  @return memo-set('shift', $_memo_, $value);
 }

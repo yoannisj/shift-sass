@@ -1,0 +1,71 @@
+// =============================================================================
+// =SHIFT TESTS - LENGTH PARSE
+// =============================================================================
+
+@import "shift/length/parse";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('The shift-parse-length function')
+{
+  @include test('should accept a number, and convert it into unitless px length')
+  {
+    @include assert-equal(shift-parse-length(680px), 680);
+    @include assert-equal(shift-parse-length(30em), 480);
+  }
+
+  @include test('should accept a number cast as a string, and convert it into unitless px length')
+  {
+    @include assert-equal(shift-parse-length('680px'), 680);
+    @include assert-equal(shift-parse-length('30em'), 480);
+  }
+
+  @include test('should accept a shift label, and return the corresponding length')
+  {
+    @include assert-equal(shift-parse-length('m', 'width'), 760);
+    @include assert-equal(shift-parse-length('s', 'height'), 500);
+  }
+
+  @include test('should default to the "width" feature when matching a label')
+  {
+    @include assert-equal(shift-parse-length('s'), 400);
+    @include assert-equal(shift-parse-length('l'), 920);
+  }
+
+  @include test('should return given tweakpoint\'s length when matching a label')
+  {
+    @include assert-equal(shift-parse-length('s', 'width', 'narrow'), 340);
+    @include assert-equal(shift-parse-length('l', 'height', 'narrow'), 600);
+  }
+
+  @include test('should return null if given string could not be cast to a number, nor matched with a breakpoint label') {
+    @include assert-equal(shift-parse-length('foobar', 'width'), null);
+  }
+
+  // @include xtest('should throw an error if $value is not a number nor a string') {
+  //   @include assert-equal(shift-parse-length(true, 'width'));
+  // }
+}

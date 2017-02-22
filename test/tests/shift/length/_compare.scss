@@ -1,0 +1,71 @@
+// =============================================================================
+// =SHIFT TESTS - LENGTH PARSE
+// =============================================================================
+
+@import "shift/length/compare";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('The shift-compare-lengths function')
+{
+  @include test('should determine whether the first of two given lengths is smaller then the second')
+  {
+    @include assert-equal(shift-compare-lengths(10, 20), true);
+    @include assert-equal(shift-compare-lengths(300, 260), false);
+  }
+
+  @include test('should convert lengths using shift-convert-length() in order to compare incompatible numbers')
+  {
+    @include assert-equal(shift-compare-lengths(3em, 50px), true);
+    @include assert-equal(shift-compare-lengths(10em, 140), false);
+  }
+
+  @include test('should parse numbers cast into strings and valid breakpoint labels')
+  {
+    @include assert-equal(shift-compare-lengths('s', '500px', 'width'), true);
+    @include assert-equal(shift-compare-lengths('l', '800', 'width'), false);
+  }
+
+  @include test('should use given tweakpoint\'s length when matching a label')
+  {
+    @include assert-equal(shift-compare-lengths('s', 380, 'width', 'narrow'), true);
+    @include assert-equal(shift-compare-lengths(896, 'l', 'width', 'narrow'), false);
+    @include assert-equal(shift-compare-lengths('l', 40em, 'height', 'narrow'), true);
+  }
+
+  @include test('should default to "width" lengths when matching a label')
+  {
+    @include assert-equal(shift-compare-lengths('s', 440), true);
+    @include assert-equal(shift-compare-lengths(896px, 'l'), true);
+    @include assert-equal(shift-compare-lengths(1028, 'l'), false);
+  }
+
+  @include test('should return null if one or both given lengths couldnt be cast or matched successfully')
+  {
+    @include assert-equal(shift-compare-lengths('foobar', 50px), null);
+    @include assert-equal(shift-compare-lengths('2000wtf', 'foobar'), null);
+  }
+}
