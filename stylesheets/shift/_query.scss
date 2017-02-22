@@ -36,20 +36,20 @@
 
   // inject defaults
   $params: map-merge((
-    'strict-query': $shift-strict-queries,
-    'media-type': $shift-media-type
+    'strict': $shift-strict-queries,
+    'media': $shift-media
   ), $params);
 
   // start with optional 'only' keyword
-  $query: if(map-get($params, 'strict-query') == true, "only ", "");
+  $query: if(map-get($params, 'strict') == true, "only ", "");
 
-  // add optional 'media-type'
-  @if map-get($params, 'media-type') {
-    $query: "#{$query}#{map-get($params, 'media-type')}";
+  // add optional 'media'
+  @if map-get($params, 'media') {
+    $query: "#{$query}#{map-get($params, 'media')}";
   }
 
   // add media-query features
-  @each $feature, $value in map-remove($params, 'strict-query', 'media-type')
+  @each $feature, $value in map-remove($params, 'strict', 'media')
   {
     // use correct width unit
     @if index('width' 'min-width' 'max-width', $feature) {

@@ -5,6 +5,68 @@
 @import "shift/params/handle";
 @import "aleksi/general/const";
 
+@include test-module('The shift-handle function')
+{
+  @include test('should build a handle string for given shift parameters')
+  {
+    $handle-a: 's';
+    $params-a: (
+      'strict': true,
+      'min-width': 's'
+    );
+
+    $handle-b: '400_920-500';
+    $params-b: (
+      'media': 'print',
+      'min-width': 400,
+      'max-width': 920,
+      'min-height': 500
+    );
+
+    $handle-c: 's-_l';
+    $params-c: (
+      'min-width': 's',
+      'max-height': 'l'
+    );
+
+    @include assert-equal(shift-handle($params-a), $handle-a);
+    @include assert-equal(shift-handle($params-b), $handle-b);
+    @include assert-equal(shift-handle($params-c), $handle-c);
+  }
+
+  @include test('should allow to mix labels and length values')
+  {
+    $handle-a: 'm_920-s';
+    $params-a: (
+      'media': 'print',
+      'min-width': 'm',
+      'max-width': 920,
+      'min-height': 's'
+    );
+
+    $handle-b: '400-_l';
+    $params-b: (
+      'min-width': 400,
+      'max-height': 'l'
+    );
+
+    @include assert-equal(shift-handle($params-a), $handle-a);
+    @include assert-equal(shift-handle($params-b), $handle-b);
+  }
+
+  @include test('should return the "df" string if given $params is empty or doesn\'t contain valid shift params')
+  {
+    $no-valid-params: ('foo': 300, 'bar': 800);
+
+    @include assert-equal(shift-handle(()), 'df');
+    @include assert-equal(shift-handle($no-valid-params), 'df');
+  }
+
+  // @include test('should throw an error if $params is not a map') {
+  //   @include assert-equal(shift-handle(true), null);
+  // }
+}
+
 @include test-module('The shift-validate-handle function')
 {
   @include test('should recognize strings with forbidden characters as invalid')
@@ -95,5 +157,6 @@
     // and also invalid parts in the combined expression
     @include assert-equal(shift-validate-handle('foo_-_l'), false);
     @include assert-equal(shift-validate-handle('_l-foobar'), false);
+    @include assert-equal(shift-validate-handle('bar_740'), false);
   }
 }

@@ -9,12 +9,14 @@
 @import "aleksi/strings/str-trim";
 @import "aleksi/strings/str-find";
 @import "aleksi/strings/str-replace";
+@import "aleksi/maps/is-map";
 
 @import "shift/constants";
 
 // =shift-expression( $params )
 // -----------------------------------------------------------------------------
-/// Builds a shift expression for given shift parameters
+/// Builds a shift expression for given shift parameters. Length parameters
+/// will be parsed in order to recognize breakpoint labels used in $params.
 ///
 /// @param {map} $params - The shift parameters to use
 ///
@@ -32,8 +34,8 @@
     @return memo-get('shift', $_memo_);
   }
 
-  @if not type-of($params) == 'map' {
-    @return throw-error('shift-expression(): $params must be a map – was #{inspect($params)}.');
+  @if not is-map($params) {
+    @return throw-error('shift-expression(): `$params` must be a map – was `#{inspect($params)}`');
   }
 
   // optimize for empty params
@@ -42,8 +44,8 @@
   }
 
   $expr: '';
-  $strict-query: map-get($params, 'strict-query');
-  $media-type: map-get($params, 'media-type');
+  $strict-query: map-get($params, 'strict');
+  $media: map-get($params, 'media');
   $min-w: map-get($params, 'min-width');
   $max-w: map-get($params, 'max-width');
   $min-h: map-get($params, 'min-height');
@@ -53,8 +55,8 @@
     $expr: 'only ';
   }
 
-  @if $media-type {
-    $expr: '#{$expr}#{$media-type} ';
+  @if $media {
+    $expr: '#{$expr}#{$media} ';
   }
 
   @if $min-w {
@@ -99,6 +101,11 @@
   $_memo_: 'shift-validate-expression-#{$str}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
+  }
+
+  // sanitize $str parameter
+  @if type-of($str) != 'string' {
+    @return throw-error('shift-validate-expression(): `$str` must be a string – was `#{inspect($str)}`');
   }
 
   // accept 'df' and empty string
@@ -173,7 +180,11 @@
   @if str-index($str, 'w>') == 1 or str-index($str, 'w<') == 1
     or str-index($str, 'h>') == 1 or str-index($str, 'h<') == 1
   {
-    @return memo-set('shift', $_memo_, true);
+    $length: str-slice($str, 3);
+
+    // validate if the length can be parsed successfully
+    $res: if(shift-parse-length($length), true, false);
+    @return memo-set('shift', $_memo_, $res);
   }
 
   // recognize resolution handles
@@ -181,7 +192,7 @@
     @return memo-set('shift', $_memo_, true);
   }
 
-  // recognize CSS media-types
+  // recognize CSS medias
   @else if index(const('SHIFT_MEDIA_TYPES'), $str) {
     @return memo-set('shift', $_memo_, true);
   }
@@ -249,6 +260,11 @@
   $_memo_: 'shift-normalize-expression-#{$expr}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
+  }
+
+  // sanitize $expr parameter
+  @if type-of($expr) != 'string' {
+    @return throw-error('shift-normalize-expression(): `$expr` must be a string – was `#{inspect($expr)}`');
   }
 
   // recognize 'width', 'min-width:' and 'max-width:'

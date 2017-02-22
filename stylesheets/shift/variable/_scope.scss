@@ -44,7 +44,7 @@
   }
 
   // get context's scoping features
-  $media: default-to(map-get($context, 'media'), $shift-media-type);
+  $media: default-to(map-get($context, 'media'), $shift-media);
   $min-w: map-get($context, 'min-width');
   $max-w: map-get($context, 'max-width');
   $min-h: map-get($context, 'min-height');
@@ -68,7 +68,7 @@
   @each $key, $val in $var
   {
     $prm: map-get($params, $key);
-    $prm-media: default-to(map-get($prm, 'media-type'), $shift-media-type);
+    $prm-media: default-to(map-get($prm, 'media'), $shift-media);
     $prm-min-w: map-get($prm, 'min-width');
     $prm-max-w: map-get($prm, 'max-width');
     $prm-min-h: map-get($prm, 'min-height');

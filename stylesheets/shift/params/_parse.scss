@@ -20,14 +20,13 @@
 
 // =shift-parse( $params[, $tweakpoint ])
 // -----------------------------------------------------------------------------
-/// Takes a shift expression or a map of media-query parameters and returns a
-/// new map of media-query parameters, including defaults and with labeled
-/// features replaced by their registered values.
+/// Takes a shift expression, handle or a map of shift parameters, and returns a
+/// new map of parameters, with breakpoint labels and length values parsed.
 ///
 /// @param {string|map} $params - A shift expression or a map of media-query parameters
-/// @param {string} $tweakpoint - An optional tweakpoint to get values from
+/// @param {string|null} $tweakpoint - An optional tweakpoint to get values from
 ///
-/// @return {map} - A map of media-query parameters with corresponding values
+/// @return {map} - A map of shift parameters, with values parsed
 ///
 /// @example scss
 ///   Example Code
@@ -43,6 +42,16 @@
     @return memo-get('shift', $_memo_);
   }
 
+  // sanitize $params argument
+  @if type-of($params) != 'string' and is-map($params) == false {
+    @return throw-error('shift-parse(): `$params` must be a map or a string – was `#{inspect($params)}`');
+  }
+
+  // sanitize $tweakpoint argument
+  @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
+    @return throw-error('shift-parse(): `$tweakpoint` must be null or a string – was `#{inspect($tweakpoint)}`');
+  }
+
   // parse expression/handle if params is given as a string
   @if type-of($params) == 'string'
   {
@@ -52,32 +61,28 @@
     }
 
     @else if shift-validate-expression($params) {
-      $params: _shift-parse-expression($params);
+      $params: _shift-parse-expression($params, $tweakpoint);
     }
 
     @else if shift-validate-handle($params) {
-      $params: _shift-parse-handle($params);
+      $params: _shift-parse-handle($params, $tweakpoint);
     }
   }
 
   // get labeled feature values, and adapt to tweakpoint
   $labels: ();
 
-  @each $feature, $value in map-remove($params, 'strict-mode', 'media-type')
+  // parse length values
+  $length-params: map-remove($params, 'strict', 'media', 'resolution');
+  @each $feature, $value in $length-params
   {
-    // recognize labeled values
-    @if type-of($value) == 'string'
-      and not str-index($feature, '-label')
-    {
-      // conserve labels in parameters
-      $labels: map-set($labels, '#{$feature}-label', $value);
-      // replace labeled values with breakpoint values
-      $params: map-set($params, $feature, shift-get($feature, $value, $tweakpoint));
-    }
+    // parse length value
+    $length: shift-parse-length($value, $feature, $tweakpoint);
+    // replace with parsed value in parameters map
+    $params: map-set($params, $feature, $length);
   }
 
-  $res: map-merge($labels, $params);
-  @return memo-set('shift', $_memo_, $res);
+  @return memo-set('shift', $_memo_, $params);
 }
 
 // =_shift-parse-expression( $expr )
@@ -94,7 +99,7 @@
 /// @access private
 /// @since 0.1.0
 
-@function _shift-parse-expression( $expr )
+@function _shift-parse-expression( $expr, $tweakpoint: null )
 {
   // memoization
   $_memo_: '_shift-parse-expression-#{$expr}';
@@ -116,39 +121,39 @@
   // recognize leading 'only' keyword for strict queries
   @if str-index($expr, 'only') == 1
   {
-    $params: map-set($params, 'strict-query', true);
+    $params: map-set($params, 'strict', true);
     $expr: str-slice($expr, 5);
   }
 
   // identify media-query settings described in the expression
   @each $part in str-explode($expr, ' ')
   {
-    // recognize 'media-type'
+    // recognize 'media'
     @if index(const('SHIFT_MEDIA_TYPES'), $part) {
-      $params: map-set($params, 'media-type', $part);
+      $params: map-set($params, 'media', $part);
     }
 
     // recognize 'min-width' feature
     @else if str-index($part, 'w>') {
-      $length: shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3), 'width', $tweakpoint);
       $params: map-set($params, 'min-width', $length);
     }
 
     // recognize 'max-width' feature
     @else if str-index($part, 'w<') {
-      $length: shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3), 'width', $tweakpoint);
       $params: map-set($params, 'max-width', $length);
     }
 
     // recognize 'min-height' feature
     @else if str-index($part, 'h>') {
-      $length: shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3), 'height', $tweakpoint);
       $params: map-set($params, 'min-height', $length);
     }
 
     // recognize 'max-height' feature
     @else if str-index($part, 'h<') {
-      $length: shift-parse-length(str-slice($part, 3));
+      $length: shift-parse-length(str-slice($part, 3), 'height', $tweakpoint);
       $params: map-set($params, 'max-height', $length);
     }
   }
@@ -171,7 +176,7 @@
 /// @access private
 /// @since 0.3.0
 
-@function _shift-parse-handle( $handle )
+@function _shift-parse-handle( $handle, $tweakpoint: null )
 {
   // memoization
   $_memo_: '_shift-parse-handle-#{$handle}';
@@ -200,7 +205,7 @@
       // recognize the breakpoint feature's limit ('min' or 'max')
       $limit: if($pcount == 1, 'min', 'max');
       // get the breakpoint feature's length value
-      $length: if($part == '', null, shift-parse-length($part));
+      $length: if($part == '', null, shift-parse-length($part, $dimen, $tweakpoint));
 
       @if $feature != '' and $part != '' {
         // register the breakpoint parameter

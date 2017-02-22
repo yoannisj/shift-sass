@@ -1,0 +1,181 @@
+
+@import "aleksi/maps/debug-map";
+@import "shift/params/parse";
+@import "shift/variable/expand";
+@import "shift/variable/reduce";
+@import "shift/variable/align";
+@import "shift/query";
+
+$min-w-only: (
+  'df': 5,
+  's': 10,
+  'm': 20,
+  'l': 30
+);
+
+$max-w-only: (
+  '_l': 20,
+  '_m': 10,
+  '_s': 5,
+  'df': 30
+);
+
+$min-w-and-max-w: (
+  'df': 10,
+  '_s': 5,
+  'm': 20,
+  'l': 30
+);
+
+$min-h-only: (
+  'df': 1em,
+  '-s': 1.5em,
+  '-m_': 3em,
+  "-l": 5em
+);
+
+$max-h-only: (
+  'df': 5em,
+  "-_l": 3em,
+  '-_m': 1.5em,
+  '-_s': 1em
+);
+
+$min-h-and-max-h: (
+  'df': 1.5em,
+  '-_s': 1em,
+  '-m': 3em,
+  '-l_': 5em
+);
+
+$mix-min-only: (
+  'df': 10mm,
+  '-s': 5mm,
+  '-m': 15mm,
+  's': 20mm,
+  'l_': 30mm
+);
+
+// _s: 10mm
+// s_l: 20mm
+// l_: 30mm
+// -_s: 10mm
+// -s_m: 5mm
+// -m_: 15mm
+
+$mix-max-only: (
+  'df': 30mm,
+  '_s': 10mm,
+  '_m': 20mm,
+  '-_s': 5mm,
+  '-_m': 15mm
+);
+
+// _s: 10mm
+// s_m: 20mm
+// m_: 30mm
+// -_s: 5mm
+// -s_m: 15mm
+// -m_: 30mm
+
+$mix-min-and-max: (
+  'df': 30mm,
+  's': 10mm,
+  '_l': 20mm,
+  '-s': 5mm,
+  '-_m': 15mm
+);
+
+// _s: 30mm
+// s_l: 20mm
+// l_: 10mm
+// -_s: 30mm
+// -s_m: 15mm
+// -m_: 5mm
+
+$super-mix: (
+  'df': 30mm,
+  's-_m': 5mm,
+  's': 10mm,
+  '_l': 20mm,
+  '-_m': 15mm,
+  '-s': 5mm
+);
+
+// _s: 30mm
+// s_-_m: 5mm
+// s_l: 20mm
+// -s_m: 15mm
+// -m_: 5mm
+
+// _m: 30
+// s_: 20
+// BECOMES
+// _s: 30
+// s: 20
+
+// l_: 40
+// s_m: 20
+// BECOMES
+// l_: 40
+// s_m: 20
+
+@function math-add($a, $b) {
+  @return $a + $b;
+}
+
+@include test-module('the shift-expand-variable function')
+{
+  @include test('should work like it is supposed to work..')
+  {
+    // @debug '######################';
+
+    $var-a: 10;
+    $var-b: (
+      'df': 5,
+      's': 10,
+      'm': 15,
+      'l': 20
+    );
+
+    // $aligned: shift-align-variables($var-a $var-b);
+    // @each $var in $aligned
+    // {
+    //   $var: debug-map($var);
+    //   @debug '----------------------';
+    // }
+
+    // @debug shift-scope-variable($a);
+
+    // $res: debug-map(shift-call('math-add', $var-a, $var-b));
+
+    // @debug '######################';
+    // $expanded: debug-map(shift-expand-variable($mix-min-only));
+    // @debug '----------------------';
+    // $reduced: debug-map(shift-reduce-variable($expanded));
+    // @debug '----------------------';
+    // $reduced: debug-map(_shift-reduce-intervals($reduced));
+    // @debug '######################';
+
+    // @debug '######################';
+    // $staggered: debug-map(shift-expand-variable($min-w-only));
+    // @debug '======================';
+    // $staggered: debug-map(shift-expand-variable($max-w-only));
+    // @debug '======================';
+    // $staggered: debug-map(shift-expand-variable($min-w-and-max-w));
+    // @debug '######################';
+    // $staggered: debug-map(shift-expand-variable($min-h-only));
+    // @debug '======================';
+    // $staggered: debug-map(shift-expand-variable($max-h-only));
+    // @debug '======================';
+    // $staggered: debug-map(shift-expand-variable($min-h-and-max-h));
+    // @debug '######################';
+    // $staggered: debug-map(shift-expand-variable($mix-min-only));
+    // @debug '======================';
+    // $staggered: debug-map(shift-expand-variable($mix-max-only));
+    // @debug '======================';
+    // $staggered: debug-map(shift-expand-variable($mix-min-and-max));
+    // @debug '######################';
+    // $staggered: debug-map(shift-expand-variable($super-mix));
+  }
+}

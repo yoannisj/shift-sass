@@ -12,15 +12,16 @@
 
 // =shift-parse-length( $value[, $feature, $tweakpoint ])
 // -----------------------------------------------------------------------------
-/// Takes a length value/label and returns the corresponding unitless px length.
+/// Takes a length value/label and returns the corresponding px length.
 /// Returns `null` if a string was given but could not be cast to a number, nor
 /// matched with a registered breakpoint label.
+/// **Note**: unitless values are considered as equivalent to px.
 ///
 /// @param {string|number} $value - The length to parse
 /// @param {string} $feature ['width'] - The feature to use when matching labels
 /// @param {string} $tweakpoint [null] - The tweakpoint to use when matching labels
 ///
-/// @return {number} - The unitless px length corresponding to $value
+/// @return {number} - The px length corresponding to $value
 /// @throw Error - if $value is not a number nor a string
 ///
 /// @api public
@@ -36,8 +37,19 @@
 
   $type: type-of($value);
 
-  @if $type != 'string' and $type != 'number' {
-    @return throw-error('shift-parse-length(): $value must be a number or a string – was #{inspect($value)}.');
+  // sanitize `$value`
+  @if $type != 'null' and $type != 'string' and $type != 'number' {
+    @return throw-error('shift-parse-length(): $value must be null, a number or a string – was #{inspect($value)}.');
+  }
+
+  // sanitize `$tweakpoint`
+  @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
+    @return throw-error("shift-parse-length(): `$tweakpoint` must be a string – was `#{inspect($tweakpoint)}`");
+  }
+
+  // allow value to be null
+  @if $value == null {
+    @return memo-set('shift', $_memo_, null);
   }
 
   @if $type == 'string'
@@ -52,7 +64,7 @@
     }
   }
 
-  // convert to unitless px value
-  $value: shift-convert-length($value, 'unitless');
+  // convert to px value
+  $value: shift-convert-length($value, 'px');
   @return memo-set('shift', $_memo_, $value);
 }

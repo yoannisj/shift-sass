@@ -4,9 +4,222 @@
 
 @import "shift/params/expression";
 
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('The shift-expression function')
+{
+  @include test('should build an expression string for given shift parameters')
+  {
+    $expr-a: 'only w>s';
+    $params-a: (
+      'strict': true,
+      'min-width': 's'
+    );
+
+    $expr-b: 'print w>400 w<920 h>500';
+    $params-b: (
+      'media': 'print',
+      'min-width': 400,
+      'max-width': 920,
+      'min-height': 500
+    );
+
+    $expr-c: 'w>s h<l';
+    $params-c: (
+      'min-width': 's',
+      'max-height': 'l'
+    );
+
+    @include assert-equal(shift-expression($params-a), $expr-a);
+    @include assert-equal(shift-expression($params-b), $expr-b);
+    @include assert-equal(shift-expression($params-c), $expr-c);
+  }
+
+  @include test('should allow to mix labels and length values')
+  {
+    $expr-a: 'print w>m w<920 h>s';
+    $params-a: (
+      'media': 'print',
+      'min-width': 'm',
+      'max-width': 920,
+      'min-height': 's'
+    );
+
+    $expr-b: 'w>400 h<l';
+    $params-b: (
+      'min-width': 400,
+      'max-height': 'l'
+    );
+
+    @include assert-equal(shift-expression($params-a), $expr-a);
+    @include assert-equal(shift-expression($params-b), $expr-b);
+  }
+
+  @include test('should return the "df" string if given $params is empty or doesn\'t contain valid shift params')
+  {
+    $no-valid-params: ('foo': 300, 'bar': 800);
+
+    @include assert-equal(shift-expression(()), 'df');
+    @include assert-equal(shift-expression($no-valid-params), 'df');
+  }
+
+  // @include test('should throw an error if $params is not a map') {
+  //   @include assert-equal(shift-expression(true), null);
+  // }
+}
+
+@include test-module('The shift-validate-expression function')
+{
+  @include test('should recognize the leading "only" keyword for strict queries')
+  {
+    @include assert-equal(shift-validate-expression('only print'), true);
+    @include assert-equal(shift-validate-expression('only min-width: s'), true);
+    @include assert-equal(shift-validate-expression('only'), false);
+    @include assert-equal(shift-validate-expression('w<m only'), false);
+  }
+
+  @include test('should recognize CSS media types')
+  {
+    @include assert-equal(shift-validate-expression('print'), true);
+    @include assert-equal(shift-validate-expression('screen'), true);
+  }
+
+  @include test('should recognize the "min-{feature}:{label}" syntax for "min-*" expressions')
+  {
+    @include assert-equal(shift-validate-expression('min-width:s'), true);
+    @include assert-equal(shift-validate-expression('min-width: s'), true);
+    @include assert-equal(shift-validate-expression('min-height: s'), true);
+  }
+
+  @include test('should recognize the "min-{feature}:{length}" syntax for "min-*" expressions')
+  {
+    @include assert-equal(shift-validate-expression('min-width:520'), true);
+    @include assert-equal(shift-validate-expression('min-width: 32.5em'), true);
+    @include assert-equal(shift-validate-expression('min-height: 500px'), true);
+  }
+
+  @include test('should recognize the "{feature}>{label}" syntax for "min-*" expressions')
+  {
+    @include assert-equal(shift-validate-expression('w>s'), true);
+    @include assert-equal(shift-validate-expression('width > s'), true);
+    @include assert-equal(shift-validate-expression('h > s'), true);
+    @include assert-equal(shift-validate-expression('height > l'), true);
+  }
+
+  @include test('should recognize the "{feature}>{length}" syntax for "min-*" expressions')
+  {
+    @include assert-equal(shift-validate-expression('w>520'), true);
+    @include assert-equal(shift-validate-expression('width > 32.5em'), true);
+    @include assert-equal(shift-validate-expression('h > 500px'), true);
+    @include assert-equal(shift-validate-expression('height > 720'), true);
+  }
+
+  @include test('should recognize the "max-{feature}:{label}" syntax for "max-*" expressions')
+  {
+    @include assert-equal(shift-validate-expression('max-width:m'), true);
+    @include assert-equal(shift-validate-expression('max-width: m'), true);
+    @include assert-equal(shift-validate-expression('max-height:s'), true);
+  }
+
+  @include test('should recognize the "max-{feature}:{lentgh}" syntax for "max-*" expressions')
+  { 
+    @include assert-equal(shift-validate-expression('max-width:940'), true);
+    @include assert-equal(shift-validate-expression('max-width: 58.75em'), true);
+    @include assert-equal(shift-validate-expression('max-height: 500px'), true);
+  }
+
+  @include test('should recognize the the "{feature}<{label}" syntax for "max-*" expressions')
+  {
+    @include assert-equal(shift-validate-expression('w<m'), true);
+    @include assert-equal(shift-validate-expression('width < m'), true);
+    @include assert-equal(shift-validate-expression('h < s'), true);
+    @include assert-equal(shift-validate-expression('height < l'), true);
+  }
+
+  @include test('should recognize the the "{feature}<{length}" syntax for "max-*" expressions')
+  {
+    @include assert-equal(shift-validate-expression('w<940'), true);
+    @include assert-equal(shift-validate-expression('w < 58.75em'), true);
+    @include assert-equal(shift-validate-expression('h < 500px'), true);
+    @include assert-equal(shift-validate-expression('height < 720'), true);
+  }
+
+  @include test('should recognize the "{number}x" syntax for resolution expressions')
+  {
+    @include assert-equal(shift-validate-expression('2x'), true);
+    @include assert-equal(shift-validate-expression('1.5x'), true);
+    // and also invalid strings that look like it
+    @include assert-equal(shift-validate-expression('1a9c0x'), false);
+  }
+
+  @include test('should recognize combined expressions')
+  {
+    @include assert-equal(shift-validate-expression('w>s 2x'), true);
+    @include assert-equal(shift-validate-expression('w>s and h<l'), true);
+    @include assert-equal(shift-validate-expression('screen 1.5x'), true);
+    @include assert-equal(shift-validate-expression('min-width: s max-width:l'), true);
+
+    // and also invalid parts in the combined expression
+    @include assert-equal(shift-validate-expression('screen 1a90x'), false);
+    @include assert-equal(shift-validate-expression('w>s and foobar'), false);
+    @include assert-equal(shift-validate-expression('max-width:l foobar'), false);
+  }
+
+  @include test('should consider comma-separated expressions as invalid and throw a warning')
+  {
+    @include assert-equal(shift-validate-expression('w>s, h<l'), false);
+    @include assert-equal(shift-validate-expression('screen, w>s and h<l, 2x'), false);
+  }
+
+  @include test('should consider negated expressions as invalid and throw a warning')
+  {
+    @include assert-equal(shift-validate-expression('not w>s'), false);
+    @include assert-equal(shift-validate-expression('not screen'), false);
+  }
+
+  @include test('should consider arbitrary strings as invalid')
+  {
+    @include assert-equal(shift-validate-expression('large'), false);
+    @include assert-equal(shift-validate-expression('foobar'), false);
+    @include assert-equal(shift-validate-expression('foo > s'), false);
+    @include assert-equal(shift-validate-expression('width > foo'), false);
+    @include assert-equal(shift-validate-expression('h < bar'), false);
+    @include assert-equal(shift-validate-expression('max-height: bar'), false);
+    @include assert-equal(shift-validate-expression('foo > s and bar < l'), false);
+    @include assert-equal(shift-validate-expression('hello word foo bar and baz'), false);
+  }
+
+  // @include test('should throw an error if $expr is not a string') {
+  //   @include assert-equal(shift-validate-expression(10), null);
+  // }
+}
+
 @include test-module('The shift-normalize-expression function')
 {
-  @include test('should remove the "and" string combining expressions')
+  @include test('should replace the " and " string combining expressions with a single space')
   {
     @include assert-equal(shift-normalize-expression('w>s and w<l'), 'w>s w<l');
   }
@@ -63,7 +276,7 @@
     @include assert-equal(shift-normalize-expression('only  w>s  min-height:m'), 'only w>s h>m');
   }
 
-  @include test('should use a single space to separate parts of a combined expressions')
+  @include test('should use single spaces only to separate parts of combined expressions')
   {
     @include assert-equal(shift-normalize-expression('width > s and h<l'), 'w>s h<l');
     @include assert-equal(shift-normalize-expression('width > s and max-width:m h<l'), 'w>s w<m h<l');
@@ -77,99 +290,8 @@
     // without messing up spaces separating parts of a combined expression
     @include assert-equal(shift-normalize-expression('  w<m h<l '), 'w<m h<l');
   }
-}
 
-@include test-module('The shift-validate-expression function')
-{
-  @include test('should recognize min-width expressions')
-  {
-    @include assert-equal(shift-validate-expression('w>s'), true);
-    @include assert-equal(shift-validate-expression('width > s'), true);
-    @include assert-equal(shift-validate-expression('min-width: s'), true);
-    // and also with on the fly values
-    @include assert-equal(shift-validate-expression('h>520'), true);
-  }
-
-  @include test('should recognize max-width expressions')
-  {
-    @include assert-equal(shift-validate-expression('w<m'), true);
-    @include assert-equal(shift-validate-expression('width < m'), true);
-    @include assert-equal(shift-validate-expression('max-width: m'), true);
-    // and also with on the fly values
-    @include assert-equal(shift-validate-expression('w<940'), true);
-  }
-
-  @include test('should recognize min-height expressions')
-  {
-    @include assert-equal(shift-validate-expression('h<l'), true);
-    @include assert-equal(shift-validate-expression('height < l'), true);
-    @include assert-equal(shift-validate-expression('max-height: l'), true);
-    // and also with on the fly values
-    @include assert-equal(shift-validate-expression('w<940'), true);
-  }
-
-  @include test('should recognize max-height expressions')
-  {
-    @include assert-equal(shift-validate-expression('h<l'), true);
-    @include assert-equal(shift-validate-expression('height < l'), true);
-    @include assert-equal(shift-validate-expression('max-height: l'), true);
-    // and also with on the fly values
-    @include assert-equal(shift-validate-expression('h<332'), true);
-  }
-
-  @include test('should recognize resolution expressions')
-  {
-    @include assert-equal(shift-validate-expression('2x'), true);
-    @include assert-equal(shift-validate-expression('1.5x'), true);
-    // and also invalid strings that look like it
-    @include assert-equal(shift-validate-expression('1a90cx'), false);
-  }
-
-  @include test('should recognize CSS media types')
-  {
-    @include assert-equal(shift-validate-expression('print'), true);
-    @include assert-equal(shift-validate-expression('screen'), true);
-  }
-
-  @include test('should recognize combined expressions')
-  {
-    @include assert-equal(shift-validate-expression('w>s 2x'), true);
-    @include assert-equal(shift-validate-expression('w>s and h<l'), true);
-    @include assert-equal(shift-validate-expression('screen 1.5x'), true);
-    @include assert-equal(shift-validate-expression('min-width: s max-width:l'), true);
-
-    // and also invalid parts in the combined expression
-    @include assert-equal(shift-validate-expression('screen 1a90x'), false);
-    @include assert-equal(shift-validate-expression('w>s and foobar'), false);
-    @include assert-equal(shift-validate-expression('max-width:l foobar'), false);
-  }
-
-  @include test('should recognize the leading only keyword for strict queries')
-  {
-    @include assert-equal(shift-validate-expression('only print'), true);
-    @include assert-equal(shift-validate-expression('only min-width: s'), true);
-    @include assert-equal(shift-validate-expression('only'), false);
-    @include assert-equal(shift-validate-expression('w<m only'), false);
-  }
-
-  @include test('should recognize comma-separated expressions as invalid and throw a warning')
-  {
-    @include assert-equal(shift-validate-expression('w>s, h<l'), false);
-    @include assert-equal(shift-validate-expression('screen, w>s and h<l, 2x'), false);
-  }
-
-  @include test('should recognize negated expressions as invalid and throw a warning')
-  {
-    @include assert-equal(shift-validate-expression('not w>s'), false);
-    @include assert-equal(shift-validate-expression('not screen'), false);
-  }
-
-  @include test('should recognize arbitrary strings as invalid')
-  {
-    @include assert-equal(shift-validate-expression('large'), false);
-    @include assert-equal(shift-validate-expression('foobar'), false);
-    @include assert-equal(shift-validate-expression('foo > s'), false);
-    @include assert-equal(shift-validate-expression('foo > s and bar < l'), false);
-    @include assert-equal(shift-validate-expression('hello word foo bar and baz'), false);
-  }
+  // @include test('should throw an error if $str is not a string') {
+  //   @include assert-equal(shift-normalize-expression(true), null);
+  // }
 }

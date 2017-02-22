@@ -3,6 +3,7 @@
 // =============================================================================
 
 @import "aleksi/general/throw";
+@import "aleksi/general/memo";
 @import "aleksi/general/const";
 @import "aleksi/cast/to-number";
 @import "aleksi/lengths/strip-unit";
@@ -25,13 +26,18 @@
 
 @function shift-handle($params)
 {
+  $_memo_: 'shift-handle-#{$params}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   @if not type-of($params) == 'handle' {
     @return throw-error('shift-handle(): $params must be a map – was #{inspect($params)}.');
   }
 
   // optimize for empty params
   @if length($params) == 0 {
-    @return 'df';
+    @return memo-set('shift', $_memo_, 'df');
   }
 
   $handle: '';
@@ -46,7 +52,7 @@
   }
 
   @if $max-w {
-    $handle: '#{$handle}_{$max-w}';
+    $handle: '#{$handle}_#{$max-w}';
   }
 
   @if $min-h or $max-h
@@ -54,16 +60,17 @@
     $handle: '#{$handle}-';
 
     @if $min-h {
-      $handle: '#{$handle}{$min-h}';
+      $handle: '#{$handle}#{$min-h}';
     }
 
     @if $max-h {
-      $handle: '#{$handle}_{$max-h} ';
+      $handle: '#{$handle}_#{$max-h}';
     }
   }
 
   // return built handle
-  @return if($handle == '', 'df', $handle);
+  $handle: if($handle == '', 'df', $handle);
+  @return memo-set('shift', $_memo_, $handle);
 }
 
 // =shift-validate-handle( $str )

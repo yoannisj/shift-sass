@@ -7,7 +7,7 @@
 @import "aleksi/const/css/media-types";
 @import "aleksi/const/css/forbidden-classname-characters";
 
-// The complete list of supported media-type values
+// The complete list of supported media values
 @include define('SHIFT_MEDIA_TYPES', const('CSS_MEDIA_TYPES'));
 
 // The list of characters that are forbidden in shift handles

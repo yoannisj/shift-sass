@@ -71,7 +71,7 @@
 @function _shift-computed-value( $var, $context: shift-context() )
 {
   // get context feature values
-  $media: default-to(map-get($context, 'media-type'), $shift-media-type);
+  $media: default-to(map-get($context, 'media'), $shift-media);
   $min-w: default-to(map-get($context, 'min-width'), 0);
   $max-w: default-to(map-get($context, 'max-width'), 999999);
   $min-h: default-to(map-get($context, 'min-height'), 0);
@@ -91,7 +91,7 @@
     $key: nth($keys, $i);
     $prm: map-get($params, $key);
 
-    $prm-media: default-to(map-get($prm, 'media-type'), $shift-media-type);
+    $prm-media: default-to(map-get($prm, 'media'), $shift-media);
     $prm-min-w: default-to(map-get($prm, 'min-width'), 0);
     $prm-max-w: default-to(map-get($prm, 'max-width'), 999999);
     $prm-min-h: default-to(map-get($prm, 'min-height'), 0);
