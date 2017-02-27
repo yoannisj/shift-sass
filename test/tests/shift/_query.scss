@@ -4,12 +4,92 @@
 
 @import "shift/query";
 
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+$shift-strict-queries: false !global;
+$shift-media-type: 'screen' !global;
+$shift-width-unit: 'em' !global;
+$shift-height-unit: 'px' !global;
+
 @include test-module('The shift-query function')
 {
-  @include test('should allow setting with and height units with the units argument')
-  {
-    @include assert-equal( shift-query($height-from-m-params, null, $custom-units), $height-from-m-query-units );
-    @include assert-equal( shift-query($height-from-m-expr,  $units: $custom-units), $height-from-m-query-units );
-    @include assert-equal( shift-query($width-from-s-height-to-m-expr,  $units: $custom-units), $width-from-s-height-to-m-query-units );
+  $params: (
+    'min-width': 's',
+    'max-width': 800px,
+    'max-height': 'l'
+  );
+
+  $expr: 'screen w>s max-width:800 height<l';
+  $handle: 's_800-_l';
+
+  $query: 'screen and (min-width: 25em) and (max-width: 50em) and (max-height: 720px)';
+
+  $tweakpoint: 'narrow';
+  $query-tweaked: 'screen and (min-width: 21.25em) and (max-width: 50em) and (max-height: 600px)';
+
+  $units: ('width': 'rem', 'height': 'em');
+  $query-units: 'screen and (min-width: 25rem) and (max-width: 50rem) and (max-height: 45em)';
+
+  @include test('should take a map of shift parameters, and build the corresponding @media query with parsed values') {
+    @include assert-equal(shift-query($params), $query);
   }
+
+  @include test('should take shift expression, and build the corresponding @media query with parsed values') {
+    @include assert-equal(shift-query($expr), $query);
+  }
+
+  @include test('should take shift handle, and build the corresponding @media query with parsed values') {
+    @include assert-equal(shift-query($handle), $query);
+  }
+
+  @include test('should allow setting with and height units with the $units argument') {
+    @include assert-equal(shift-query($params, null, $units), $query-units);
+  }
+
+  @include test('should use global $shift-width-unit and $shift-height-unit as units by default')
+  {
+    @include assert-equal(shift-query($params), shift-query($params, null, (
+      'width': $shift-width-unit,
+      'height': $shift-height-unit
+    )));
+  }
+
+  @include test('should allow passing units as second argument and omit the $tweakpoint argument') {
+    @include assert-equal(shift-query($params, $units), $query-units);
+  }
+
+  // @include test('should throw an error if $params is not string, nor a map') {
+  //   @include assert-equal(shift-query(true), null);
+  // }
+
+  // @include test('should throw an error if $tweakpoint is not null, nor a string') {
+  //   @include assert-equal(shift-query((), 10), null);
+  // }
+
+  // @include test('should throw an error if $units is not a map') {
+  //   @include assert-equal(shift-query(true), null);
+  // }
 }

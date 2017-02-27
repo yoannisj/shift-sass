@@ -20,12 +20,6 @@
 //    @inlcude expect { /* expected output */ }
 // }
 
-// Basic shift setup, used for testing
-@import "tests/setup";
-
-// Import variables to use for testing
-@import "tests/variables";
-
 // Import Shift tests
 @import "tests/shift";
 

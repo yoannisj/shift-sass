@@ -2,6 +2,8 @@
 // =SHIFT-QUERY
 // =============================================================================
 
+@import "aleksi/maps/is-map";
+
 @import "shift/config";
 @import "shift/context";
 @import "shift/length/convert";
@@ -25,14 +27,35 @@
 
 @function shift-query( $params, $tweakpoint: null, $units: () )
 {
-  // get default units
+  // allow omitting $tweakpoint argument
+  @if is-map($tweakpoint) {
+    $units: $tweakpoint;
+    $tweakpoint: null;
+  }
+
+  // sanitize $params argument
+  @if type-of($params) != 'string' and is-map($params) == false {
+    @return throw-error('shift-query(): `$params` must be a string or a map – was `#{inspect($params)}`');
+  }
+
+  // sanitize $tweakpoint argument
+  @if $tweakpoint != null and type-of($tweakpoint) != 'string' {
+    @return throw-error('shift-query(): `$tweakpoint` must be null or a string – was `#{inspect($tweakpoint)}`');
+  }
+
+  // sanitize $units argument
+  @if not is-map($units) {
+    @return throw-error('shift-query(): `$units` must be a map – was `#{inspect($units)}`');
+  }
+
+  // parse expression/parameter maps
+  $params: shift-parse($params, $tweakpoint);
+
+  // inject default units
   $units: map-merge((
     'width': $shift-width-unit,
     'height': $shift-height-unit
   ), $units);
-
-  // parse expression/parameter maps
-  $params: shift-parse($params, $tweakpoint);
 
   // inject defaults
   $params: map-merge((
