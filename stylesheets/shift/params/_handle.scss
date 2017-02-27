@@ -10,7 +10,7 @@
 @import "aleksi/strings/str-explode";
 
 @import "shift/constants";
-@import "shift/breakpoint/list";
+@import "shift/length/parse";
 
 // =shift-handle( $params )
 // -----------------------------------------------------------------------------
@@ -87,20 +87,26 @@
 
 @function shift-validate-handle($str)
 {
+  // memoization
+  $_memo_: 'shift-validate-handle-#{$str}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   @if type-of($str) != 'string' {
     @return throw-error('shift-validate-handle(): `$str` must be a string, was #{inspect($str)}.');
   }
 
   // accept 'df' and empty string
   @if $str == 'df' or $str == '' {
-    @return true;
+    @return memo-set('shift', $_memo_, true);
   }
 
   // only allow characters allowed in CSS classnames
   @each $char in const('SHIFT_FORBIDDEN_HANDLE_CHARACTERS')
   {
     @if str-index($str, $char) {
-      @return false;
+      @return memo-set('shift', $_memo_, false);
     }
   }
 
@@ -112,7 +118,7 @@
 
     // maximum 2 parts
     @if $count > 2 {
-      @return false;
+      @return memo-set('shift', $_memo_, false);
     }
 
     // verify each part of the handle
@@ -121,12 +127,12 @@
       // if any of the parts is not a handle
       // (test for empty string because string may start or end with '-')
       @if $part != '' and not shift-validate-handle($part) {
-        @return false;
+        @return memo-set('shift', $_memo_, false);
       }
     }
 
     // all parts of the combination are handles themselves
-    @return true;
+    @return memo-set('shift', $_memo_, true);
   }
 
   // recognize 'min-' and 'max-' handles
@@ -137,7 +143,7 @@
 
     // maximum 2 parts
     @if $count > 2 {
-      @return false;
+      @return memo-set('shift', $_memo_, false);
     }
 
     @each $part in $parts
@@ -145,28 +151,35 @@
       // if any of the parts is not a label
       // (test for empty string because string may start or end with '_')
       @if $part != '' and not shift-validate-handle($part) {
-        @return false;
+        @return memo-set('shift', $_memo_, false);
       }
     }
 
     // all parts of the handle are labels
-    @return true;
+    @return memo-set('shift', $_memo_, true);
   }
 
-  $width-labels: shift-list-labels('width');
-  $height-labels: shift-list-labels('height');
-  $length-labels: join($width-labels, $height-labels);
+  // $width-labels: shift-list-labels('width');
+  // $height-labels: shift-list-labels('height');
+  // $length-labels: join($width-labels, $height-labels);
 
-  // recognize 'width' and 'height' labels
-  @if index($length-labels, $str) {
-    @return true;
+  // recognize length labels and on the fly lengths
+  @if shift-parse-length($str, 'width') != null
+    or shift-parse-length($str, 'height') != null
+  {
+    @return memo-set('shift', $_memo_, true);
   }
 
-  // recognize length values on the fly
-  @if to-number($str) != null {
-    @return true;
-  }
+  // // recognize 'width' and 'height' labels
+  // @if index($length-labels, $str) {
+  //   @return true;
+  // }
+
+  // // recognize length values on the fly
+  // @if to-number($str) != null {
+  //   @return true;
+  // }
 
   // no valid pattern was found
-  @return false;
+  @return memo-set('shift', $_memo_, false);
 }

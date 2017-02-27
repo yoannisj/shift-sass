@@ -9,7 +9,7 @@
 @import "shift/params/expression";
 @import "shift/params/handle";
 
-// =_shift-validate-variable( $var )
+// =shift-validate-variable( $var )
 // -----------------------------------------------------------------------------
 /// Checks whether the given variable defines values for different media
 /// contexts. A shift variable is a map with keys that each describe a media
@@ -21,10 +21,10 @@
 /// @access public
 /// @since 0.3.0
 
-@function _shift-validate-variable($var)
+@function shift-validate-variable($var)
 {
   // memoization
-  $_memo_: '_shift-validate-variable-#{$var}';
+  $_memo_: 'shift-validate-variable-#{$var}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

@@ -1,0 +1,33 @@
+// =============================================================================
+// =SHIFT TESTS - VARIABLE PARSE KEYS
+// =============================================================================
+
+@import "shift/variable/parse-keys";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('the shift-parse-keys function')
+{

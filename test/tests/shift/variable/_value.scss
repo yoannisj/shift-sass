@@ -2,6 +2,36 @@
 @import "shift/query";
 @import "shift/variable/value";
 
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+$shift-strict-queries: false !global;
+$shift-media-type: 'screen' !global;
+$shift-width-unit: 'px' !global;
+$shift-height-unit: 'px' !global;
+
 @include test-module('the shift-value mixin')
 {
   $var-a: (
@@ -24,15 +54,15 @@
       {
         padding: 5;
 
-        @media screen and (min-width: 26.25em) {
+        @media screen and (min-width: 400px) {
           padding: 10;
         }
 
-        @media screen and (min-width: 46.875em) {
+        @media screen and (min-width: 760px) {
           padding: 20;
         }
 
-        @media screen and (min-width: 68.75em) {
+        @media screen and (min-width: 920px) {
           padding: 30;
         }
       }
@@ -52,11 +82,11 @@
 
       @include expect
       {
-        @media screen and (min-width: 26.25em) and (max-width: 68.75em) {
+        @media screen and (min-width: 400px) and (max-width: 760px) {
           padding: 10;
         }
 
-        @media screen and (min-width: 46.875em) and (max-width: 68.75em) {
+        @media screen and (min-width: 760px) and (max-width: 920px) {
           padding: 20;
         }
       }

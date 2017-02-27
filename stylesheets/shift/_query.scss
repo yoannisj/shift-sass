@@ -60,7 +60,7 @@
   // inject defaults
   $params: map-merge((
     'strict': $shift-strict-queries,
-    'media': $shift-media
+    'media': $shift-media-type
   ), $params);
 
   // start with optional 'only' keyword

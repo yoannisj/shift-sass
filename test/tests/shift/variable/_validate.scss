@@ -1,0 +1,109 @@
+// =============================================================================
+// =SHIFT TESTS - VARIABLE VALIDATE
+// =============================================================================
+
+@import "shift/variable/validate";
+@import "shift/length/parse";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('the shift-validate-variable function')
+{
+  $reg-a: 10;
+  $reg-b: true;
+
+  $var-expr: (
+    'width < s': 5px,
+    'w>500': 10px,
+    'min-width:800': 20px,
+    'print w>l': 30px,
+    'h<640': 40px,
+    'height > 32em': 50px
+  );
+
+  $var-handles: (
+    '_s': 5px,
+    '500_': 10px,
+    '_800': 20px,
+    'l_': 30px,
+    '-_640': 40px,
+    '-32em_': 50px
+  );
+
+  $var-mixed: (
+    '_s': 5px,
+    '500_': 10px,
+    'min-width:800': 20px,
+    'print w>l': 30px,
+    '-_640': 40px,
+    'height > 32em': 50px
+  );
+
+  $invalid-a: (
+    'width < foo': 20,
+    'min-width:300px': 40
+  );
+
+  $invalid-b: (
+    's': 10,
+    'm': 20,
+    'xl': 300
+  );
+
+  $invalid-c: (
+    '_s': 10,
+    'w>s w<m': 20,
+    'foo_': 30
+  );
+
+  @include test('should return false if the given value is not a map')
+  {
+    @include assert-equal(shift-validate-variable($reg-a), false);
+    @include assert-equal(shift-validate-variable($reg-b), false);
+  }
+
+  @include test('should return true if all keys in the given map are shift expressions')
+  {
+    @include assert-equal(shift-validate-variable($var-expr), true);
+  }
+
+  @include test('should return true if all keys in the given map are shift handles')
+  {
+    @include assert-equal(shift-validate-variable($var-handles), true);
+  }
+
+  @include test('should return true if all keys in the given map are either shift expressions or shift handles')
+  {
+    @include assert-equal(shift-validate-variable($var-mixed), true);
+  }
+
+  @include test('should return false if one of the keys is not a shift handle nor an expression')
+  {
+    @include assert-equal(shift-validate-variable($invalid-a), false);
+    @include assert-equal(shift-validate-variable($invalid-b), false);
+    @include assert-equal(shift-validate-variable($invalid-c), false);
+  }
+}

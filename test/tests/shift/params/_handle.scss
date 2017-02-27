@@ -5,6 +5,31 @@
 @import "shift/params/handle";
 @import "aleksi/general/const";
 
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
 @include test-module('The shift-handle function')
 {
   @include test('should build a handle string for given shift parameters')
@@ -127,6 +152,9 @@
 
     @include assert-equal(shift-validate-handle('-_533'), true);
     @include assert-equal(shift-validate-handle('-348_'), true);
+
+    @include assert-equal(shift-validate-handle('32em_'), true);
+    @include assert-equal(shift-validate-handle('-_28em'), true);
   }
 
   @include test('should recognize range handles')

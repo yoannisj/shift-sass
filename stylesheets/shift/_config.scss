@@ -58,7 +58,7 @@ $shift-fallback-min-width: 840px !default;
 
 $shift-strict-queries: true !default;
 
-// =$shift-media
+// =$shift-media-type
 // -----------------------------------------------------------------------------
 /// The default value for the 'media' in generated media-queries. Set to
 /// `null` or `false` if you don't want Shift to include a `media`
@@ -72,7 +72,7 @@ $shift-strict-queries: true !default;
 /// @access public
 /// @since 0.1.0
 
-$shift-media: 'screen' !default;
+$shift-media-type: 'screen' !default;
 
 // =$shift-length-unit
 // -----------------------------------------------------------------------------
