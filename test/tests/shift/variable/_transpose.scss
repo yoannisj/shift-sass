@@ -1,0 +1,93 @@
+// =============================================================================
+// =SHIFT TESTS - VARIABLE TRANSPOSE
+// =============================================================================
+
+@import "shift/variable/transpose";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('the shift-validate-variable function')
+{
+
+  $var-a: (
+    'df': 5,
+    's': 10,
+    'm': 20,
+    'l': 30
+  );
+
+  $var-b: (
+    'df': 5,
+    '_s': 10,
+    'm_l': 20
+  );
+
+  $keys-a: 's_m' 'm_l' 'l';
+  $keys-b: '_s' 'm_l';
+
+  $var-aa: (
+    's_m': 10,
+    'm_l': 20,
+    'l': 30
+  );
+
+  $var-ab: (
+    '_s': 5,
+    'm_l': 20
+  );
+
+  $var-ba: (
+    's_m': 5,
+    'm_l': 20,
+    'l': 5
+  );
+
+  $var-bb: (
+    '_s': 10,
+    'm_l': 20
+  );
+
+  @include test('should transfer values from a shift variable to a new variable using given keys')
+  {
+    @include assert-equal(shift-transpose-variable($var-a, $keys-a), $var-aa);
+    @include assert-equal(shift-transpose-variable($var-a, $keys-b), $var-ab);
+    @include assert-equal(shift-transpose-variable($var-b, $keys-a), $var-ba);
+    @include assert-equal(shift-transpose-variable($var-b, $keys-b), $var-bb);
+  }
+
+  // @include test('throw an error if given variable is not a valid shift variable')
+  // {
+  //   $invalid: (
+  //     's': 10,
+  //     'm': 20,
+  //     'foo': 30,
+  //     'l': 40
+  //   );
+
+  //   @include assert-equal(shift-transpose-variable(10, $keys-a), null);
+  //   @include assert-equal(shift-transpose-variable($invalid, $keys-a), null);
+  // }
+}

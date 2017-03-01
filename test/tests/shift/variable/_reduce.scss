@@ -1,0 +1,87 @@
+// =============================================================================
+// =SHIFT TESTS - VARIABLE REDUCE
+// =============================================================================
+
+@import "shift/variable/reduce";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('the shift-reduce-variable function')
+{
+  @include test('should use the prevailing value as default value if variable has no "df" key')
+  {
+    $var: (
+      '_s': 10mm,
+      's_m': 10mm,
+      'm_l': 20mm,
+      'l': 10mm
+    );
+
+    $reduced: (
+      'df': 10mm,
+      'w>760px w<920px': 20mm
+    );
+
+    @include assert-equal(map-get(shift-reduce-variable($var), 'df'), 10mm);
+    @include assert-equal(shift-reduce-variable($var), $reduced);
+  }
+
+  @include test('should merge keys that define the same value, are successive and compatible (only one of the length feautures changes)')
+  {
+    $var: (
+      'df': 5mm,
+      's': 10mm,
+      'm': 10mm,
+      'l': 15mm,
+      '-_s': 6mm,
+      '-s_l': 8mm
+    );
+
+    $reduced: (
+      'df': 5mm,
+      'w>400px': 10mm,
+      'w>920px': 15mm,
+      'h<500px': 6mm,
+      'h>500px h<720px': 8mm
+    );
+
+    @include assert-equal(length(shift-reduce-variable($var)), length($var) - 1);
+    @include assert-equal(shift-reduce-variable($var), $reduced);
+  }
+
+  // @include test('should throw an errof if $var is not a valid shift variable')
+  // {
+  //   $invalid: (
+  //     's': 10,
+  //     'm': 20,
+  //     'foo': 30,
+  //     'l': 40
+  //   );
+
+  //   @include assert-equal(shift-expand-variable(10), null);
+  //   @include assert-equal(shift-expand-variable($invalid), null);
+  // }
+}

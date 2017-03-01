@@ -31,3 +31,50 @@ $__shift__: (
 
 @include test-module('the shift-parse-keys function')
 {
+  @include test('should return a map of key->parsed parameters pairs when given a shift variable')
+  {
+    $var-a: (
+      'df': 5,
+      's': 10,
+      'm': 20,
+      'l': 30
+    );
+    $parsed-a: (
+      'df': (),
+      's': ('min-width': 400px),
+      'm': ('min-width': 760px),
+      'l': ('min-width': 920px)
+    );
+
+    $var-b: (
+      's_m': 10,
+      'm_l': 20,
+      'l_': 30,
+      '-_s': 5,
+      '-s_l': 8
+    );
+    $parsed-b: (
+      's_m': ('min-width': 400px, 'max-width': 760px),
+      'm_l': ('min-width': 760px, 'max-width': 920px),
+      'l_': ('min-width': 920px),
+      '-_s': ('max-height': 500px),
+      '-s_l': ('min-height': 500px, 'max-height': 720px)
+    );
+
+    @include assert-equal(shift-parse-keys($var-a), $parsed-a);
+    @include assert-equal(shift-parse-keys($var-b), $parsed-b);
+  }
+
+  // @include test('should throw an error if a regular variable/non-valid shift variabel was given')
+  // {
+  //   $invalid: (
+  //     '_s': 10,
+  //     'w>500': 30,
+  //     'foo_': 40,
+  //     'xl': 50
+  //   );
+
+  //   @include assert-equal(shift-parse-keys(10), null);
+  //   @include assert-equal(shift-parse-keys($invalid), null);
+  // }
+}

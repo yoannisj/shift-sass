@@ -1,33 +1,33 @@
 // SHIFT TESTS
 // ------------
 
-@import "tests/shift/breakpoint/set";
-@import "tests/shift/breakpoint/tweak";
-@import "tests/shift/breakpoint/list";
-@import "tests/shift/breakpoint/get";
+// @import "tests/shift/breakpoint/set";
+// @import "tests/shift/breakpoint/tweak";
+// @import "tests/shift/breakpoint/list";
+// @import "tests/shift/breakpoint/get";
 
-@import "tests/shift/length/convert";
-@import "tests/shift/length/parse";
-@import "tests/shift/length/compare";
+// @import "tests/shift/length/convert";
+// @import "tests/shift/length/parse";
+// @import "tests/shift/length/compare";
 
-@import "tests/shift/params/expression";
-@import "tests/shift/params/handle";
-@import "tests/shift/params/parse";
+// @import "tests/shift/params/expression";
+// @import "tests/shift/params/handle";
+// @import "tests/shift/params/parse";
 
-@import "tests/shift/context/set";
-@import "tests/shift/context/get";
-@import "tests/shift/context/save";
-@import "tests/shift/context/restore";
-@import "tests/shift/context";
+// @import "tests/shift/context/set";
+// @import "tests/shift/context/get";
+// @import "tests/shift/context/save";
+// @import "tests/shift/context/restore";
+// @import "tests/shift/context";
 
-@import "tests/shift/query";
+// @import "tests/shift/query";
 
-@import "tests/shift/variable/validate";
-@import "tests/shift/variable/parse-keys";
+// @import "tests/shift/variable/validate";
+// @import "tests/shift/variable/parse-keys";
 // @import "tests/shift/variable/transpose";
-// @import "tests/shift/variable/scope";
 // @import "tests/shift/variable/expand";
 // @import "tests/shift/variable/reduce";
+@import "tests/shift/variable/scope";
 // @import "tests/shift/variable/align";
 // @import "tests/shift/variable/call";
 // @import "tests/shift/variable/value";

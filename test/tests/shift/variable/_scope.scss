@@ -5,6 +5,36 @@
 @import "shift/context";
 @import "shift/variable/scope";
 
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+$shift-strict-queries: false !global;
+$shift-media-type: 'screen' !global;
+$shift-width-unit: 'px' !global;
+$shift-height-unit: 'px' !global;
+
 @include test-module('the shift-scope-variable function')
 {
   $var-a: (
@@ -30,25 +60,28 @@
 
   $var-a-df: (
     'df': 5,
-    'w>420 w<750': 10,
-    'w>750 w<1100': 20,
-    'w>1100': 30
+    'w>400px w<760px': 10,
+    'w>760px w<920px': 20,
+    'w>920px': 30
   );
 
   $var-b-df: (
-    'w>750 w<1100': red,
-    'w>1100': blue
+    'w>760px w<920px': red,
+    'w>920px': blue
   );
 
   $var-a-s_l: (
-    'w>420 w<750': 10,
-    'w>750 w<1100': 20
+    // 'df': 5,
+    'w>400px w<760px': 10,
+    'w>760px w<920px': 20
   );
 
   $var-c-s_l: (
-    'w>420 w<750': false,
-    'w>750 w<1100': true
+    'w>400px w<760px': false,
+    'w>760px w<920px': true
   );
+
+  @debug "##############################";
 
   @include test('should remove keys that are out of scope from given shift variable')
   {
@@ -71,4 +104,6 @@
 
     @include shift-context-restore();
   }
+
+  @debug "##############################";
 }

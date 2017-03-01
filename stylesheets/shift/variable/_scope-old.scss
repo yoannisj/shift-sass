@@ -16,9 +16,6 @@
 @import "shift/variable/parse-keys";
 @import "shift/variable/transpose";
 
-@import "shift/variable/expand";
-@import "shift/variable/reduce";
-
 // =Functions
 // =============================================================================
 
@@ -65,8 +62,11 @@
   $min-h: map-get($context, 'min-height');
   $max-h: map-get($context, 'max-height');
 
-  // transform variable to use interval keys
-  $var: shift-reduce-variable(shift-expand-variable($var));
+  // transfer default value
+  @if map-has-key($var, 'df') {
+    $scoped: map-set($scoped, 'df', map-get($var, 'df'));
+    $var: map-remove($var, 'df');
+  }
 
   // get shift params for each key
   $params: shift-parse-keys($var);
@@ -125,7 +125,7 @@
           'min-height': $prm-min-h,
           'max-height': $prm-max-h
         ));
-      
+
         $scoped: map-set($scoped, $scoped-key, $val);
       }
     }

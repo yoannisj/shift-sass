@@ -10,6 +10,8 @@
 @import "aleksi/general/default-to";
 @import "aleksi/maps/map-set";
 
+@import "shift/context";
+@import "shift/params/parse";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
 
@@ -39,12 +41,12 @@
     @return throw-error('shift-transpose-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
   }
 
-  $params: shift-parse-keys($var);
+  // $params: shift-parse-keys($var);
   $res: ();
 
   @each $key in $keys
   {
-    $val: _shift-computed-value($var, map-get($params, $key));
+    $val: _shift-computed-value($var, shift-parse($key));
     $res: map-set($res, $key, $val);
   }
 
@@ -70,16 +72,21 @@
 
 @function _shift-computed-value( $var, $context: shift-context() )
 {
+  // extract default value
+  $df: map-get($var, 'df');
+  $var: map-remove($var, 'df');
+
+  // optimize for default context
+  @if $context == () {
+    @return $df;
+  }
+
   // get context feature values
-  $media: default-to(map-get($context, 'media'), $shift-media);
+  $media: default-to(map-get($context, 'media'), $shift-media-type);
   $min-w: default-to(map-get($context, 'min-width'), 0);
   $max-w: default-to(map-get($context, 'max-width'), 999999);
   $min-h: default-to(map-get($context, 'min-height'), 0);
   $max-h: default-to(map-get($context, 'max-height'), 999999);
-
-  // extract default value
-  $df: map-get($var, 'df');
-  $var: map-remove($var, 'df');
 
   // loop over other keys in reverse order, and get first value that fits
   $params: shift-parse-keys($var);
@@ -91,7 +98,7 @@
     $key: nth($keys, $i);
     $prm: map-get($params, $key);
 
-    $prm-media: default-to(map-get($prm, 'media'), $shift-media);
+    $prm-media: default-to(map-get($prm, 'media'), $shift-media-type);
     $prm-min-w: default-to(map-get($prm, 'min-width'), 0);
     $prm-max-w: default-to(map-get($prm, 'max-width'), 999999);
     $prm-min-h: default-to(map-get($prm, 'min-height'), 0);

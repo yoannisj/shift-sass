@@ -1,0 +1,253 @@
+// =============================================================================
+// =SHIFT TESTS - VARIABLE EXPAND
+// =============================================================================
+
+@import "shift/variable/expand";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('the shift-expand-variable function')
+{
+  $reg-a: 10;
+
+  $min-w-only: (
+    'df': 5,
+    's': 10,
+    'm': 20,
+    'l': 30
+  );
+
+  $min-w-only-exp: (
+    'w<400px': 5,
+    'w>400px w<760px': 10,
+    'w>760px w<920px': 20,
+    'w>920px': 30
+  );
+
+  $max-w-only: (
+    '_l': 20,
+    '_m': 10,
+    '_s': 5,
+    'df': 30
+  );
+
+  $max-w-only-exp: (
+    'w<400px': 5,
+    'w>400px w<760px': 10,
+    'w>760px w<920px': 20,
+    'w>920px': 30
+  );
+
+  $min-w-and-max-w: (
+    'df': 10,
+    '_s': 5,
+    'm': 20,
+    'l': 30
+  );
+
+  $min-w-and-max-w-exp: (
+    'w<400px': 5,
+    'w>400px w<760px': 10,
+    'w>760px w<920px': 20,
+    'w>920px': 30
+  );
+
+  $min-h-only: (
+    'df': 1em,
+    '-s': 1.5em,
+    '-l_': 3em
+  );
+
+  $min-h-only-exp: (
+    'h<500px': 1em,
+    'h>500px h<720px': 1.5em,
+    'h>720px': 3em
+  );
+
+  $max-h-only: (
+    'df': 3em,
+    "-_l": 1.5em,
+    '-_s': 1em
+  );
+
+  $max-h-only-exp: (
+    'h<500px': 1em,
+    'h>500px h<720px': 1.5em,
+    'h>720px': 3em
+  );
+
+  $min-h-and-max-h: (
+    'df': 1.5em,
+    '-_s': 1em,
+    '-l_': 3em
+  );
+
+  $min-h-and-max-h-exp: (
+    'h<500px': 1em,
+    'h>500px h<720px': 1.5em,
+    'h>720px': 3em
+  );
+
+  $mix-min-only: (
+    'df': 10mm,
+    '-s': 5mm,
+    '-l': 15mm,
+    's': 20mm,
+    'l_': 30mm
+  );
+
+  $mix-min-only-exp: (
+    'w<400px': 10mm,
+    'w>400px w<920px': 20mm,
+    'w>920px': 30mm,
+    'h<500px': 10mm,
+    'h>500px h<720px': 5mm,
+    'h>720px': 15mm,
+    'w<400px h<500px': 10mm,
+    'w<400px h>500px h<720px': 5mm,
+    'w<400px h>720px': 15mm,
+    'w>400px w<920px h<500px': 20mm,
+    'w>400px w<920px h>500px h<720px': 20mm,
+    'w>400px w<920px h>720px': 20mm,
+    'w>920px h<500px': 30mm,
+    'w>920px h>500px h<720px': 30mm,
+    'w>920px h>720px': 30mm
+  );
+
+  $mix-max-only: (
+    'df': 30mm,
+    '_s': 10mm,
+    '_m': 20mm,
+    '-_l': 15mm,
+    '-_s': 5mm
+  );
+
+  $mix-max-only-exp: (
+    'w<400px': 20mm,
+    'w>400px w<760px': 20mm,
+    'w>760px': 30mm,
+    'h<500px': 5mm,
+    'h>500px h<720px': 15mm,
+    'h>720px': 30mm,
+    'w<400px h<500px': 5mm,
+    'w<400px h>500px h<720px': 15mm,
+    'w<400px h>720px': 20mm,
+    'w>400px w<760px h<500px': 5mm,
+    'w>400px w<760px h>500px h<720px': 15mm,
+    'w>400px w<760px h>720px': 20mm,
+    'w>760px h<500px': 5mm,
+    'w>760px h>500px h<720px': 15mm,
+    'w>760px h>720px': 30mm
+  );
+
+  $mix-min-and-max: (
+    'df': 30mm,
+    's': 10mm,
+    '_l': 20mm,
+    '-s': 5mm,
+    '-_l': 15mm
+  );
+
+  $mix-min-and-max-exp: (
+    'w<400px': 20mm,
+    'w>400px w<920px': 20mm,
+    'w>920px': 10mm,
+    'h<500px': 15mm,
+    'h>500px h<720px': 15mm,
+    'h>720px': 5mm,
+    'w<400px h<500px': 15mm,
+    'w<400px h>500px h<720px': 15mm,
+    'w<400px h>720px': 5mm,
+    'w>400px w<920px h<500px': 15mm,
+    'w>400px w<920px h>500px h<720px': 15mm,
+    'w>400px w<920px h>720px': 5mm,
+    'w>920px h<500px': 15mm,
+    'w>920px h>500px h<720px': 15mm,
+    'w>920px h>720px': 5mm
+  );
+
+  $super-mix: (
+    'df': 30mm,
+    's-_l': 5mm,
+    's': 10mm,
+    '_l': 20mm,
+    '-_l': 15mm,
+    '-s': 5mm
+  );
+
+  $super-mix-exp: (
+    'w<400px': 20mm,
+    'w>400px w<920px': 20mm,
+    'w>920px': 10mm,
+    'h<500px': 15mm,
+    'h>500px h<720px': 5mm,
+    'h>720px': 5mm,
+    'w<400px h<500px': 15mm,
+    'w<400px h>500px h<720px': 5mm,
+    'w<400px h>720px': 5mm,
+    'w>400px w<920px h<500px': 15mm,
+    'w>400px w<920px h>500px h<720px': 5mm,
+    'w>400px w<920px h>720px': 5mm,
+    'w>920px h<500px': 15mm,
+    'w>920px h>500px h<720px': 5mm,
+    'w>920px h>720px': 5mm
+  );
+
+  @include test('should expand a given variable to describe all relevant width intervals, in ascendent order')
+  {
+    @include assert-equal(shift-expand-variable($min-w-only), $min-w-only-exp);
+    @include assert-equal(shift-expand-variable($max-w-only), $max-w-only-exp);
+    @include assert-equal(shift-expand-variable($min-w-and-max-w), $min-w-and-max-w-exp);
+  }
+
+  @include test('should expand a given variable to describe all relevant height intervals, in ascendent order')
+  {
+    @include assert-equal(shift-expand-variable($min-h-only), $min-h-only-exp);
+    @include assert-equal(shift-expand-variable($max-h-only), $max-h-only-exp);
+    @include assert-equal(shift-expand-variable($min-h-and-max-h), $min-h-and-max-h-exp);
+  }
+
+  @include test('should expand a given variable to describe all relevant length intervals, in ascendent order and with width first')
+  {
+    @include assert-equal(shift-expand-variable($mix-min-only), $mix-min-only-exp);
+    @include assert-equal(shift-expand-variable($mix-max-only), $mix-max-only-exp);
+    @include assert-equal(shift-expand-variable($mix-min-and-max), $mix-min-and-max-exp);
+    @include assert-equal(shift-expand-variable($super-mix), $super-mix-exp);
+  }
+
+  // @include test('should throw an errof if $var is not a valid shift variable')
+  // {
+  //   $invalid: (
+  //     's': 10,
+  //     'm': 20,
+  //     'foo': 30,
+  //     'l': 40
+  //   );
+
+  //   @include assert-equal(shift-expand-variable(10), null);
+  //   @include assert-equal(shift-expand-variable($invalid), null);
+  // }
+}
