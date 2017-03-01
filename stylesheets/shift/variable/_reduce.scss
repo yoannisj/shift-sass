@@ -12,6 +12,7 @@
 @import "aleksi/maps/map-set";
 @import "aleksi/maps/map-insert";
 
+@import "shift/length/intervals";
 @import "shift/params/expression";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
@@ -44,7 +45,7 @@
   }
 
   // reduce intervals from variable
-  $res: _shift-reduce-intervals($var);
+  $res: shift-reduce-keys($var);
 
   // get default value (defaults to prevailing value)
   $df: '__none__';
@@ -78,10 +79,10 @@
 /// @return {any} the prevailing value in $var
 /// @throw Error - if $var is not a shift variable
 ///
-/// @api private
+/// @api public
 /// @since 0.3.0
 
-@function _shift-prevailing-value($var)
+@function shift-prevailing-value($var)
 {
   $most: '__none__';
   $vals: map-values($var);
@@ -107,17 +108,17 @@
   @return $most;
 }
 
-// =_shift-reduce-intervals( $var )
+// =shift-reduce-keys( $var )
 // -----------------------------------------------------------------------------
 /// Reduces 'min-/max-' intervals in keys from given shift variable.
 ///
 /// @return {map} - the shift variable with reduced intervals
 /// @throw Error - if $var is not a shift variable
 ///
-/// @api private
+/// @api public
 /// @since 0.3.0
 
-@function _shift-reduce-intervals( $var )
+@function shift-reduce-keys( $var )
 {
   $values: map-values($var);
   $params: map-values(shift-parse-keys($var));
@@ -206,4 +207,51 @@
   }
 
   @return $res;
+}
+
+// =shift-reduce-values( $var )
+// -----------------------------------------------------------------------------
+/// Removes values that will never be used in the final CSS.
+///
+/// @return {map} - the shift variable with reduced values
+/// @throw Error - if $var is not a shift variable
+///
+/// @api public
+/// @since 0.3.0
+
+@function shift-reduce-values($var)
+{
+  $_memo_: 'shift-reduce-values-#{$var}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
+  @if not shift-validate-variable($var) {
+    @return throw-error('shift-reduce-values(): $var must be a valid shift variable – was #{inspect($var)}.');
+  }
+
+  // list all possible intervals
+  $intervals: shift-length-intervals();
+
+  // collect values that will be used
+  $values: ();
+  @each $interval in $intervals
+  {
+    $val: shift-computed-value($var, $interval);
+    @if $val != null and index($values, $val) == null {
+      $values: append($values, $val);
+    }
+  }
+
+  // rebuild a variable without irrelevant values
+  $reduced: ();
+
+  @each $key, $val in $var
+  {
+    @if index($values, $val) != null {
+      $reduced: map-set($reduced, $key, $val);
+    }
+  }
+
+  @return memo-set('shift', $_memo_, $reduced);
 }

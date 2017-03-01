@@ -1,0 +1,118 @@
+// =============================================================================
+// =SHIFT TESTS - LENGTH INTERVALS
+// =============================================================================
+
+@import "shift/length/intervals";
+@import "aleksi/maps/debug-map";
+
+$__shift__: (
+  'breakpoints': (
+    'width': (
+      's': 400px,
+      'm': 760px,
+      'l': 920
+    ),
+    'height': (
+      's': 500px,
+      'l': 720
+    )
+  ),
+  'tweakpoints': (
+    'narrow': (
+      'width': (
+        's': 340px,
+        'l': 820
+      ),
+      'height': (
+        'l': 600px
+      )
+    )
+  )
+) !global;
+
+@include test-module('the shift-length-intervals function')
+{
+
+  $intervals-all: (
+    ('max-width': 400px)
+    ('min-width': 400px, 'max-width': 760px)
+    ('min-width': 760px, 'max-width': 920px)
+    ('min-width': 920px)
+    ('max-height': 500px)
+    ('min-height': 500px, 'max-height': 720px)
+    ('min-height': 720px)
+    ('max-width': 400px, 'max-height': 500px)
+    ('max-width': 400px, 'min-height': 500px, 'max-height': 720px)
+    ('max-width': 400px, 'min-height': 720px)
+    ('min-width': 400px, 'max-width': 760px, 'max-height': 500px)
+    ('min-width': 400px, 'max-width': 760px, 'min-height': 500px, 'max-height': 720px)
+    ('min-width': 400px, 'max-width': 760px, 'min-height': 720px)
+    ('min-width': 760px, 'max-width': 920px, 'max-height': 500px)
+    ('min-width': 760px, 'max-width': 920px, 'min-height': 500px, 'max-height': 720px)
+    ('min-width': 760px, 'max-width': 920px, 'min-height': 720px)
+    ('min-width': 920px, 'max-height': 500px)
+    ('min-width': 920px, 'min-height': 500px, 'max-height': 720px)
+    ('min-width': 920px, 'min-height': 720px)
+  );
+
+  $lengths-map: ('widths': 600 800, 'heights': 460);
+  $intervals-map: (
+    ('max-width': 600px)
+    ('min-width': 600px, 'max-width': 800px)
+    ('min-width': 800px)
+    ('max-height': 460px)
+    ('min-height': 460px)
+    ('max-width': 600px, 'max-height': 460px)
+    ('max-width': 600px, 'min-height': 460px)
+    ('min-width': 600px, 'max-width': 800px, 'max-height': 460px)
+    ('min-width': 600px, 'max-width': 800px, 'min-height': 460px)
+    ('min-width': 800px, 'max-height': 460px)
+    ('min-width': 800px, 'min-height': 460px)
+  );
+
+  $lengths-list: 400 600 800;
+  $intervals-list: (
+    ('max-width': 400px)
+    ('min-width': 400px, 'max-width': 600px)
+    ('min-width': 600px, 'max-width': 800px)
+    ('min-width': 800px)
+  );
+
+  $lengths-labels: (
+    'widths': 's' 'm' 'l',
+    'heights': 's' 'l'
+  );
+  $intervals-labels: $intervals-all;
+
+  $lengths-null: 's' 'foo' 700 null;
+  $intervals-null: (
+    ('max-width': 400px)
+    ('min-width': 400px, 'max-width': 700px)
+    ('min-width': 700px)
+  );
+
+  @include test('should return a list of interval parameters based on a map of "width" and/or "height" lengths')
+  {
+    @include assert-equal(shift-length-intervals($lengths-map), $intervals-map);
+  }
+
+  @include test('should default to all registered width and height breakpoints')
+  {
+    @include assert-equal(shift-length-intervals(), $intervals-all);
+  }
+
+  @include test('should accept a list of length values, and consider them as widths')
+  {
+    @include assert-equal(shift-length-intervals($lengths-list), $intervals-list);
+  }
+
+  @include test('should parse the given length values to allow for breakpoint labels')
+  {
+    @include assert-equal(shift-length-intervals($lengths-labels), $intervals-labels);
+  }
+
+  @include test('should ignore null values and values that could not be parsed')
+  {
+    @include assert-equal(shift-length-intervals($lengths-null), $intervals-null);
+  }
+}

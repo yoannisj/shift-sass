@@ -10,6 +10,7 @@
 @import "aleksi/general/throw";
 @import "aleksi/lists/walk";
 
+@import "shift/length/intervals";
 @import "shift/params/expression";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
@@ -46,7 +47,7 @@
 
   // get ordered length intervals from variable's keys
   $lengths: _shift-key-lengths($var);
-  $intervals: _shift-length-intervals($lengths);
+  $intervals: shift-length-intervals($lengths);
 
   $keys: list-walk($intervals, 'shift-expression');
 
@@ -113,98 +114,4 @@
   );
 
   @return memo-set('shift', $_memo_, $res);
-}
-
-// =_shift-length-intervals( $lengths )
-// -----------------------------------------------------------------------------
-/// Builds shift params for each 'min-/max-' interval between given media
-/// widths/heights, and returns them in an ordered list (first width-only
-/// intervals, then height-only and finally mixed intervals).
-/// 
-/// @param {map} $lengths - map of widths/heights to build intervals for
-/// @return {list} - The ordered list of params representing intervals
-///
-/// @api private
-/// @since 0.3.0
-
-@function _shift-length-intervals( $lengths )
-{
-  // memoization
-  $_memo_: '_shift-length-intervals-#{$lengths}';
-  @if memo-has('shift', $_memo_) {
-    @return memo-get('shift', $_memo_);
-  }
-
-  $widths: map-get($lengths, 'widths');
-  $heights: map-get($lengths, 'heights');
-
-  $total-w: length($widths);
-  $total-h: length($heights);
-
-  $w-params: ();
-  $h-params: ();
-  $params: ();
-
-  @if $total-w > 0
-  {
-    // add 'max-' only params at the beginning
-    $max-w-prm: ('max-width': nth($widths, 1));
-    $w-params: append($w-params, $max-w-prm);
-    $params: append($params, $max-w-prm);
-
-    // add params for each 'min-' 'max-' interval
-    @for $i from 1 to $total-w
-    {
-      $min-w: nth($widths, $i);
-      $max-w: nth($widths, $i + 1);
-      $prm: ('min-width': $min-w, 'max-width': $max-w);
-
-      $w-params: append($w-params, $prm);
-      $params: append($params, $prm);
-    }
-
-    // add 'min-' only params at the end
-    $min-w-prm: ('min-width': nth($widths, $total-w));
-    $w-params: append($w-params, $min-w-prm);
-    $params: append($params, $min-w-prm);
-  }
-
-  @if $total-h > 0
-  {
-    // add 'max-' only params at the beginning
-    $max-h-prm: ('max-height': nth($heights, 1));
-    $h-params: append($h-params, $max-h-prm);
-    $params: append($params, $max-h-prm);
-
-    // add params for each 'min-' 'max-' interval
-    @for $i from 1 to $total-h
-    {
-      $min-h: nth($heights, $i);
-      $max-h: nth($heights, $i + 1);
-      $prm: ('min-height': $min-h, 'max-height': $max-h);
-
-      $h-params: append($h-params, $prm);
-      $params: append($params, $prm);
-    }
-
-    // add 'min-' only params at the end
-    $min-h-prm: ('min-height': nth($heights, $total-h));
-    $h-params: append($h-params, $min-h-prm);
-    $params: append($params, $min-h-prm);
-  }
-
-  // add mixed length params
-  @if $total-w > 0 and $total-h > 0
-  {
-    @each $w-prm in $w-params
-    {
-      @each $h-prm in $h-params
-      {
-        $prm: map-merge($w-prm, $h-prm);
-        $params: append($params, $prm);
-      }
-    }
-  }
-
-  @return memo-set('shift', $_memo_, $params);
 }
