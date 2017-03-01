@@ -14,6 +14,7 @@
 @import "shift/params/expression";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
+@import "shift/variable/key-lengths";
 @import "shift/variable/transpose";
 
 // =Functions
@@ -42,11 +43,11 @@
   }
 
   @if not shift-validate-variable($var) {
-    @return throw-error('shift-expand-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
+    @return throw-error('shift-expand-variable(): `$var` must be a valid shift variable – was `#{inspect($var)}`');
   }
 
   // get ordered length intervals from variable's keys
-  $lengths: _shift-key-lengths($var);
+  $lengths: shift-key-lengths($var);
   $intervals: shift-length-intervals($lengths);
 
   $keys: list-walk($intervals, 'shift-expression');
@@ -57,61 +58,5 @@
   }
 
   $res: shift-transpose-variable($var, $keys);
-  @return memo-set('shift', $_memo_, $res);
-}
-
-// =_shift-key-lengths( $vars... )
-// -----------------------------------------------------------------------------
-/// Collects all media widths/heights found in given shift variable(s)' keys and
-/// sorts them in ascending order. Regular variables use no media widths/heights
-/// are therefor ignored.
-///
-/// @param {arglist} $vars.. - shift variable(s) to inspect
-///
-/// @return {map} map listing the 'width' and 'height' lengths
-///
-/// @api private
-/// @since 0.3.0
-///
-/// @todo: return widths/heights per media
-
-@function _shift-key-lengths( $vars... )
-{
-  // memoization
-  $_memo_: '_shift-key-lengths-#{$vars}';
-  @if memo-has('shift', $_memo_) {
-    @return memo-get('shift', $_memo_);
-  }
-
-  $widths: ();
-  $heights: ();
-
-  @each $var in $vars
-  {
-    @if shift-validate-variable($var)
-    {
-      $params: shift-parse-keys($var);
-
-      @each $key, $val in $var
-      {
-        $prm: map-get($params, $key);
-        $min-w: map-get($prm, 'min-width');
-        $max-w: map-get($prm, 'max-width');
-        $min-h: map-get($prm, 'min-height');
-        $max-h: map-get($prm, 'max-height');
-
-        @if $min-w != null and not index($widths, $min-w) { $widths: append($widths, $min-w); }
-        @if $max-w != null and not index($widths, $max-w) { $widths: append($widths, $max-w); }
-        @if $min-h != null and not index($heights, $min-h) { $heights: append($heights, $min-h); }
-        @if $max-h != null and not index($heights, $max-h) { $heights: append($heights, $max-h); }
-      }
-    }
-  }
-
-  $res: (
-    'widths': sl-sort($widths),
-    'heights': sl-sort($heights)
-  );
-
   @return memo-set('shift', $_memo_, $res);
 }

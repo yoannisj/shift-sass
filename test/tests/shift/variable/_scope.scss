@@ -1,8 +1,7 @@
+// =============================================================================
+// =SHIFT TESTS - VARIABLE SCOPE
+// =============================================================================
 
-@import "aleksi/maps/debug-map";
-
-@import "shift/params/parse";
-@import "shift/context";
 @import "shift/variable/scope";
 
 $__shift__: (
@@ -32,8 +31,6 @@ $__shift__: (
 
 $shift-strict-queries: false !global;
 $shift-media-type: 'screen' !global;
-$shift-width-unit: 'px' !global;
-$shift-height-unit: 'px' !global;
 
 @include test-module('the shift-scope-variable function')
 {
@@ -56,7 +53,15 @@ $shift-height-unit: 'px' !global;
   );
 
   $context-df: ();
-  $context-s_l: shift-parse('s_l');
+
+  $context-_m: (
+    'max-width': 760px
+  );
+
+  $context-s_l: (
+    'min-width': 400px,
+    'max-width': 920px
+  );
 
   $var-a-df: (
     'df': 5,
@@ -70,8 +75,12 @@ $shift-height-unit: 'px' !global;
     'w>920px': blue
   );
 
+  $var-a-_m: (
+    'w<760px': 5,
+    'w>400px w<760px': 10
+  );
+
   $var-a-s_l: (
-    // 'df': 5,
     'w>400px w<760px': 10,
     'w>760px w<920px': 20
   );
@@ -81,10 +90,11 @@ $shift-height-unit: 'px' !global;
     'w>760px w<920px': true
   );
 
-  @debug "##############################";
-
   @include test('should remove keys that are out of scope from given shift variable')
   {
+    $scoped: shift-scope-variable($var-a, $context-_m);
+    @include assert-equal(map-has-key($scoped, 'w>920px'), false);
+    @include assert-equal($scoped, $var-a-_m);
   }
 
   @include test('should leave shift variables untouched in default context')
@@ -95,15 +105,16 @@ $shift-height-unit: 'px' !global;
 
   @include test('should default to current context')
   {
-    // set context
-    @include shift-context-save();
-    @include shift-context($context-s_l);
+    // set custom context
+    $context-before: map-get($__shift__, 'context');
+    $__shift__: map-set($__shift__, 'context', $context-s_l) !global;
 
     @include assert-equal(shift-scope-variable($var-a), $var-a-s_l);
     @include assert-equal(shift-scope-variable($var-c), $var-c-s_l);
 
-    @include shift-context-restore();
+    // restore context
+    $__shift__: map-set($__shift__, 'context', $context-before) !global;
   }
 
-  @debug "##############################";
+  // @debug "##############################";
 }

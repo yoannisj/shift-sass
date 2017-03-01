@@ -5,6 +5,7 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
+@import "aleksi/general/throw";
 @import "aleksi/general/memo";
 @import "aleksi/general/default-to";
 @import "aleksi/maps/map-set";
@@ -14,9 +15,6 @@
 @import "shift/params/expression";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
-@import "shift/variable/transpose";
-
-@import "shift/variable/expand";
 @import "shift/variable/reduce";
 
 // =Functions
@@ -64,9 +62,6 @@
   $max-w: map-get($context, 'max-width');
   $min-h: map-get($context, 'min-height');
   $max-h: map-get($context, 'max-height');
-
-  // transform variable to use interval keys
-  $var: shift-reduce-variable(shift-expand-variable($var));
 
   // get shift params for each key
   $params: shift-parse-keys($var);
@@ -130,6 +125,9 @@
       }
     }
   }
+
+  // remove entries with irrelevant values
+  $scoped: shift-reduce-values($scoped);
 
   // return scoped copy of variable
   @return memo-set('shift', $_memo_, $scoped);

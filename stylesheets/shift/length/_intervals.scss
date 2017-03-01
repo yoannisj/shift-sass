@@ -1,6 +1,9 @@
 // =============================================================================
 // =SHIFT - LENGTH INTERVALS
 // =============================================================================
+////
+//// @group shift-length
+//// @author [Yoannis Jamar](http://yoannis.com)
 
 @import "SassyLists";
 @import "aleksi/general/memo";
@@ -25,8 +28,6 @@
 
 @function shift-length-intervals( $lengths: null )
 {
-  @debug 'lengths-before: #{inspect($lengths)}';
-
   // memoization
   $_memo_: '_shift-length-intervals-#{$lengths}';
   @if memo-has('shift', $_memo_) {
@@ -63,9 +64,6 @@
   // remove all null values and sort values in ascending order
   $widths: sl-sort(sl-purge($widths));
   $heights: sl-sort(sl-purge($heights));
-
-  @debug 'widths-after: #{inspect($widths)}';
-  @debug 'heights-after: #{inspect($heights)}';
 
   // build list of parameters for each interval
   $total-w: length($widths);

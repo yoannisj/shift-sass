@@ -29,6 +29,60 @@ $__shift__: (
   )
 ) !global;
 
+@include test-module('the shift-reduce-values function')
+{  
+  @include test('should remove entries with values that wont be computed in the browser')
+  {
+    $var: (
+      'df': 10px,
+      's_l': 15px,
+      's': 20px,
+      'm': 40px
+    );
+
+    $reduced: (
+      'df': 10px,
+      's': 20px,
+      'm': 40px
+    );
+
+    @include assert-equal(shift-reduce-values($var), $reduced);
+  }
+
+  @include test('should use the variables arbitrary lengths to test values that could be computed')
+  {
+    $var: (
+      'df': 10px,
+      's_600': 15px,
+      's': 20px,
+      '600': 30px,
+      'm': 40px
+    );
+
+    $reduced: (
+      'df': 10px,
+      's': 20px,
+      '600': 30px,
+      'm': 40px
+    );
+    
+    @include assert-equal(shift-reduce-values($var), $reduced);
+  }
+
+  // @include test('should throw an error if $var is not a valid shift variable')
+  // {
+  //   $invalid: (
+  //     's': 10,
+  //     'm': 20,
+  //     'foo': 30,
+  //     'l': 40
+  //   );
+
+  //   @include assert-equal(shift-reduce-values(10), null);
+  //   @include assert-equal(shift-reduce-values($invalid), null);
+  // }
+}
+
 @include test-module('the shift-reduce-variable function')
 {
   @include test('should use the prevailing value as default value if variable has no "df" key')
@@ -72,7 +126,7 @@ $__shift__: (
     @include assert-equal(shift-reduce-variable($var), $reduced);
   }
 
-  // @include test('should throw an errof if $var is not a valid shift variable')
+  // @include test('should throw an error if $var is not a valid shift variable')
   // {
   //   $invalid: (
   //     's': 10,
@@ -81,7 +135,7 @@ $__shift__: (
   //     'l': 40
   //   );
 
-  //   @include assert-equal(shift-expand-variable(10), null);
-  //   @include assert-equal(shift-expand-variable($invalid), null);
+  //   @include assert-equal(shift-reduce-variable(10), null);
+  //   @include assert-equal(shift-reduce-variable($invalid), null);
   // }
 }

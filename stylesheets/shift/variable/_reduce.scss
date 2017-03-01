@@ -16,6 +16,8 @@
 @import "shift/params/expression";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
+@import "shift/variable/key-lengths";
+@import "shift/variable/computed-value";
 
 // =Functions
 // =============================================================================
@@ -41,18 +43,18 @@
 
   // only accept valid shift variables
   @if not shift-validate-variable($var) {
-    @return throw-error('shift-reduce-variable(): $var must be a valid shift variable – was #{inspect($var)}.');
+    @return throw-error('shift-reduce-variable(): `$var` must be a valid shift variable – was `#{inspect($var)}`');
   }
 
   // reduce intervals from variable
-  $res: shift-reduce-keys($var);
+  $res: shift-reduce-intervals($var);
 
   // get default value (defaults to prevailing value)
   $df: '__none__';
   @if map-has-key($var, 'df') {
     $df: map-get($var, 'df');
   } @else {
-    $df: _shift-prevailing-value($var);
+    $df: shift-prevailing-value($var);
   }
 
   // remove other keys defining the default value
@@ -64,12 +66,17 @@
   }
 
   // add default value at the beginning of reduced copy
-  $res: map-insert($res, 1, ('df': $df));
+  @if $df != '__none__' {
+    $res: map-insert($res, 1, ('df': $df));
+  }
+
+  // remove values that won't be computed
+  $res: shift-reduce-values($res);
 
   @return memo-set('shift', $_memo_, $res);
 }
 
-// =_shift-prevailing-value( $var )
+// =shift-prevailing-value( $var )
 // -----------------------------------------------------------------------------
 /// Returns the value that occurs the most often in given shift variable. If all
 /// values occur the same amount of times, the first value will be returned.
@@ -87,6 +94,10 @@
   $most: '__none__';
   $vals: map-values($var);
   $counts: ();
+
+  @if not shift-validate-variable($var) {
+    @return throw-error('shift-prevailing-value() $var must be a valid shift variable – was #{inspect($var)}');
+  }
 
   @each $val in $vals
   {
@@ -108,7 +119,7 @@
   @return $most;
 }
 
-// =shift-reduce-keys( $var )
+// =shift-reduce-intervals( $var )
 // -----------------------------------------------------------------------------
 /// Reduces 'min-/max-' intervals in keys from given shift variable.
 ///
@@ -118,7 +129,7 @@
 /// @api public
 /// @since 0.3.0
 
-@function shift-reduce-keys( $var )
+@function shift-reduce-intervals( $var )
 {
   $values: map-values($var);
   $params: map-values(shift-parse-keys($var));
@@ -227,17 +238,33 @@
   }
 
   @if not shift-validate-variable($var) {
-    @return throw-error('shift-reduce-values(): $var must be a valid shift variable – was #{inspect($var)}.');
+    @return throw-error('shift-reduce-values(): `$var` must be a valid shift variable – was `#{inspect($var)}`');
   }
 
   // list all possible intervals
-  $intervals: shift-length-intervals();
+  $key-lengths: shift-key-lengths($var);
+  $widths: shift-list-values('width');
+  $heights: shift-list-values('height');
+
+  // inject arbitrary key lengths into registered lengths
+  @each $w in map-get($key-lengths, 'widths') {
+    @if not index($widths, $w) { $widths: append($widths, $w); }
+  }
+  @each $h in map-get($key-lengths, 'heights') {
+    @if not index($heights, $h) { $heights: append($heights, $h); }
+  }
+
+  // get list of all possible intervals for relevant lengths
+  $intervals: shift-length-intervals((
+    'widths': $widths,
+    'heights': $heights
+  ));
 
   // collect values that will be used
   $values: ();
   @each $interval in $intervals
   {
-    $val: shift-computed-value($var, $interval);
+    $val: _shift-computed-value($var, $interval);
     @if $val != null and index($values, $val) == null {
       $values: append($values, $val);
     }
