@@ -5,9 +5,9 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
-@import "SassyLists";
 @import "aleksi/general/memo";
 @import "aleksi/general/throw";
+@import "aleksi/lists/sort";
 
 @import "shift/variable/parse-keys";
 @import "shift/variable/validate";
@@ -61,8 +61,8 @@
   }
 
   $res: (
-    'widths': sl-sort($widths),
-    'heights': sl-sort($heights)
+    'widths': sort($widths),
+    'heights': sort($heights)
   );
 
   @return memo-set('shift', $_memo_, $res);

@@ -90,6 +90,8 @@ $shift-media-type: 'screen' !global;
     'w>760px w<920px': true
   );
 
+  @debug "##############################";
+
   @include test('should remove keys that are out of scope from given shift variable')
   {
     $scoped: shift-scope-variable($var-a, $context-_m);
@@ -116,5 +118,5 @@ $shift-media-type: 'screen' !global;
     $__shift__: map-set($__shift__, 'context', $context-before) !global;
   }
 
-  // @debug "##############################";
+  @debug "##############################";
 }

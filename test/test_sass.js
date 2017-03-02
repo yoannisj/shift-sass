@@ -12,8 +12,7 @@ var sassIncludePaths = [
   './stylesheets/',
   './test/',
   './bower_components/sass-aleksi/stylesheets/',
-  './bower_components/sassy-maps/sass/',
-  './bower_components/SassyLists/stylesheets/',
+  './bower_components/SassyLists/stylesheets/'
 ];
 
 // render the test's sass with sassTrue (includes path to true's scss)

@@ -5,10 +5,11 @@
 //// @group shift-length
 //// @author [Yoannis Jamar](http://yoannis.com)
 
-@import "SassyLists";
 @import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/lists/walk";
+@import "aleksi/lists/sort";
+@import "aleksi/lists/purge";
 @import "aleksi/maps/is-map";
 
 @import "shift/length/parse";
@@ -62,8 +63,11 @@
   $heights: walk(map-get($lengths, 'heights'), 'shift-parse-length', 'height');
 
   // remove all null values and sort values in ascending order
-  $widths: sl-sort(sl-purge($widths));
-  $heights: sl-sort(sl-purge($heights));
+  $widths: sort(purge($widths, null));
+  $heights: sort(purge($heights, null));
+
+  @debug "widths: #{inspect($widths)}";
+  @debug "heights: #{inspect($heights)}";
 
   // build list of parameters for each interval
   $total-w: length($widths);

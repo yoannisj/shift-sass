@@ -9,7 +9,9 @@
 @import "aleksi/lists/walk";
 
 @import "shift/context";
+@import "shift/length/intervals";
 @import "shift/params/expression";
+@import "shift/variable/key-lengths";
 @import "shift/variable/expand";
 @import "shift/variable/scope";
 @import "shift/variable/transpose";
@@ -38,11 +40,8 @@
   $vars: list-walk($vars, 'shift-scope-variable', $context);
 
   // get complete list of media lengths and intervals from all orignal keys
-  $lengths: _shift-key-lengths($vars...);
-  $intervals: _shift-length-intervals($lengths);
-
-  // initialize list of aligned variables
-  $aligned: ();
+  $lengths: shift-key-lengths($vars...);
+  $intervals: shift-length-intervals($lengths);
 
   // transpose each variable to expanded interval keys
   $keys: list-walk($intervals, 'shift-expression');
