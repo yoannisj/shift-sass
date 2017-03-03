@@ -5,9 +5,7 @@
 //// @group shift-variable
 //// @author [Yoannis Jamar](http://yoannis.com)
 
-@import "aleksi/lists/walk";
 @import "aleksi/maps/map-set";
-
 @import "shift/variable/align";
 
 // =Functions
@@ -36,13 +34,21 @@
   $args: shift-align-variables($args);
   $keys: map-keys(nth($args, 1));
 
+  @debug inspect($args);
+
   // call transforming function with values for each key
   @each $key in $keys
   {
-    $key-args: list-walk($args, 'map-get', $key);
+    // collect values for this key in each argument
+    $key-args: ();
+    @each $arg in $args {
+      $key-args: append($key-args, map-get($arg, $key));
+    }
+
+    // call given function with values for this key
     $key-val: call($fn, $key-args...);
 
-    // and get value returned by transforming function
+    // add it to resulting shift value
     $res: map-set($res, $key, $key-val);
   }
 
