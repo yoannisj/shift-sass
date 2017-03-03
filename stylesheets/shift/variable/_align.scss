@@ -47,5 +47,8 @@
   $keys: list-walk($intervals, 'shift-expression');
   $aligned: list-walk($vars, 'shift-transpose-variable', $keys);
 
+  // remove keys 'max- only' and 'min- only' keys that are out of scope
+  $aligned: list-walk($aligned, 'shift-scope-variable', $context);
+
   @return $aligned;
 }
