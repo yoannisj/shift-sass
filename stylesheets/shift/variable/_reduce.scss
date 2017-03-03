@@ -265,7 +265,7 @@
   @each $interval in $intervals
   {
     $val: _shift-computed-value($var, $interval);
-    @if $val != null and index($values, $val) == null {
+    @if index($values, $val) == null {
       $values: append($values, $val);
     }
   }
