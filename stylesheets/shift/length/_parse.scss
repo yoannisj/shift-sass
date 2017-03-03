@@ -55,8 +55,10 @@
   @if $type == 'string'
   {
     // try to cast length as a number in case it was given 'on the fly'
+    $number: to-number($value);
+
     // or try to match it with a registered label
-    $value: default-to(to-number($value), shift-get($feature, $value, $tweakpoint));
+    $value: if($number, $number, shift-get($feature, $value, $tweakpoint));
 
     // if could not cast and no corresponding label was found
     @if $value == null {
