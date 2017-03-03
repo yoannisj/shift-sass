@@ -11,6 +11,7 @@
 
 @import "shift/length/intervals";
 @import "shift/params/expression";
+@import "shift/params/parse";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
 @import "shift/variable/key-lengths";
@@ -25,7 +26,6 @@
 /// and/or height intervals.
 ///
 /// @param $var - the shift variable to re-scope
-/// @param $context [shift-context()] - the context features to use as scope
 ///
 /// @throw Error - if $var is not a valid shift variable
 /// @return {map} - the map of keys -> parsed features

@@ -1,0 +1,54 @@
+// =============================================================================
+// =SHIFT - PARAMS VALIDATE
+// =============================================================================
+
+@import "aleksi/general/const";
+@import "shift/constants";
+@import "shift/params/expression";
+@import "shift/params/handle";
+
+// =shift-validate-params( $params )
+// -----------------------------------------------------------------------------
+/// Checks whether the given value defines valid shift parameters (i.e. it is 
+/// a valid shift expression, handle or a map of shift parameters only).
+///
+/// @param {map} $params - The shift parameters to analyze
+/// @return {bool} - Whether $params defines valid shift parameters
+///
+/// @access public
+/// @since 0.3.0
+
+@function shift-validate-params($params)
+{
+  // recognize shift expressions and handles
+  @if type-of($params) == 'string'
+  {
+    @if shift-validate-expression($params)
+      or shift-validate-handle($params)
+    {
+      @return true;
+    }
+  }
+
+  @else if $params == () {
+    @return true;
+  }
+
+  // recognize shift parameter maps
+  @else if type-of($params) == 'map'
+  {
+    $keys: map-keys($params); 
+    @each $key in $keys
+    {
+      // if one of the keys is not a parameter name
+      @if index(const('SHIFT_PARAMETER_NAMES'), $key) == null {
+        @return false;
+      }
+    }
+
+    // all keys are parameter names
+    @return true;
+  }
+
+  @return false;
+}

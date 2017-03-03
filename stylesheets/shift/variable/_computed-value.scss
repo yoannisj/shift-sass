@@ -9,6 +9,7 @@
 @import "aleksi/general/default-to";
 
 @import "shift/context";
+@import "shift/params/parse";
 @import "shift/variable/parse-keys";
 
 // =_shift-computed-value( $var[, $context ])
@@ -33,6 +34,9 @@
   @if not shift-validate-variable($var) {
     @return throw-error('_shift-computed-value(): `$var` must be a valid shift variable – was #{inspect($var)}`');
   }
+
+  // parse given context for labeled values
+  $context: shift-parse($context);
 
   // extract default value
   $df: map-get($var, 'df');

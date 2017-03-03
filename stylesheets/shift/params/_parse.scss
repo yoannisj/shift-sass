@@ -55,8 +55,8 @@
   // parse expression/handle if params is given as a string
   @if type-of($params) == 'string'
   {
-    // allow 'df' or emtpy string
-    @if $params == 'df' or $params == '' {
+    // allow () or 'df' or emtpy string
+    @if $params == () or $params == 'df' or $params == '' {
       @return memo-set('shift', $_memo_, ());
     }
 

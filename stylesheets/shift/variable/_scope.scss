@@ -13,6 +13,7 @@
 @import "shift/config";
 @import "shift/context";
 @import "shift/params/expression";
+@import "shift/params/parse";
 @import "shift/variable/validate";
 @import "shift/variable/parse-keys";
 @import "shift/variable/reduce";
@@ -43,6 +44,9 @@
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
+
+  // parse given context for labeled values
+  $context: shift-parse($context);
 
   // initialize scoped copy of variable
   $scoped: ();

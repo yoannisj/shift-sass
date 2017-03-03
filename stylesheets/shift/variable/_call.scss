@@ -6,12 +6,16 @@
 //// @author [Yoannis Jamar](http://yoannis.com)
 
 @import "aleksi/maps/map-set";
+@import "aleksi/arglists/arglist-prepend";
+
+@import "shift/context";
+@import "shift/params/validate";
 @import "shift/variable/align";
 
 // =Functions
 // =============================================================================
 
-// =shift-call( $fn[, $args... ])
+// =shift-call( $fn[, $context, $args... ])
 // -----------------------------------------------------------------------------
 /// Calls a given function with shift variable arguments. The function will be
 /// called on each different value that is defined in the arguments.
@@ -19,6 +23,7 @@
 /// shift variables by scoping them to the current context.
 ///
 /// @param $fn - the transforming function.
+/// @param $context [shift-context] - the context to scope
 /// @param $args - the arguments to pass to $fn
 ///
 /// @return {map} - a shift variable representing the different values returned by fn
@@ -26,15 +31,21 @@
 /// @api public
 /// @since 0.3.0
 
-@function shift-call($fn, $args...)
+@function shift-call($fn, $context: shift-context(), $args...)
 {
+  // allow omitting the $context argument
+  @if not shift-validate-params($context)
+  {
+    $args: arglist-prepend($args, $context);
+    $context: shift-context();
+  }
+
+  // initialize resulting shift variable
   $res: ();
 
   // align all arguments and get list of shared keys
-  $args: shift-align-variables($args);
+  $args: shift-align-variables($args, $context);
   $keys: map-keys(nth($args, 1));
-
-  @debug inspect($args);
 
   // call transforming function with values for each key
   @each $key in $keys

@@ -8,12 +8,15 @@
 @import "aleksi/general/memo";
 @import "aleksi/general/default-to";
 @import "aleksi/general/css-rule";
+@import "aleksi/lists/some";
 @import "aleksi/maps/map-walk-values";
 @import "aleksi/arglists/arglist-prepend";
 
 @import "shift/config";
 @import "shift/context";
 @import "shift/query";
+@import "shift/params/validate";
+@import "shift/params/parse";
 @import "shift/variable/validate";
 @import "shift/variable/scope";
 @import "shift/variable/call";
@@ -28,66 +31,72 @@
 ///
 /// @param {map|any} $var - The shift variable to get value(s) from
 /// @param {map} $context - The shift context for which to get value(s)
-/// @param {bool} $important [false] - Whether to add the '!important' flag or not
 /// @param {string} $fn ['__none__'] - Optional function to call on values
 /// @param {arglist} $args... - Optional additional parameters for $fn
 
-@function shift-value( $var, $context: shift-context(), $important: false, $fn: '__none__', $args... )
+@function shift-value( $var, $context: shift-context(), $fn: '__none__', $args... )
 {
   // memoization
-  $_memo_: 'shift-value-#{$var}-#{$context}-#{$important}-#{$fn}-#{$args}';
+  $_memo_: 'shift-value-#{$var}-#{$context}-#{$fn}-#{$args}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
 
-  // allow omitting the $important argument
-  @if type-of($important) == 'string'
-  {
-    $args: if($fn != '__none__', arglist-prepend($args, $fn), $args);
-    $fn: $important;
-    $important: false;
-  }
-
   // allow omitting the $context argument
-  @if type-of($context) == 'string'
+  @if not shift-validate-params($context)
   {
     $args: if($fn != '__none__', arglist-prepend($args, $fn), $args);
-    $fn: $important;
-    $important: $context;
+    $fn: $context;
     $context: shift-context();
   }
 
-  // return regular variables' value
-  @if not shift-validate-variable($var) {
-    $res: css-value($var, $important, $fn, $args...);
+  // optimize if only regular variables were given
+  @if not shift-validate-variable($var)
+    and not some($args, 'shift-validate-variable')
+  {
+    $res: if($fn == '__none__', $var, call($fn, $var, $args... ));
     @return memo-set('shift', $_memo_, $res);
   }
 
-  // scope variable to context to remove irrelevant values
-  $res: shift-scope-variable($var, $context);
+  // parse given context for labeled values
+  $context: shift-parse($context);
 
-  // return null if no value corresponded
-  @if $res-ln == 0 {
+  // optionally transform variable with given function
+  @if $fn != '__none__'
+  {
+    // add var to arguments, so they can be aligned and scoped together
+    $args: arglist-prepend($args, $var);
+    // and use 'shift-call'
+    $var: shift-call($fn, $context, $args...);
+  }
+
+  @else {
+    // scope variable to given context
+    $var: shift-scope-variable($var, $context);
+  }
+
+  // check for the amount of values that were returned
+  $var-ln: length($var);
+
+  // return null if no value resulted
+  @if $var-ln == 0 {
     @return memo-set('shift', $_memo_, null);
   }
 
-  // return a single value if only one key corresponded
-  @else if $res-ln == 1 {
-    $res: map-get($res, nth(map-keys($res), 1));
-    $res: css-value($res, $important, $fn, $args...);
-    
-    @return memo-set('shift', $_memo_, $res);
+  // if only one value resulted
+  @if $var-ln == 1
+  {
+    $val-key: nth(map-keys($var), 1);
+    $val-context: shift-parse($val-key);
+
+    // and it corresponds to given context exactly
+    @if $val-context == $context {
+      // return it as a regular value
+      @return memo-set('shift', $_memo_, map-get($var, $val-key));
+    }
   }
 
-  // call $fn on all values that correspond
-  @if $fn != '__none__' {
-    $args: arglist-prepend($res, $args);
-    $res: shift-call($fn, $args...);
-  }
-
-  // append $important flag to each value in resulting shift-variable and return
-  $res: walk-map-values($res, 'css-value', $important);
-  @return memo-set('shift', $_memo_, $res);
+  @return memo-set('shift', $_memo_, $var);
 }
 
 // =Mixins
@@ -112,16 +121,24 @@
 
 @mixin shift-value($prop, $var, $important: false, $fn: '__none__', $args... )
 {
-  // allow the '__none__' string for no $fn
-  $fn: if($fn == '__none__', null, $fn);
+  // allow omitting the $important argument
+  @if type-of($important) == 'string'
+  {
+    $args: if($fn != '__none__', arglist-prepend($args, $fn), $args);
+    $fn: $important;
+    $important: false;
+  }
+
+  // get value for current context, and optionally transformed by given function
+  $var: shift-value($var, shift-context(), $fn, $args...);
 
   // allow regular variables
   @if not shift-validate-variable($var) {
-    #{$prop}: css-value($var, $important, $fn, $args...);
+    #{$prop}: css-value($var, $important);
   }
 
-  // scope variable in current context
-  $var: shift-scope-variable($var);
+  // reduce variable before outputting it
+  $var: shift-reduce-variable($var);
 
   @each $key, $val in $var
   {
@@ -129,7 +146,7 @@
     {
       & {
         @include shift-query($key) {
-          #{$prop}: css-value($val, $important, $fn, $args...);
+          #{$prop}: css-value($val, $important);
         }
       }
     }

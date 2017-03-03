@@ -66,9 +66,6 @@
   $widths: sort(purge($widths, null));
   $heights: sort(purge($heights, null));
 
-  @debug "widths: #{inspect($widths)}";
-  @debug "heights: #{inspect($heights)}";
-
   // build list of parameters for each interval
   $total-w: length($widths);
   $total-h: length($heights);
