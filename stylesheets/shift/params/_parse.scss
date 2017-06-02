@@ -2,8 +2,6 @@
 // =SHIFT - PARSE
 // =============================================================================
 
-@import "aleksi/maps/debug-map";
-
 @import "aleksi/general/memo";
 @import "aleksi/general/throw";
 @import "aleksi/general/const";
@@ -70,8 +68,6 @@
   }
 
   // get labeled feature values, and adapt to tweakpoint
-  $labels: ();
-
   // parse length values
   $length-params: map-remove($params, 'strict', 'media', 'resolution');
   @each $feature, $value in $length-params

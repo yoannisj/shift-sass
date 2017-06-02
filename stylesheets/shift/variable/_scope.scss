@@ -51,7 +51,7 @@
   // initialize scoped copy of variable
   $scoped: ();
 
-  // if regular key was given
+  // if regular var was given
   @if not shift-validate-variable($var) {
     // return a shift variable with scope as only key
     $scoped-key: shift-expression($context);
