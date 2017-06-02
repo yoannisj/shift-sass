@@ -1,6 +1,8 @@
 // SHIFT TESTS
 // ------------
 
+// @import "tests/shift/setup";
+
 // @import "tests/shift/breakpoint/set";
 // @import "tests/shift/breakpoint/tweak";
 // @import "tests/shift/breakpoint/list";
@@ -31,6 +33,4 @@
 // @import "tests/shift/variable/scope";
 // @import "tests/shift/variable/align";
 // @import "tests/shift/variable/call";
-@import "tests/shift/variable/value";
-
-// @import "tests/shift/setup";
+// @import "tests/shift/variable/value";

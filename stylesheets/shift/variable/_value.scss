@@ -8,6 +8,7 @@
 @import "aleksi/general/memo";
 @import "aleksi/general/default-to";
 @import "aleksi/general/css-rule";
+@import "aleksi/arglists/arglist-prepend";
 @import "aleksi/lists/some";
 @import "aleksi/maps/map-walk-values";
 @import "aleksi/arglists/arglist-prepend";
@@ -54,7 +55,8 @@
   @if not shift-validate-variable($var)
     and not some($args, 'shift-validate-variable')
   {
-    $res: if($fn == '__none__', $var, call($fn, $var, $args... ));
+    $call-args: arglist-prepend($args, $var);
+    $res: if($fn == '__none__', $var, call($fn, $call-args... ));
     @return memo-set('shift', $_memo_, $res);
   }
 
