@@ -11,6 +11,7 @@
 @import "aleksi/lists/replace-nth";
 @import "aleksi/maps/map-set";
 @import "aleksi/maps/map-insert";
+@import "aleksi/maps/map-replace-nth";
 
 @import "shift/length/intervals";
 @import "shift/params/expression";
@@ -18,6 +19,7 @@
 @import "shift/variable/parse-keys";
 @import "shift/variable/key-lengths";
 @import "shift/variable/computed-value";
+@import "shift/context";
 
 // =Functions
 // =============================================================================
@@ -33,7 +35,7 @@
 /// @api public
 /// @since 0.3.0
 
-@function shift-reduce-variable( $var )
+@function shift-reduce-variable( $var, $context: shift-context() )
 {
   // memoization
   $_memo_: 'shift-reduce-variable-#{$var}';
@@ -46,12 +48,14 @@
     @return throw-error('shift-reduce-variable(): `$var` must be a valid shift variable – was `#{inspect($var)}`');
   }
 
-  // reduce intervals from variable
+  // reduce intervals from variable keys
   $res: shift-reduce-intervals($var);
 
   // get default value (defaults to prevailing value)
   $df: '__none__';
-  @if map-has-key($var, 'df') {
+  $df-key: shift-expression($context);
+
+  @if map-has-key($var, $df-key) {
     $df: map-get($var, 'df');
   } @else {
     $df: shift-prevailing-value($var);
@@ -66,12 +70,21 @@
   }
 
   // add default value at the beginning of reduced copy
-  @if $df != '__none__' {
-    $res: map-insert($res, 1, ('df': $df));
+  @if $df != '__none__'
+  {
+    $df-entry: map-set((), $df-key, $df);
+    $res: if(length($res) == 0, $df-entry, map-insert($res, 1, $df-entry));
   }
 
   // remove values that won't be computed
   $res: shift-reduce-values($res);
+
+  // @debug "shift-reduce-variable()$var[values]:: " + inspect($var);
+
+  // remove useless 'max-' lengths in variable keys
+  $res: shift-reduce-keys($res);
+
+  // @debug "shift-reduce-variable()$var[keys]:: " + inspect($var);
 
   @return memo-set('shift', $_memo_, $res);
 }
@@ -119,6 +132,85 @@
   @return $most;
 }
 
+// =shift-reduce-keys( $var )
+// -----------------------------------------------------------------------------
+/// Reduces keys from given shift variable.
+///
+/// @return {map} - the shift variable with reduced intervals
+/// @throw Error - if $var is not a shift variable
+///
+/// @api public
+/// @since 0.3.0
+
+@function shift-reduce-keys( $var )
+{
+  $_memo_: 'shift-reduce-keys-#{$var}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
+  $keys: map-keys($var);
+  $values: map-values($var);
+  $params: map-values(shift-parse-keys($var));
+
+  // compare each entry with next one
+  $i: 1;
+  $ln: length($var);
+
+  $res: ();
+
+  @while $i < $ln
+  {
+    $key: nth($keys, $i);
+    $val: nth($values, $i);
+
+    $prm: nth($params, $i);
+    $min-w: map-get($prm, 'min-width');
+    $max-w: map-get($prm, 'max-width');
+    $min-h: map-get($prm, 'min-height');
+    $max-h: map-get($prm, 'max-height');
+
+    $next-key: nth($keys, $i + 1);
+    $next-prm: nth($params, $i + 1);
+    $next-min-w: map-get($next-prm, 'min-width');
+    $next-max-w: map-get($next-prm, 'max-width');
+    $next-min-h: map-get($next-prm, 'min-height');
+    $next-max-h: map-get($next-prm, 'max-height');
+
+    // if keys are compatible and width intervals follow-up
+    @if $min-w and $max-w and
+      default-to($min-h, 0) == default-to($next-min-h, 0)
+      and default-to($max-h, 999999) == default-to($next-max-h, 999999)
+      and default-to($max-w, 999999) >= default-to($next-min-w, 0)
+      and default-to($max-w, 999999) <= default-to($next-max-w, 999999)
+    {
+      // remove 'max-width' from key
+      $prm: map-remove($prm, 'max-width');
+    }
+
+    // if keys are compatible and height intervals follow-up
+    @if $min-h and $max-h and
+      default-to($min-w, 0) == default-to($next-min-w, 0)
+      and default-to($max-w, 999999) == default-to($next-max-w, 999999)
+      and default-to($max-h, 999999) >= default-to($next-min-h, 0)
+      and default-to($max-h, 999999) <= default-to($next-max-h, 999999)
+    {
+      // remove 'max-height' from key
+      $prm: map-remove($prm, 'max-height');
+    }
+
+    $key: shift-expression($prm);
+    $res: map-set($res, $key, $val);
+
+    $i: $i + 1;
+  }
+
+  // re-inject last value
+  $res: map-set($res, nth($keys, $ln), nth($values, $ln));
+
+  @return memo-set('shift', $_memo_, $res);
+}
+
 // =shift-reduce-intervals( $var )
 // -----------------------------------------------------------------------------
 /// Reduces 'min-/max-' intervals in keys from given shift variable.
@@ -131,6 +223,11 @@
 
 @function shift-reduce-intervals( $var )
 {
+  $_memo_: 'shift-reduce-intervals-#{$var}';
+  @if memo-has('shift', $_memo_) {
+    @return memo-get('shift', $_memo_);
+  }
+
   $values: map-values($var);
   $params: map-values(shift-parse-keys($var));
 
@@ -141,7 +238,6 @@
   @while $i < $ln
   {
     $next-i: $i + 1;
-
     $val: nth($values, $i);
     $next-val: nth($values, $next-i);
 
@@ -217,7 +313,7 @@
     $res: map-set($res, shift-expression($prm), $val);
   }
 
-  @return $res;
+  @return memo-set('shift', $_memo_, $res);
 }
 
 // =shift-reduce-values( $var )

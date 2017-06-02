@@ -34,7 +34,7 @@
   @if not shift-validate-variable($var) {
     @return throw-error('_shift-computed-value(): `$var` must be a valid shift variable – was #{inspect($var)}`');
   }
-
+  
   // parse given context for labeled values
   $context: shift-parse($context);
 
@@ -42,8 +42,8 @@
   $df: map-get($var, 'df');
   $var: map-remove($var, 'df');
 
-  // optimize for default context
-  @if $context == () {
+  // optimize for default context and vars with only 'df' value
+  @if length($context) == 0 or length($var) == 0 {
     @return $df;
   }
 
