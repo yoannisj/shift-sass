@@ -115,7 +115,7 @@
   }
 
   // do not allow comma-separated expressions
-  @if str-index($str, ',') or str-index($str, 'not') == 1 {
+  @if str-index($str, ',') {
     $_: throw-warning('shift-validate-expression(): multiple, comma-separated media-queries are not supported.');
     @return memo-set('shift', $_memo_, false);
   }
@@ -184,7 +184,10 @@
     $length: str-slice($str, 3);
 
     // validate if the length can be parsed successfully
+    $__shift-suppress-get-warnings__: true !global;
     $res: if(shift-parse-length($length), true, false);
+    $__shift-suppress-get-warnings__: false !global;
+
     @return memo-set('shift', $_memo_, $res);
   }
 
