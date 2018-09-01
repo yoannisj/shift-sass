@@ -12,7 +12,7 @@
 @import "aleksi/maps/map-walk-values";
 @import "aleksi/arglists/arglist-prepend";
 
-@import "shift/config";
+@import "shift/setup";
 @import "shift/context";
 @import "shift/query";
 @import "shift/params/validate";
@@ -137,16 +137,28 @@
     #{$prop}: css-value($var, $important);
   }
 
-  // reduce variable before outputting it
-  $var: shift-reduce-variable($var);
-
-  @each $key, $val in $var
+  @else
   {
-    @at-root (without: media)
+    // reduce variable before outputting it
+    $var: shift-reduce-variable($var);
+
+    @each $key, $val in $var
     {
-      & {
-        @include shift-query($key) {
-          #{$prop}: css-value($val, $important);
+      $params: shift-parse($key);
+      $context: shift-context();
+
+      @if $params == $context {
+        #{$prop}: css-value($val, $important);
+      }
+
+      @else
+      {
+        @at-root (without: media)
+        {
+          @include shift-query($params)
+          {
+            #{$prop}: css-value($val, $important);
+          }
         }
       }
     }
