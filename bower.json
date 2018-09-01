@@ -31,7 +31,9 @@
     "tmp",
     "sassdoc"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "sass-aleksi": "^0.4.2"
+  },
   "resolutions": {
     "SassyLists": "^3.0.1"
   }
