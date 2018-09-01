@@ -159,26 +159,17 @@
     @return memo-set('shift', $_memo_, true);
   }
 
-  // $width-labels: shift-list-labels('width');
-  // $height-labels: shift-list-labels('height');
-  // $length-labels: join($width-labels, $height-labels);
+  $__shift-suppress-get-warnings__: true !global;
 
   // recognize length labels and on the fly lengths
   @if shift-parse-length($str, 'width') != null
     or shift-parse-length($str, 'height') != null
   {
+    $__shift-suppress-get-warnings__: false !global;
     @return memo-set('shift', $_memo_, true);
   }
 
-  // // recognize 'width' and 'height' labels
-  // @if index($length-labels, $str) {
-  //   @return true;
-  // }
-
-  // // recognize length values on the fly
-  // @if to-number($str) != null {
-  //   @return true;
-  // }
+  $__shift-suppress-get-warnings__: false !global;
 
   // no valid pattern was found
   @return memo-set('shift', $_memo_, false);

@@ -11,6 +11,8 @@
 @import "shift/setup";
 @import "shift/breakpoint/list";
 
+$__shift-suppress-get-warnings__: false !default;
+
 // =shift-get( $feature, $label[, $tweakpoint ])
 // -----------------------------------------------------------------------------
 /// Returns the media-query feature value set for the given label and
@@ -66,9 +68,13 @@
   // in order to find registered value
   $value: map-get($breakpoints, $label);
 
-  // throw a warning if no value was found
-  @if $value == null {
-    $_: throw-warning("shift-get(): no #{$feature} value was found for `#{$label}`");
+  @if $value == null
+  {
+    // throw a warning if no value was found
+    @if not $__shift-suppress-get-warnings__ {
+      $_: throw-warning("shift-get(): no #{$feature} value was found for `#{$label}`");
+    }
+
     @return memo-set('shift', $_memo_, null);
   }
 

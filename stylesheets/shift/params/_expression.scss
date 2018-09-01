@@ -184,7 +184,10 @@
     $length: str-slice($str, 3);
 
     // validate if the length can be parsed successfully
+    $__shift-suppress-get-warnings__: true !global;
     $res: if(shift-parse-length($length), true, false);
+    $__shift-suppress-get-warnings__: false !global;
+
     @return memo-set('shift', $_memo_, $res);
   }
 

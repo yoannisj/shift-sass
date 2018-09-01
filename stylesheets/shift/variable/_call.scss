@@ -58,7 +58,6 @@
 
     // call given function with values for this key
     $key-val: call($fn, $key-args...);
-
     // add it to resulting shift value
     $res: map-set($res, $key, $key-val);
   }
