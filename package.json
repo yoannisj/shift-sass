@@ -11,13 +11,19 @@
     "media-queries",
     "helpers",
     "utils",
-    "javascript"
+    "javascript",
+    "eyeglass"
   ],
   "homepage": "https://github.com/yoannisj/shift-sass",
   "license": "ISC",
   "author": {
     "name": "Yoannis Jamar",
     "email": "yoannis.j@gmail.com"
+  },
+  "eyeglass": {
+    "name": "shift",
+    "sassDir": "stylesheets/shift",
+    "needs": "^1.5.0"
   },
   "repository": {
     "type": "git",
