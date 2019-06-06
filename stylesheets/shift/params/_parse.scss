@@ -65,11 +65,15 @@
     @else if shift-validate-handle($params) {
       $params: _shift-parse-handle($params, $tweakpoint);
     }
+
+    @else {
+      @return throw-error('shift-parse(): could not parse `$params` with value `#{inspect($params)}`');
+    }
   }
 
   // get labeled feature values, and adapt to tweakpoint
   // parse length values
-  $length-params: map-remove($params, 'strict', 'media', 'resolution');
+  $length-params: map-remove($params, 'strict', 'media', 'resolution', 'tweakpoint');
   @each $feature, $value in $length-params
   {
     // parse length value

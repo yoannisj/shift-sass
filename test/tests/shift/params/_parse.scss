@@ -113,4 +113,8 @@ $__shift__: (
   // @include test('should throw an error if $tweakpoint is not null, nor a string') {
   //   @include assert-equal(shift-parse((), true), null);
   // }
+
+  // @include test('should throw an error if $params is is an string that is not a handle nor an expression') {
+  //   @include assert-equal(shift-parse('foo'), null);
+  // }
 }
