@@ -23,7 +23,7 @@
   "eyeglass": {
     "name": "shift",
     "sassDir": "stylesheets/shift",
-    "needs": "^1.5.0",
+    "needs": "^1.5.0"
   },
   "repository": {
     "type": "git",
