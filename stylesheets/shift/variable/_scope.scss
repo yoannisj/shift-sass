@@ -40,7 +40,7 @@
 @function shift-scope-variable( $var, $context: shift-context() )
 {
   // memoization
-  $_memo_: 'shift-scope-variable-#{$var}-#{$context}';
+  $_memo_: 'shift-scope-variable-#{inspect($var)}-#{inspect($context)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

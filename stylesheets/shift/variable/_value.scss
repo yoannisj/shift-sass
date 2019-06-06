@@ -38,7 +38,7 @@
 @function shift-value( $var, $context: shift-context(), $fn: '__none__', $args... )
 {
   // memoization
-  $_memo_: 'shift-value-#{$var}-#{$context}-#{$fn}-#{$args}';
+  $_memo_: 'shift-value-#{inspect($var)}-#{inspect($context)}-#{inspect($fn)}-#{inspect($args)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

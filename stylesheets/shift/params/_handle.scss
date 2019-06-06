@@ -26,7 +26,7 @@
 
 @function shift-handle($params)
 {
-  $_memo_: 'shift-handle-#{$params}';
+  $_memo_: 'shift-handle-#{inspect($params)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -88,7 +88,7 @@
 @function shift-validate-handle($str)
 {
   // memoization
-  $_memo_: 'shift-validate-handle-#{$str}';
+  $_memo_: 'shift-validate-handle-#{inspect($str)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

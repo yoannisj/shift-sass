@@ -30,7 +30,7 @@
 @function shift-key-lengths( $vars... )
 {
   // memoization
-  $_memo_: '_shift-key-lengths-#{$vars}';
+  $_memo_: '_shift-key-lengths-#{inspect($vars)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

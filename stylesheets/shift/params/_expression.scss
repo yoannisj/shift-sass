@@ -30,7 +30,7 @@
 @function shift-expression($params)
 {
   // memoization
-  $_memo_: 'shift-expression-#{$params}';
+  $_memo_: 'shift-expression-#{inspect($params)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -99,7 +99,7 @@
 @function shift-validate-expression( $str )
 {
   // memoization
-  $_memo_: 'shift-validate-expression-#{$str}';
+  $_memo_: 'shift-validate-expression-#{inspect($str)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -221,7 +221,7 @@
 @function shift-validate-resolution-expression( $str )
 {
   // memoization
-  $_memo_: 'shift-validate-resolution-expression-#{$str}';
+  $_memo_: 'shift-validate-resolution-expression-#{inspect($str)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -261,7 +261,7 @@
 @function shift-normalize-expression( $expr )
 {
   // memoization
-  $_memo_: 'shift-normalize-expression-#{$expr}';
+  $_memo_: 'shift-normalize-expression-#{inspect($expr)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

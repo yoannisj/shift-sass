@@ -14,4 +14,4 @@
 @include define('SHIFT_FORBIDDEN_HANDLE_CHARACTERS', const('CSS_FORBIDDEN_CLASSNAME_CHARACTERS'));
 
 // The list of shift parameter names
-@include define('SHIFT_PARAMETER_NAMES', 'min-width' 'max-width' 'min-height' 'max-height' 'strict' 'media' 'tweakpoint');
+@include define('SHIFT_PARAMETER_NAMES', 'min-width' 'max-width' 'min-height' 'max-height' 'strict' 'media' 'tweakpoint' 'resolution');

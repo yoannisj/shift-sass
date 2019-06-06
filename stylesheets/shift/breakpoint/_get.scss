@@ -39,7 +39,7 @@ $__shift-suppress-get-warnings__: false !default;
 @function shift-get( $feature, $label, $tweakpoint: null )
 {
   // memoization
-  $_memo_: 'shift-get-#{$feature}-#{$label}-#{$tweakpoint}';
+  $_memo_: 'shift-get-#{inspect($feature)}-#{inspect($label)}-#{inspect($tweakpoint)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

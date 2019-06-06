@@ -38,7 +38,7 @@
 @function shift-reduce-variable( $var, $context: shift-context() )
 {
   // memoization
-  $_memo_: 'shift-reduce-variable-#{$var}';
+  $_memo_: 'shift-reduce-variable-#{inspect($var)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -144,7 +144,7 @@
 
 @function shift-reduce-keys( $var )
 {
-  $_memo_: 'shift-reduce-keys-#{$var}';
+  $_memo_: 'shift-reduce-keys-#{inspect($var)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -223,7 +223,7 @@
 
 @function shift-reduce-intervals( $var )
 {
-  $_memo_: 'shift-reduce-intervals-#{$var}';
+  $_memo_: 'shift-reduce-intervals-#{inspect($var)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -328,7 +328,7 @@
 
 @function shift-reduce-values($var)
 {
-  $_memo_: 'shift-reduce-values-#{$var}';
+  $_memo_: 'shift-reduce-values-#{inspect($var)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }

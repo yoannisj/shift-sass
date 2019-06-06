@@ -30,7 +30,7 @@
 @function shift-length-intervals( $lengths: null )
 {
   // memoization
-  $_memo_: '_shift-length-intervals-#{$lengths}';
+  $_memo_: '_shift-length-intervals-#{inspect($lengths)}';
   @if memo-has('shift', $_memo_) {
     @return memo-get('shift', $_memo_);
   }
@@ -50,7 +50,7 @@
   }
 
   // sanitize '$lengths' argument
-  @if not is-map-($lengths) {
+  @if not is-map($lengths) {
     @return throw-error('shift-length-intervals(): $length must be a map – was #{inspect($length)}');
   }
 
