@@ -72,20 +72,20 @@
     $breakpoints: map-get($__shift__, 'breakpoints');
 
     // check if width breakpoints were registered correctly
-    @include assert-equal( map-has-key($breakpoints, 'width'), true);
+    @include assert-equal(map-has-key($breakpoints, 'width'), true);
     $widths: map-get($breakpoints, 'width');
 
-    @include assert-equal( map-has-key($widths, 's'), true);
-    @include assert-equal( map-get($widths, 's'), 400);
-    @include assert-equal( map-has-key($widths, 'l'), true);
-    @include assert-equal( map-get($widths, 'l'), 920);
+    @include assert-equal(map-has-key($widths, 's'), true);
+    @include assert-equal(map-get($widths, 's'), 400);
+    @include assert-equal(map-has-key($widths, 'l'), true);
+    @include assert-equal(map-get($widths, 'l'), 920);
 
     // check if height breakpoints were registered correctly
-    @include assert-equal( map-has-key($breakpoints, 'height'), true);
+    @include assert-equal(map-has-key($breakpoints, 'height'), true);
     $heights: map-get($breakpoints, 'height');
 
-    @include assert-equal( map-has-key($heights, 's'), true);
-    @include assert-equal( map-get($heights, 's'), 500);
+    @include assert-equal(map-has-key($heights, 's'), true);
+    @include assert-equal(map-get($heights, 's'), 500);
 
     // check if tweakpoints were registered correctly
     @include assert-equal(map-has-key($__shift__, 'tweakpoints'), false);
@@ -102,20 +102,20 @@
     $breakpoints: map-get($__shift__, 'breakpoints');
 
     // check if width breakpoints were registered correctly
-    @include assert-equal( map-has-key($breakpoints, 'width'), true);
+    @include assert-equal(map-has-key($breakpoints, 'width'), true);
     $widths: map-get($breakpoints, 'width');
 
-    @include assert-equal( map-has-key($widths, 's'), true);
-    @include assert-equal( map-get($widths, 's'), 400);
-    @include assert-equal( map-has-key($widths, 'l'), true);
-    @include assert-equal( map-get($widths, 'l'), 920);
+    @include assert-equal(map-has-key($widths, 's'), true);
+    @include assert-equal(map-get($widths, 's'), 400);
+    @include assert-equal(map-has-key($widths, 'l'), true);
+    @include assert-equal(map-get($widths, 'l'), 920);
 
     // check if height breakpoints were registered correctly
-    @include assert-equal( map-has-key($breakpoints, 'height'), true);
+    @include assert-equal(map-has-key($breakpoints, 'height'), true);
     $heights: map-get($breakpoints, 'height');
 
-    @include assert-equal( map-has-key($heights, 's'), true);
-    @include assert-equal( map-get($heights, 's'), 500);
+    @include assert-equal(map-has-key($heights, 's'), true);
+    @include assert-equal(map-get($heights, 's'), 500);
 
     // check if tweakpoints were registered correctly
     @include assert-equal(map-has-key($__shift__, 'tweakpoints'), true);
@@ -124,18 +124,18 @@
     $tweakpoints: map-get($tweakpoints, 'narrow');
 
     // check if width tweakpoints were registered correctly
-    @include assert-equal( map-has-key($tweakpoints, 'width'), true);
+    @include assert-equal(map-has-key($tweakpoints, 'width'), true);
     $tweaked-widths: map-get($tweakpoints, 'width');
 
-    @include assert-equal( map-has-key($tweaked-widths, 's'), true);
-    @include assert-equal( map-get($tweaked-widths, 's'), 340);
+    @include assert-equal(map-has-key($tweaked-widths, 's'), true);
+    @include assert-equal(map-get($tweaked-widths, 's'), 340);
 
     // check if height tweakpoints were registered correctly
-    @include assert-equal( map-has-key($tweakpoints, 'height'), true);
+    @include assert-equal(map-has-key($tweakpoints, 'height'), true);
     $tweaked-heights: map-get($tweakpoints, 'height');
 
-    @include assert-equal( map-has-key($tweaked-heights, 'l'), true);
-    @include assert-equal( map-get($tweaked-heights, 'l'), 600);
+    @include assert-equal(map-has-key($tweaked-heights, 'l'), true);
+    @include assert-equal(map-get($tweaked-heights, 'l'), 600);
   }
 
   @include test('should map values to the "width" feature if features are not explicitly specified in $shift-breakpoints')
@@ -149,13 +149,13 @@
     $breakpoints: map-get($__shift__, 'breakpoints');
 
     // check if width breakpoints were registered correctly
-    @include assert-equal( map-has-key($breakpoints, 'width'), true);
+    @include assert-equal(map-has-key($breakpoints, 'width'), true);
     $widths: map-get($breakpoints, 'width');
 
-    @include assert-equal( map-has-key($widths, 's'), true);
-    @include assert-equal( map-get($widths, 's'), 400);
-    @include assert-equal( map-has-key($widths, 'l'), true);
-    @include assert-equal( map-get($widths, 'l'), 920);
+    @include assert-equal(map-has-key($widths, 's'), true);
+    @include assert-equal(map-get($widths, 's'), 400);
+    @include assert-equal(map-has-key($widths, 'l'), true);
+    @include assert-equal(map-get($widths, 'l'), 920);
 
     // check if height breakpoints were registered correctly
     @include assert-equal(map-has-key($breakpoints, 'height'), false);
@@ -167,14 +167,14 @@
     $tweakpoints: map-get($tweakpoints, 'narrow');
 
     // check if width tweakpoints were registered correctly
-    @include assert-equal( map-has-key($tweakpoints, 'width'), true);
+    @include assert-equal(map-has-key($tweakpoints, 'width'), true);
     $tweaked-widths: map-get($tweakpoints, 'width');
 
-    @include assert-equal( map-has-key($tweaked-widths, 's'), true);
-    @include assert-equal( map-get($tweaked-widths, 's'), 340);
+    @include assert-equal(map-has-key($tweaked-widths, 's'), true);
+    @include assert-equal(map-get($tweaked-widths, 's'), 340);
 
     // check if height tweakpoints were registered correctly
-    @include assert-equal( map-has-key($tweakpoints, 'height'), false);
+    @include assert-equal(map-has-key($tweakpoints, 'height'), false);
   }
 
   // @include xtest('should throw an error if $shift-breakpoints is not a map')

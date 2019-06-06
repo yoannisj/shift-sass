@@ -1,6 +1,7 @@
 var path = require('path');
-var sassTrue = require('sass-true');
+var sass = require('node-sass');
 var importOnce = require('node-sass-import-once');
+var sassTrue = require('sass-true');
 var mocha = require('mocha');
 
 // get path to test file
@@ -12,8 +13,7 @@ var sassFile = path.join(__dirname, 'test.scss');
 var sassIncludePaths = [
   './stylesheets/',
   './test/',
-  './bower_components/sass-aleksi/stylesheets/',
-  './bower_components/SassyLists/stylesheets/'
+  './node_modules/sass-aleksi/stylesheets/',
 ];
 
 // render the test's sass with sassTrue (includes path to true's scss)
@@ -22,4 +22,9 @@ sassTrue.runSass({
   file: sassFile,
   importer: importOnce,
   includePaths: sassIncludePaths,
-}, mocha.describe, mocha.it);
+}, {
+  sass: sass, // dart-sass
+  renderMethod: 'render',
+  describe: mocha.describe, 
+  it: mocha.it
+});
