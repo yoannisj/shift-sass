@@ -88,24 +88,24 @@ Import shift-sass files in your project's stylesheets
 + `max-height: xl`
 
 **resolution**
-+ `2x`
-+ `1.5x`
-+ `31x`
++ `2x` COMING SOON!
++ `1.5x` COMING SOON!
++ `31x` COMING SOON!
 
 ##### Examples
 
     // min-width queries
     @include shift('>md') { ... }
     @include shift('w>md') { ... }
-    @include shift('from md') { ... } // SOON!
+    @include shift('from md') { ... } // COMING SOON!
 
     // max-width queries
     @include shift('<lg') { ... }
     @include shift('screen <lg') { ... }
-    @include shift('to lg') { ... } // SOON!
+    @include shift('to lg') { ... } // COMING SOON!
 
     // min-/max-width queries
-    @include shift('from sm to lg') { ... }
+    @include shift('from sm to lg') { ... } // COMING SOON!
     @include shift('>sm and <lg') { ... }
     @include shift('>sm <lg') { ... }
     @include shift('screen >sm <lg') { ... }

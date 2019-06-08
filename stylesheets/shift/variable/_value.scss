@@ -8,10 +8,9 @@
 @import "aleksi/general/memo";
 @import "aleksi/general/default-to";
 @import "aleksi/general/css-rule";
-@import "aleksi/arglists/arglist-prepend";
+@import "aleksi/lists/prepend";
 @import "aleksi/lists/some";
 @import "aleksi/maps/map-walk-values";
-@import "aleksi/arglists/arglist-prepend";
 
 @import "shift/setup";
 @import "shift/context";
@@ -46,7 +45,7 @@
   // allow omitting the $context argument
   @if not shift-validate-params($context)
   {
-    $args: if($fn != '__none__', arglist-prepend($args, $fn), $args);
+    $args: if($fn != '__none__', prepend($args, $fn), $args);
     $fn: $context;
     $context: shift-context();
   }
@@ -55,7 +54,7 @@
   @if not shift-validate-variable($var)
     and not some($args, 'shift-validate-variable')
   {
-    $call-args: arglist-prepend($args, $var);
+    $call-args: prepend($args, $var);
     $res: if($fn == '__none__', $var, call($fn, $call-args... ));
     @return memo-set('shift', $_memo_, $res);
   }
@@ -67,7 +66,7 @@
   @if $fn != '__none__'
   {
     // add var to arguments, so they can be aligned and scoped together
-    $args: arglist-prepend($args, $var);
+    $args: prepend($args, $var);
     // and use 'shift-call'
     $var: shift-call($fn, $context, $args...);
   }
@@ -126,7 +125,7 @@
   // allow omitting the $important argument
   @if type-of($important) == 'string'
   {
-    $args: if($fn != '__none__', arglist-prepend($args, $fn), $args);
+    $args: if($fn != '__none__', prepend($args, $fn), $args);
     $fn: $important;
     $important: false;
   }

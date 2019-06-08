@@ -50,7 +50,8 @@ $root-font-size: 16px !default;
   // consider unitless values as pixel values
   $value: if(unitless($value), $value * 1px, $value);
 
-  // - temporarily set $root-font-size global to 16px for 'rem' conversions
+  // temporarily set $root-font-size global to 16px for 'rem' and 'em' conversions
+  // (media queries ignore the actual root font-size when consuming those units)
   $rfs: $root-font-size;
   $root-font-size: 16px !global;
 
