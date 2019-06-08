@@ -97,9 +97,9 @@ Now you can import shift's stylesheets in your sass files using the `shift` pref
     @include shift-set-height( $label, $value[, $tweakpoint ]);
     @include shift-set-resolution( $label, $value[, $tweakpoint ]); // SOON!
 
-### Output media-query
+### Output @media queries
 
-    @include shift-breakpoint($expression[, $tweakpoint ]);
+    @include shift-query($expression[, $tweakpoint ]);
     @include shift($expression[, $tweakpoint ]); /* convenient alias */
     /* SOON! */ @include shift-width($widths[, $tweakpoint ]);
     /* SOON! */ @include shift-height($heights[, $tweakpoint ]);
@@ -110,7 +110,11 @@ Now you can import shift's stylesheets in your sass files using the `shift` pref
 
 **keywords**
 + `only`
-+ `{CSS_MEDIA_TYPES}`
+
+**media-types**
++ `screen`
++ `print`
++ ... (see list of media types in https://www.w3.org/TR/css3-mediaqueries/#background);
 
 **min-width**
 + `s`
