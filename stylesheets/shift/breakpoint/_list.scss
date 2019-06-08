@@ -10,6 +10,7 @@
 
 @import "shift/setup";
 
+// make sure the `$__shift__` global exists
 $__shift__: () !default;
 
 // =Functions
