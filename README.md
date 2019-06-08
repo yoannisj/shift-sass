@@ -4,29 +4,91 @@ Shift-sass is a tool to work with breakpoints and media-queries in Sass. It trie
 
 Shift-sass works perfectly with its companion tool Shift-js, which shares a similar API to work with breakpoints in the javascript part of your project. Together, these two tools make it easy to build and configure responsive front-end components.
 
+**CAUTION**: this library is still in beta, and the API may change before it reaches its first stable release. Use with caution, and make sure you check the documentation when updating.
+
 ## Installation
 
+### NPM
+
+Open the Terminal and install the node package:
+
+    npm install shift-sass --save-dev
+
 ### Bower
+
+**DEPRECATED**: bower is now deprecated. It is highly recommended you instead use `npm` to install this dependency, or any other modern dependency manager relying on node modules such as [yarn](https://yarnpkg.com/en/).
 
 Open the Terminal, `cd` to your project folder and enter the following command:
 
     bower install shift-sass --save-dev
 
-Add the path to shift-sass's bower component to sass's `loadPaths` option
+## Usage
+
+Aleksi relies on a custom sass importer, to import stylehseet files only once.
+
+### Eyeglass
+
+This can be done using [eyeglass](https://www.npmjs.com/package/eyeglass)'s importer: 
+
+    var sass = require('node-sass');
+    var eyeglass = require('eyeglass');
+
+    sass.render(eyeglass({
+        /* .. */
+        eyeglas: {
+            modules: [
+                {
+                    path: './node_modules/shift-sass'
+                },
+                // or, if you installed shift-sass with bower
+                {
+                    name: "shift",
+                    main: function(eyeglass, sass) {
+                        return {
+                            sassDir: './bower_components/shift-sass/stylesheets/shift',
+                        }
+                    }
+                }
+            ],
+            engines: {
+                sass: sass
+            }
+        },
+    }), function(err, res) { /* ... */ });
+
+### Custom importer
+
+Alternatively, you can use something like [node-sass-import-once](https://www.npmjs.com/package/node-sass-import-once), and add aleksi's stylesheets path to sass's `loadPaths` option:
+
+    var sass = require('node-sass');
+    var importOnce = require('node-sass-import-once');
 
     sass.render({
+        /* .. */
+        importer: importOnce,
         loadPaths: [
-            'path/to/bower_components/shift-sass/stylesheets'
-            ...
-        ],
-        ...
-    });
+            './node_modules/shift-sass/stylesheets',
+            // or, if you installed shift-sass with bower
+            './bower_components/shift-sass/stylesheets'
+        ]
+    }, function(err, res) { /* ... */ });
 
-Import shift-sass files in your project's stylesheets
+Now you can import shift's stylesheets in your sass files using the `shift` prefix:
 
-    @import "shift";
+    @import "shift/query";
 
-## Usage
+    $breakpoints: ( 'md': 750 );
+
+    h1
+    {
+        font-size: 14px;
+
+        @include shift-query('>md') {
+            font-size: 18px;
+        }
+    }
+
+## API
 
 ### Adding media-query features
 
